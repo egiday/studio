@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Country } from '@/types';
@@ -6,6 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe, Zap } from 'lucide-react';
 import React, { useState } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 interface WorldMapProps {
   countries: Country[];
@@ -48,34 +56,55 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
         <CardTitle className="flex items-center"><Globe className="mr-2 h-6 w-6 text-primary" /> World Overview</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow relative overflow-hidden p-0">
-        <Image
-          src="https://placehold.co/1200x800.png"
-          alt="World Map"
-          layout="fill"
-          objectFit="cover"
-          data-ai-hint="world map political"
-          className="opacity-50"
-        />
-        {countries.map((country) => (
-          countryPositions[country.id] && (
-            <Button
-              key={country.id}
-              variant="outline"
-              size="sm"
-              className={`absolute p-2 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 rounded-lg shadow-lg
-                          ${getCountryColor(country.adoptionLevel)}
-                          ${selectedCountryId === country.id ? 'border-secondary ring-2 ring-secondary' : 'border-primary/50 hover:border-primary'}`}
-              style={{ top: countryPositions[country.id].top, left: countryPositions[country.id].left }}
-              onClick={() => onCountrySelect(country.id)}
-              aria-label={`Select ${country.name}`}
-            >
-              <div className="flex flex-col items-center">
-                <span className="text-xs font-semibold">{country.name}</span>
-                <span className="text-xs opacity-80">{(country.adoptionLevel * 100).toFixed(0)}%</span>
-              </div>
-            </Button>
-          )
-        ))}
+        <TooltipProvider delayDuration={100}>
+          <Image
+            src="https://placehold.co/1200x800.png"
+            alt="World Map"
+            layout="fill"
+            objectFit="cover"
+            data-ai-hint="world map political"
+            className="opacity-50"
+          />
+          {countries.map((country) => (
+            countryPositions[country.id] && (
+              <Tooltip key={country.id}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      `absolute p-2 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 rounded-lg shadow-lg`,
+                      getCountryColor(country.adoptionLevel),
+                      selectedCountryId === country.id ? 'border-secondary ring-2 ring-secondary' : 'border-primary/50 hover:border-primary'
+                    )}
+                    style={{ top: countryPositions[country.id].top, left: countryPositions[country.id].left }}
+                    onClick={() => onCountrySelect(country.id)}
+                    aria-label={`Select ${country.name}`}
+                  >
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs font-semibold">{country.name}</span>
+                      <span className="text-xs opacity-80">{(country.adoptionLevel * 100).toFixed(0)}%</span>
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" align="center">
+                  <div className="p-2 space-y-1 text-sm w-48">
+                    <p className="font-bold text-base mb-1">{country.name}</p>
+                    <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
+                      <span className="font-medium">Adoption:</span><span className="text-right">{(country.adoptionLevel * 100).toFixed(0)}%</span>
+                      <span className="font-medium">Internet:</span><span className="text-right">{(country.internetPenetration * 100).toFixed(0)}%</span>
+                      <span className="font-medium">Education:</span><span className="text-right">{(country.educationLevel * 100).toFixed(0)}%</span>
+                      <span className="font-medium">Economy:</span><span className="text-right">{(country.economicDevelopment * 100).toFixed(0)}%</span>
+                      <span className="font-medium">Openness:</span><span className="text-right">{(country.culturalOpenness * 100).toFixed(0)}%</span>
+                      <span className="font-medium">Media Freedom:</span><span className="text-right">{(country.mediaFreedom * 100).toFixed(0)}%</span>
+                      <span className="font-medium">Resistance:</span><span className="text-right">{(country.resistanceLevel * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )
+          ))}
+        </TooltipProvider>
         {showInfluenceBubble && (
           <Button
             variant="default"
