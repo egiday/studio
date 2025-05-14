@@ -1,5 +1,5 @@
 
-import type { CulturalMovement, EvolutionItem, EvolutionCategory, Country } from '@/types';
+import type { CulturalMovement, EvolutionItem, EvolutionCategory, Country, SubRegion } from '@/types';
 import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film } from 'lucide-react';
 
 export const CULTURAL_MOVEMENTS: CulturalMovement[] = [
@@ -45,13 +45,67 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   { id: 'adapt_demographic_appeal', name: 'Broad Demographic Appeal', description: 'Appeal to diverse groups', cost: 30, icon: UserCheck, category: 'adaptability', isEvolved: false },
 ];
 
+const usaSubRegions: SubRegion[] = [
+  { id: 'usa_ne', name: 'Northeast', adoptionLevel: 0.02, resistanceLevel: 0.12, economicDevelopment: 0.92, culturalOpenness: 0.75 },
+  { id: 'usa_s', name: 'South', adoptionLevel: 0.01, resistanceLevel: 0.15, economicDevelopment: 0.85, culturalOpenness: 0.65 },
+  { id: 'usa_mw', name: 'Midwest', adoptionLevel: 0.015, resistanceLevel: 0.10, economicDevelopment: 0.88, culturalOpenness: 0.70 },
+  { id: 'usa_w', name: 'West', adoptionLevel: 0.025, resistanceLevel: 0.08, economicDevelopment: 0.95, culturalOpenness: 0.80 },
+];
+
 export const INITIAL_COUNTRIES: Country[] = [
-  { id: 'usa', name: 'USA', internetPenetration: 0.9, educationLevel: 0.85, economicDevelopment: 0.9, culturalOpenness: 0.7, mediaFreedom: 0.8, adoptionLevel: 0, resistanceLevel: 0.1 },
-  { id: 'china', name: 'China', internetPenetration: 0.6, educationLevel: 0.7, economicDevelopment: 0.75, culturalOpenness: 0.4, mediaFreedom: 0.2, adoptionLevel: 0, resistanceLevel: 0.3 },
-  { id: 'india', name: 'India', internetPenetration: 0.4, educationLevel: 0.6, economicDevelopment: 0.6, culturalOpenness: 0.6, mediaFreedom: 0.5, adoptionLevel: 0, resistanceLevel: 0.2 },
-  { id: 'brazil', name: 'Brazil', internetPenetration: 0.7, educationLevel: 0.7, economicDevelopment: 0.65, culturalOpenness: 0.8, mediaFreedom: 0.6, adoptionLevel: 0, resistanceLevel: 0.15 },
-  { id: 'nigeria', name: 'Nigeria', internetPenetration: 0.5, educationLevel: 0.5, economicDevelopment: 0.4, culturalOpenness: 0.5, mediaFreedom: 0.4, adoptionLevel: 0, resistanceLevel: 0.25 },
-  { id: 'germany', name: 'Germany', internetPenetration: 0.92, educationLevel: 0.88, economicDevelopment: 0.85, culturalOpenness: 0.75, mediaFreedom: 0.9, adoptionLevel: 0, resistanceLevel: 0.1 },
+  { 
+    id: 'usa', name: 'USA', 
+    internetPenetration: 0.9, educationLevel: 0.85, economicDevelopment: 0.9, 
+    culturalOpenness: 0.7, mediaFreedom: 0.8, 
+    adoptionLevel: 0, resistanceLevel: 0.1,
+    subRegions: usaSubRegions,
+  },
+  { 
+    id: 'china', name: 'China', 
+    internetPenetration: 0.6, educationLevel: 0.7, economicDevelopment: 0.75, 
+    culturalOpenness: 0.4, mediaFreedom: 0.2, 
+    adoptionLevel: 0, resistanceLevel: 0.3 
+  },
+  { 
+    id: 'india', name: 'India', 
+    internetPenetration: 0.4, educationLevel: 0.6, economicDevelopment: 0.6, 
+    culturalOpenness: 0.6, mediaFreedom: 0.5, 
+    adoptionLevel: 0, resistanceLevel: 0.2 
+  },
+  { 
+    id: 'brazil', name: 'Brazil', 
+    internetPenetration: 0.7, educationLevel: 0.7, economicDevelopment: 0.65, 
+    culturalOpenness: 0.8, mediaFreedom: 0.6, 
+    adoptionLevel: 0, resistanceLevel: 0.15 
+  },
+  { 
+    id: 'nigeria', name: 'Nigeria', 
+    internetPenetration: 0.5, educationLevel: 0.5, economicDevelopment: 0.4, 
+    culturalOpenness: 0.5, mediaFreedom: 0.4, 
+    adoptionLevel: 0, resistanceLevel: 0.25 
+  },
+  { 
+    id: 'germany', name: 'Germany', 
+    internetPenetration: 0.92, educationLevel: 0.88, economicDevelopment: 0.85, 
+    culturalOpenness: 0.75, mediaFreedom: 0.9, 
+    adoptionLevel: 0, resistanceLevel: 0.1 
+  },
 ];
 
 export const STARTING_INFLUENCE_POINTS = 50;
+
+// Placeholder for sub-region positions if needed for a more complex layout
+// For this example, sub-regions will be simply listed or positioned generally.
+export const subRegionPositions: Record<string, { baseTop: string; baseLeft: string; offsets: {top: string; left: string}[] }> = {
+  usa: {
+    baseTop: '30%', // Original USA top
+    baseLeft: '20%', // Original USA left
+    offsets: [ // Relative offsets for sub-regions
+      { top: '-5%', left: '-5%' }, // NE
+      { top: '5%', left: '-3%' },  // S
+      { top: '-3%', left: '5%' },  // MW
+      { top: '3%', left: '8%' },   // W
+    ],
+  },
+  // Define for other countries if they get subregions
+};
