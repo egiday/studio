@@ -8,9 +8,10 @@ import { ControlPanel } from '@/components/game/ControlPanel';
 import { EvolutionPanel } from '@/components/game/EvolutionPanel';
 import { NewsFeed } from '@/components/game/NewsFeed';
 import { AnalyticsDashboard } from '@/components/game/AnalyticsDashboard';
-import { GlobalEventsDisplay } from '@/components/game/GlobalEventsDisplay'; // New Import
+import { GlobalEventsDisplay } from '@/components/game/GlobalEventsDisplay';
+import { InteractiveEventModal } from '@/components/game/InteractiveEventModal'; // New Import
 import { CULTURAL_MOVEMENTS, EVOLUTION_CATEGORIES, EVOLUTION_ITEMS, INITIAL_COUNTRIES, STARTING_INFLUENCE_POINTS, POTENTIAL_GLOBAL_EVENTS } from '@/config/gameData';
-import type { Country, EvolutionItem, GlobalEvent, GlobalEventEffectProperty } from '@/types';
+import type { Country, EvolutionItem, GlobalEvent, GlobalEventEffectProperty, GlobalEventOption } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -22,13 +23,16 @@ export default function GamePage() {
   const [selectedStartCountryId, setSelectedStartCountryId] = useState<string | undefined>(undefined);
   const [influencePoints, setInfluencePoints] = useState(STARTING_INFLUENCE_POINTS);
   const [evolvedItemIds, setEvolvedItemIds] = useState<Set<string>>(new Set());
-  const [countries, setCountries] = useState<Country[]>(INITIAL_COUNTRIES.map(c => ({...c}))); // Ensure deep copy for modification
+  const [countries, setCountries] = useState<Country[]>(INITIAL_COUNTRIES.map(c => ({...c}))); 
   const [gameStarted, setGameStarted] = useState(false);
   const [currentTurn, setCurrentTurn] = useState(0);
   const [recentEvents, setRecentEvents] = useState("The cultural movement is just beginning.");
+  
   const [activeGlobalEvents, setActiveGlobalEvents] = useState<GlobalEvent[]>([]);
   const [allPotentialEvents, setAllPotentialEvents] = useState<GlobalEvent[]>(POTENTIAL_GLOBAL_EVENTS.map(e => ({...e, hasBeenTriggered: false})));
-
+  
+  const [pendingInteractiveEvent, setPendingInteractiveEvent] = useState<GlobalEvent | null>(null);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -85,14 +89,14 @@ export default function GamePage() {
       culturalOpenness: { additive: 0, multiplicative: 1 },
       economicDevelopment: { additive: 0, multiplicative: 1 },
       resistanceLevel: { additive: 0, multiplicative: 1 },
-      adoptionRateModifier: { additive: 0, multiplicative: 1 }, // Multiplicative is primary here
-      ipBonus: { additive: 0, multiplicative: 1 }, // Not typically modified per country per turn this way
+      adoptionRateModifier: { additive: 0, multiplicative: 1 }, 
+      ipBonus: { additive: 0, multiplicative: 1 }, 
     };
 
     currentActiveEvents.forEach(event => {
       event.effects.forEach(effect => {
         if (effect.targetType === 'global' || (effect.targetType === 'country' && effect.countryId === countryId)) {
-          if (effect.property !== 'ipBonus') { // IP bonus is handled at event activation
+          if (effect.property !== 'ipBonus') { 
             if (effect.isMultiplier) {
               modifiers[effect.property].multiplicative *= effect.value;
             } else {
@@ -105,57 +109,104 @@ export default function GamePage() {
     return modifiers;
   }, []);
 
+  const handleEventOptionSelected = useCallback((eventWithNoChoice: GlobalEvent, optionId: string) => {
+    const chosenOption = eventWithNoChoice.options?.find(opt => opt.id === optionId);
+    if (!chosenOption) return;
+
+    let ipFromChoice = 0;
+    chosenOption.effects.forEach(effect => {
+      if (effect.property === 'ipBonus') {
+        ipFromChoice += effect.value;
+      }
+    });
+    if (ipFromChoice !== 0) {
+      setInfluencePoints(prev => prev + ipFromChoice);
+    }
+    
+    const resolvedEvent: GlobalEvent = {
+      ...eventWithNoChoice,
+      effects: chosenOption.effects, // Option effects replace base event effects
+      chosenOptionId: optionId,
+      hasBeenTriggered: true, // Already true from potential events but good to ensure
+    };
+
+    setActiveGlobalEvents(prev => [...prev, resolvedEvent]);
+    
+    const eventMessage = `EVENT: ${eventWithNoChoice.name} - You chose: "${chosenOption.text}". ${chosenOption.description}`;
+    setRecentEvents(prev => `${prev} ${eventMessage}`);
+    toast({ title: `Event Choice: ${eventWithNoChoice.name}`, description: `You selected: ${chosenOption.text}. ${ipFromChoice !== 0 ? `IP change: ${ipFromChoice}.` : ''}` });
+
+    setPendingInteractiveEvent(null);
+    setIsEventModalOpen(false);
+  }, [toast]);
+
 
   const handleNextTurn = useCallback(() => {
+    if (pendingInteractiveEvent) {
+      toast({ title: "Action Required", description: "Please respond to the active global event.", variant: "destructive"});
+      setIsEventModalOpen(true); // Ensure modal is open if somehow closed
+      return;
+    }
+
     const nextTurn = currentTurn + 1;
     setCurrentTurn(nextTurn);
     
     let newRecentEventsSummary = `Day ${nextTurn}: The ${currentMovementName} continues to grow.`;
-    let ipFromEventsThisTurn = 0;
+    let ipFromNonInteractiveEventsThisTurn = 0;
 
-    // 1. Update Active Global Events
+    // 1. Activate Events & Handle Interactions
     const stillActiveEvents: GlobalEvent[] = [];
-    let newActiveGlobalEvents = [...activeGlobalEvents];
+    let currentActiveEventsForTurn = [...activeGlobalEvents]; // Use a mutable copy for this turn's calculations
 
     allPotentialEvents.forEach((event, index) => {
       if (!event.hasBeenTriggered && event.turnStart === nextTurn) {
-        const updatedEvent = { ...event, hasBeenTriggered: true };
-        newActiveGlobalEvents.push(updatedEvent);
-        setAllPotentialEvents(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e));
-        
-        newRecentEventsSummary += ` NEWS: ${event.name} has begun! ${event.description}`;
-        toast({ title: "Global Event!", description: `${event.name} has started.`});
+        const eventToProcess = {...event}; // clone
+        setAllPotentialEvents(prev => prev.map(e => e.id === eventToProcess.id ? { ...e, hasBeenTriggered: true } : e));
 
-        event.effects.forEach(effect => {
-          if (effect.property === 'ipBonus') {
-            ipFromEventsThisTurn += effect.value;
-          }
-        });
+        if (eventToProcess.options && eventToProcess.options.length > 0) {
+          setPendingInteractiveEvent(eventToProcess);
+          setIsEventModalOpen(true);
+          newRecentEventsSummary += ` ATTENTION: ${eventToProcess.name} requires your decision! ${eventToProcess.description}`;
+          toast({ title: "Interactive Event!", description: `${eventToProcess.name} needs your input.`});
+          // Game effectively pauses here until player makes a choice. handleEventOptionSelected will add to activeGlobalEvents.
+        } else {
+          // Non-interactive event
+          currentActiveEventsForTurn.push(eventToProcess);
+          newRecentEventsSummary += ` NEWS: ${eventToProcess.name} has begun! ${eventToProcess.description}`;
+          toast({ title: "Global Event!", description: `${eventToProcess.name} has started.`});
+          eventToProcess.effects.forEach(effect => {
+            if (effect.property === 'ipBonus') {
+              ipFromNonInteractiveEventsThisTurn += effect.value;
+            }
+          });
+        }
       }
     });
     
-    newActiveGlobalEvents.forEach(event => {
+    // Filter out expired events from the turn's active events list
+    const nonExpiredActiveEvents: GlobalEvent[] = [];
+    currentActiveEventsForTurn.forEach(event => {
       if (nextTurn < event.turnStart + event.duration) {
-        stillActiveEvents.push(event);
+        nonExpiredActiveEvents.push(event);
       } else {
         newRecentEventsSummary += ` NEWS: ${event.name} has concluded.`;
         toast({ title: "Global Event Over", description: `${event.name} has ended.`});
       }
     });
-    setActiveGlobalEvents(stillActiveEvents);
+    setActiveGlobalEvents(nonExpiredActiveEvents); // Update main state for next turn and display
 
     // 2. Calculate IP
     let pointsFromAdoption = 0;
     countries.forEach(country => {
       if (country.adoptionLevel > 0) {
-        const countryModifiers = getCountryModifiers(country.id, stillActiveEvents);
+        const countryModifiers = getCountryModifiers(country.id, nonExpiredActiveEvents);
         const effectiveEconDev = Math.max(0, country.economicDevelopment + countryModifiers.economicDevelopment.additive) * countryModifiers.economicDevelopment.multiplicative;
         pointsFromAdoption += country.adoptionLevel * effectiveEconDev * ADOPTION_IP_MULTIPLIER;
       }
     });
     
     const evolvedIpBoost = evolvedItemIds.size * 0.5; 
-    const newPoints = Math.floor(BASE_IP_PER_TURN + pointsFromAdoption + evolvedIpBoost + ipFromEventsThisTurn);
+    const newPoints = Math.floor(BASE_IP_PER_TURN + pointsFromAdoption + evolvedIpBoost + ipFromNonInteractiveEventsThisTurn);
     setInfluencePoints(prev => prev + newPoints);
     newRecentEventsSummary += ` ${newPoints} IP generated.`;
 
@@ -165,7 +216,7 @@ export default function GamePage() {
 
     setCountries(prevCountries => 
       prevCountries.map(country => {
-        const countryModifiers = getCountryModifiers(country.id, stillActiveEvents);
+        const countryModifiers = getCountryModifiers(country.id, nonExpiredActiveEvents);
         
         let baseCulturalOpenness = country.culturalOpenness;
         let effectiveCulturalOpenness = Math.max(0, Math.min(1, (baseCulturalOpenness + countryModifiers.culturalOpenness.additive) * countryModifiers.culturalOpenness.multiplicative));
@@ -186,7 +237,7 @@ export default function GamePage() {
             if (Math.random() < 0.3) { 
                 const previousResistance = newResistanceLevel;
                 newResistanceLevel = Math.min(0.9, newResistanceLevel + resistanceIncreaseFactor);
-                if (newResistanceLevel > previousResistance + 0.005) { // Threshold to avoid spamming
+                if (newResistanceLevel > previousResistance + 0.005) { 
                      newRecentEventsSummary += ` ${country.name} shows increased opposition.`;
                 }
             }
@@ -227,25 +278,26 @@ export default function GamePage() {
           }
         }
         
-        // Apply adoption rate modifier from events
         spreadIncrease *= countryModifiers.adoptionRateModifier.multiplicative;
-        spreadIncrease += countryModifiers.adoptionRateModifier.additive; // Though additive is less common for rates
+        spreadIncrease += countryModifiers.adoptionRateModifier.additive;
 
         newAdoptionLevel = Math.min(1, country.adoptionLevel + spreadIncrease);
         newAdoptionLevel = Math.max(0, newAdoptionLevel);
 
         if (spreadIncrease > 0 && country.adoptionLevel === 0 && newAdoptionLevel > 0 && newAdoptionLevel > 0.01 && Math.random() < 0.5) {
-           // Covered by "Whispers reach"
+           // Covered
         } else if (spreadIncrease > 0 && country.adoptionLevel > 0 && newAdoptionLevel > country.adoptionLevel && newAdoptionLevel > 0.1 && country.adoptionLevel <= 0.1 && Math.random() < 0.3) {
            newRecentEventsSummary += ` ${country.name} shows growing interest in ${currentMovementName}.`;
         }
         
-        return { ...country, adoptionLevel: newAdoptionLevel, resistanceLevel: newResistanceLevel, culturalOpenness: baseCulturalOpenness }; // Return baseOpenness, effectiveOpenness was for calc
+        return { ...country, adoptionLevel: newAdoptionLevel, resistanceLevel: newResistanceLevel, culturalOpenness: baseCulturalOpenness }; 
       })
     );
     setRecentEvents(newRecentEventsSummary);
-    toast({ title: `Day ${nextTurn}`, description: `The ${currentMovementName} progresses...` });
-  }, [currentTurn, currentMovementName, countries, selectedStartCountryId, evolvedItemIds, activeGlobalEvents, getCountryModifiers, allPotentialEvents, toast]);
+    if (!pendingInteractiveEvent) { // Only toast next day if not waiting for interaction
+        toast({ title: `Day ${nextTurn}`, description: `The ${currentMovementName} progresses...` });
+    }
+  }, [currentTurn, currentMovementName, countries, selectedStartCountryId, evolvedItemIds, activeGlobalEvents, getCountryModifiers, allPotentialEvents, toast, pendingInteractiveEvent, handleEventOptionSelected]);
   
 
   return (
@@ -274,6 +326,7 @@ export default function GamePage() {
               currentTurn={currentTurn}
               onNextTurn={handleNextTurn}
               gameStarted={gameStarted}
+              isEventPending={!!pendingInteractiveEvent} // Pass this to ControlPanel
             />
             {gameStarted && (
               <>
@@ -303,6 +356,18 @@ export default function GamePage() {
           </div>
         </ScrollArea>
       </main>
+      <InteractiveEventModal
+        event={pendingInteractiveEvent}
+        isOpen={isEventModalOpen}
+        onClose={() => {
+          // Allowing close via overlay/Esc might be complex if an event *must* be resolved.
+          // For now, let's assume the modal only closes via option selection.
+          // If user *must* choose, onClose could try to re-assert modal or warn.
+          // For simplicity, allow close, but next turn will be blocked.
+          setIsEventModalOpen(false); 
+        }}
+        onOptionSelect={handleEventOptionSelected}
+      />
     </div>
   );
 }

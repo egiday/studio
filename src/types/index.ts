@@ -72,13 +72,23 @@ export interface GlobalEventEffect {
   duration?: number; // How many turns this specific effect lasts, defaults to event duration
 }
 
+export interface GlobalEventOption {
+  id: string;
+  text: string; // Player-facing choice text
+  description: string; // Explains the potential outcome of this choice
+  effects: GlobalEventEffect[]; // Specific effects if this option is chosen
+}
+
 export interface GlobalEvent {
   id: string;
   name: string;
   description: string;
   turnStart: number; // Turn the event begins
   duration: number; // How many turns the event lasts
-  effects: GlobalEventEffect[];
+  effects: GlobalEventEffect[]; // Base effects if not interactive, or default if no option chosen (not used if options replace)
+  options?: GlobalEventOption[]; // Optional choices for the player
   hasBeenTriggered: boolean; // To ensure one-off events don't re-trigger
-  // isActive will be managed in component state, not stored in config
+  chosenOptionId?: string; // ID of the chosen option, if applicable
+  // isActive will be managed in component state / by presence in activeGlobalEvents array
 }
+

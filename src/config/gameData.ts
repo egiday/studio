@@ -110,22 +110,39 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     name: 'Global Internet Renaissance',
     description: 'A wave of new infrastructure and accessibility sweeps the globe, making online communication easier.',
     turnStart: 3,
-    duration: 5, // Lasts for 5 turns
-    effects: [
-      { targetType: 'global', property: 'culturalOpenness', value: 0.05, isMultiplier: false }, // Additive
-      { targetType: 'global', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true } // Multiplicative
+    duration: 5, 
+    effects: [ // Base effects if not interactive / or if options are additive
+      { targetType: 'global', property: 'culturalOpenness', value: 0.05, isMultiplier: false },
+      { targetType: 'global', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true } 
     ],
     hasBeenTriggered: false,
   },
   {
-    id: 'economic_boom_usa',
-    name: 'Economic Boom in USA',
-    description: 'The USA experiences a period of rapid economic growth, increasing public spending and optimism.',
-    turnStart: 7,
+    id: 'economic_crisis_china',
+    name: 'Economic Crisis in China',
+    description: 'China faces an unexpected economic downturn, leading to social unrest and a re-evaluation of priorities. How do you leverage this?',
+    turnStart: 6,
     duration: 4,
-    effects: [
-      { targetType: 'country', countryId: 'usa', property: 'economicDevelopment', value: 0.1, isMultiplier: false },
-      { targetType: 'country', countryId: 'usa', property: 'adoptionRateModifier', value: 1.15, isMultiplier: true },
+    effects: [], // Base effects are replaced by chosen option
+    options: [
+      {
+        id: 'crisis_invest_china',
+        text: 'Invest in Cultural Outreach (Cost: 20 IP)',
+        description: 'Launch targeted campaigns in China, hoping to offer solace and new perspectives. Reduces resistance slightly, small adoption boost in China, but costs IP.',
+        effects: [
+          { targetType: 'country', countryId: 'china', property: 'resistanceLevel', value: -0.03, isMultiplier: false },
+          { targetType: 'country', countryId: 'china', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true },
+          { targetType: 'global', property: 'ipBonus', value: -20, isMultiplier: false }, // Cost
+        ],
+      },
+      {
+        id: 'crisis_focus_elsewhere_china',
+        text: 'Focus Efforts Elsewhere',
+        description: 'Avoid entanglement in China\'s crisis and focus your resources on more stable regions. Slight global adoption boost due to focused efforts.',
+        effects: [
+          { targetType: 'global', property: 'adoptionRateModifier', value: 1.03, isMultiplier: true }, // Small global boost
+        ],
+      },
     ],
     hasBeenTriggered: false,
   },
@@ -134,10 +151,10 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     name: 'International Peace Prize Awarded',
     description: 'Your cultural movement is recognized with a prestigious International Peace Prize, boosting its legitimacy.',
     turnStart: 10,
-    duration: 1, // Instant effect
+    duration: 1, 
     effects: [
       { targetType: 'global', property: 'ipBonus', value: 50, isMultiplier: false },
-      { targetType: 'global', property: 'resistanceLevel', value: -0.02, isMultiplier: false } // Global slight resistance decrease
+      { targetType: 'global', property: 'resistanceLevel', value: -0.02, isMultiplier: false } 
     ],
     hasBeenTriggered: false,
   },

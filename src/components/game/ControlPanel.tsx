@@ -1,10 +1,11 @@
+
 'use client';
 
 import type { CulturalMovement, Country } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Coins, Play, Flag, BarChart3 } from 'lucide-react';
+import { Coins, Play, Flag, BarChart3, AlertTriangle } from 'lucide-react';
 import React from 'react';
 
 interface ControlPanelProps {
@@ -19,6 +20,7 @@ interface ControlPanelProps {
   currentTurn: number;
   onNextTurn: () => void;
   gameStarted: boolean;
+  isEventPending?: boolean; // New prop
 }
 
 export function ControlPanel({
@@ -33,6 +35,7 @@ export function ControlPanel({
   currentTurn,
   onNextTurn,
   gameStarted,
+  isEventPending, // Destructure new prop
 }: ControlPanelProps) {
   return (
     <Card className="shadow-lg">
@@ -85,9 +88,20 @@ export function ControlPanel({
             </Button>
           </>
         ) : (
-          <Button onClick={onNextTurn} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-            Next Day (Turn: {currentTurn})
-          </Button>
+          <div className="space-y-2">
+            <Button 
+              onClick={onNextTurn} 
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+              disabled={isEventPending} // Disable if an event is pending
+            >
+              Next Day (Turn: {currentTurn})
+            </Button>
+            {isEventPending && (
+              <p className="text-xs text-destructive text-center flex items-center justify-center">
+                <AlertTriangle className="h-4 w-4 mr-1.5" /> Resolve global event before proceeding.
+              </p>
+            )}
+          </div>
         )}
         
         <div className="flex items-center justify-between p-3 bg-muted rounded-md">
