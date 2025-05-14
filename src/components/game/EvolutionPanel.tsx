@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { EvolutionItem, EvolutionCategory } from '@/types';
@@ -17,11 +18,24 @@ interface EvolutionPanelProps {
 
 export function EvolutionPanel({ categories, items, onEvolve, influencePoints, evolvedItemIds }: EvolutionPanelProps) {
   
-  const canEvolveItem = (item: EvolutionItem): boolean => {
-    if (!item.prerequisites || item.prerequisites.length === 0) {
-      return true;
+  const getEvolutionStatus = (
+    item: EvolutionItem, 
+    allItems: EvolutionItem[], 
+    currentEvolvedItemIds: Set<string>
+  ): { prerequisitesMet: boolean; unmetPrerequisiteNames: string[] } => {
+    const unmetPrerequisiteNames: string[] = [];
+    let prerequisitesMet = true;
+
+    if (item.prerequisites && item.prerequisites.length > 0) {
+      for (const prereqId of item.prerequisites) {
+        if (!currentEvolvedItemIds.has(prereqId)) {
+          prerequisitesMet = false;
+          const prereqItem = allItems.find(i => i.id === prereqId);
+          unmetPrerequisiteNames.push(prereqItem ? prereqItem.name : prereqId);
+        }
+      }
     }
-    return item.prerequisites.every(prereqId => evolvedItemIds.has(prereqId));
+    return { prerequisitesMet, unmetPrerequisiteNames };
   };
 
   return (
@@ -45,15 +59,25 @@ export function EvolutionPanel({ categories, items, onEvolve, influencePoints, e
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {items
                     .filter((item) => item.category === category.id)
-                    .map((item) => (
-                      <EvolutionCard
-                        key={item.id}
-                        item={{...item, isEvolved: evolvedItemIds.has(item.id)}}
-                        onEvolve={onEvolve}
-                        canEvolve={canEvolveItem(item)}
-                        influencePoints={influencePoints}
-                      />
-                    ))}
+                    .map((item) => {
+                      const status = getEvolutionStatus(item, items, evolvedItemIds);
+                      const allPrerequisiteNames = item.prerequisites?.map(prereqId => {
+                        const prereqItem = items.find(i => i.id === prereqId);
+                        return prereqItem ? prereqItem.name : prereqId;
+                      }) || [];
+
+                      return (
+                        <EvolutionCard
+                          key={item.id}
+                          item={{...item, isEvolved: evolvedItemIds.has(item.id)}}
+                          onEvolve={onEvolve}
+                          influencePoints={influencePoints}
+                          prerequisitesMet={status.prerequisitesMet}
+                          unmetPrerequisiteNames={status.unmetPrerequisiteNames}
+                          allPrerequisiteNames={allPrerequisiteNames}
+                        />
+                      );
+                    })}
                 </div>
               </ScrollArea>
             </TabsContent>

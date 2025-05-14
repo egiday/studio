@@ -1,5 +1,6 @@
+
 import type { CulturalMovement, EvolutionItem, EvolutionCategory, Country } from '@/types';
-import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory } from 'lucide-react';
+import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film } from 'lucide-react';
 
 export const CULTURAL_MOVEMENTS: CulturalMovement[] = [
   { id: 'digital_revolution', name: 'Digital Revolution', description: 'Fast-spreading through technology networks', icon: Cpu },
@@ -26,6 +27,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   { id: 'expr_media_broadcast', name: 'Media Broadcast', description: 'TV & Radio presence', cost: 30, icon: Tv, category: 'expression_methods', isEvolved: false },
   { id: 'expr_word_of_mouth', name: 'Word of Mouth', description: 'Personal testimonials', cost: 5, icon: Hand, category: 'expression_methods', isEvolved: false },
   { id: 'expr_influencers', name: 'Influencer Network', description: 'Leverage online personalities', cost: 25, icon: Rss, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media']},
+  { id: 'expr_viral_studio', name: 'Viral Content Studio', description: 'Produce highly shareable content leveraging apps and influencers.', cost: 40, icon: Film, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_apps', 'expr_influencers']},
 
   // Cultural Elements
   { id: 'elem_aesthetic_style', name: 'Visual Style', description: 'Define a unique look', cost: 10, icon: Palette, category: 'cultural_elements', isEvolved: false },
