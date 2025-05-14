@@ -34,23 +34,27 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
   };
 
   const getRegionColor = (adoptionLevel: number, isSelected: boolean) => {
-    let baseColorClass = 'bg-muted/60 hover:bg-muted/70 border-muted-foreground/50';
-    if (adoptionLevel > 0.8) baseColorClass = 'bg-primary/90 hover:bg-primary border-primary/70';
-    else if (adoptionLevel > 0.6) baseColorClass = 'bg-primary/70 hover:bg-primary/80 border-primary/60';
-    else if (adoptionLevel > 0.4) baseColorClass = 'bg-primary/50 hover:bg-primary/60 border-primary/50';
-    else if (adoptionLevel > 0.15) baseColorClass = 'bg-secondary/50 hover:bg-secondary/60 border-secondary/40';
-    else if (adoptionLevel > 0) baseColorClass = 'bg-secondary/30 hover:bg-secondary/40 border-secondary/30';
+    let baseColorClass = 'bg-muted/50 hover:bg-muted/60 border-border/50'; // Default for 0% adoption
+    if (adoptionLevel > 0.8) baseColorClass = 'bg-primary/90 hover:bg-primary border-primary/70 shadow-primary/30';
+    else if (adoptionLevel > 0.6) baseColorClass = 'bg-primary/70 hover:bg-primary/80 border-primary/60 shadow-primary/20';
+    else if (adoptionLevel > 0.4) baseColorClass = 'bg-primary/50 hover:bg-primary/60 border-primary/50 shadow-primary/10';
+    else if (adoptionLevel > 0.2) baseColorClass = 'bg-secondary/70 hover:bg-secondary/80 border-secondary/60 shadow-secondary/20';
+    else if (adoptionLevel > 0.05) baseColorClass = 'bg-secondary/40 hover:bg-secondary/50 border-secondary/40 shadow-secondary/10';
+    else if (adoptionLevel > 0) baseColorClass = 'bg-secondary/20 hover:bg-secondary/30 border-secondary/30';
 
-    const selectedClass = isSelected ? 'ring-4 ring-offset-2 ring-accent scale-105 shadow-accent/50' : 'shadow-md';
-    return cn(baseColorClass, selectedClass);
+
+    const selectedClass = isSelected ? 'ring-4 ring-offset-2 ring-offset-background ring-accent scale-105 shadow-lg shadow-accent/50' : 'shadow-md';
+    return cn(baseColorClass, selectedClass, 'text-foreground'); // Ensure text contrast
   };
   
   const getSubRegionColor = (adoptionLevel: number) => {
-    if (adoptionLevel > 0.75) return 'bg-primary/70 hover:bg-primary/80 border-primary/60';
-    if (adoptionLevel > 0.5) return 'bg-primary/50 hover:bg-primary/60 border-primary/50';
-    if (adoptionLevel > 0.25) return 'bg-secondary/60 hover:bg-secondary/70 border-secondary/50';
-    if (adoptionLevel > 0) return 'bg-secondary/40 hover:bg-secondary/50 border-secondary/30';
-    return 'bg-muted/70 hover:bg-muted border-muted-foreground/40';
+    // Slightly more muted or distinct palette for sub-regions
+    if (adoptionLevel > 0.8) return 'bg-primary/80 hover:bg-primary/90 border-primary/60 shadow-md shadow-primary/20';
+    if (adoptionLevel > 0.6) return 'bg-primary/60 hover:bg-primary/70 border-primary/50 shadow-sm shadow-primary/10';
+    if (adoptionLevel > 0.4) return 'bg-secondary/80 hover:bg-secondary/90 border-secondary/70 shadow-md shadow-secondary/20';
+    if (adoptionLevel > 0.2) return 'bg-secondary/60 hover:bg-secondary/70 border-secondary/50 shadow-sm shadow-secondary/10';
+    if (adoptionLevel > 0) return 'bg-secondary/30 hover:bg-secondary/40 border-secondary/30';
+    return 'bg-muted/60 hover:bg-muted/70 border-border/40';
   }
 
   const handleCountryClick = (country: Country) => {
@@ -67,77 +71,73 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
   };
 
   const renderSubRegionTooltipContent = (subRegion: SubRegion) => (
-    <div className="p-2 space-y-1 text-sm w-48 bg-popover text-popover-foreground rounded-md shadow-xl">
-      <p className="font-bold text-base mb-1">{subRegion.name}</p>
-      <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
-        <span className="font-medium">Adoption:</span><span className="text-right">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
-        <span className="font-medium">Resistance:</span><span className="text-right">{(subRegion.resistanceLevel * 100).toFixed(0)}%</span>
-        <span className="font-medium">Economy:</span><span className="text-right">{(subRegion.economicDevelopment * 100).toFixed(0)}%</span>
-        <span className="font-medium">Openness:</span><span className="text-right">{(subRegion.culturalOpenness * 100).toFixed(0)}%</span>
+    <div className="p-2.5 space-y-1.5 text-sm w-52 bg-popover text-popover-foreground rounded-lg shadow-xl border border-border">
+      <p className="font-bold text-base mb-1.5 text-primary">{subRegion.name}</p>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+        <span className="font-medium text-muted-foreground">Adoption:</span><span className="text-right font-semibold">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
+        <span className="font-medium text-muted-foreground">Resistance:</span><span className="text-right font-semibold">{(subRegion.resistanceLevel * 100).toFixed(0)}%</span>
+        <span className="font-medium text-muted-foreground">Economy:</span><span className="text-right">{(subRegion.economicDevelopment * 100).toFixed(0)}%</span>
+        <span className="font-medium text-muted-foreground">Openness:</span><span className="text-right">{(subRegion.culturalOpenness * 100).toFixed(0)}%</span>
       </div>
     </div>
   );
 
   const renderCountryTooltipContent = (country: Country) => (
-    <div className="p-2 space-y-1 text-sm w-48 bg-popover text-popover-foreground rounded-md shadow-xl">
-      <p className="font-bold text-base mb-1">{country.name}</p>
-      <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
-        <span className="font-medium">Adoption:</span><span className="text-right">{(country.adoptionLevel * 100).toFixed(0)}%</span>
-        <span className="font-medium">Internet:</span><span className="text-right">{(country.internetPenetration * 100).toFixed(0)}%</span>
-        <span className="font-medium">Education:</span><span className="text-right">{(country.educationLevel * 100).toFixed(0)}%</span>
-        <span className="font-medium">Economy:</span><span className="text-right">{(country.economicDevelopment * 100).toFixed(0)}%</span>
-        <span className="font-medium">Openness:</span><span className="text-right">{(country.culturalOpenness * 100).toFixed(0)}%</span>
-        <span className="font-medium">Media:</span><span className="text-right">{(country.mediaFreedom * 100).toFixed(0)}%</span>
-        <span className="font-medium">Resistance:</span><span className="text-right">{(country.resistanceLevel * 100).toFixed(0)}%</span>
+    <div className="p-2.5 space-y-1.5 text-sm w-52 bg-popover text-popover-foreground rounded-lg shadow-xl border border-border">
+      <p className="font-bold text-base mb-1.5 text-primary">{country.name}</p>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+        <span className="font-medium text-muted-foreground">Adoption:</span><span className="text-right font-semibold">{(country.adoptionLevel * 100).toFixed(0)}%</span>
+        <span className="font-medium text-muted-foreground">Resistance:</span><span className="text-right font-semibold">{(country.resistanceLevel * 100).toFixed(0)}%</span>
+        <span className="font-medium text-muted-foreground">Internet:</span><span className="text-right">{(country.internetPenetration * 100).toFixed(0)}%</span>
+        <span className="font-medium text-muted-foreground">Education:</span><span className="text-right">{(country.educationLevel * 100).toFixed(0)}%</span>
+        <span className="font-medium text-muted-foreground">Economy:</span><span className="text-right">{(country.economicDevelopment * 100).toFixed(0)}%</span>
+        <span className="font-medium text-muted-foreground">Openness:</span><span className="text-right">{(country.culturalOpenness * 100).toFixed(0)}%</span>
+        <span className="font-medium text-muted-foreground">Media Free:</span><span className="text-right">{(country.mediaFreedom * 100).toFixed(0)}%</span>
       </div>
       {country.subRegions && country.subRegions.length > 0 && (
-        <p className="text-xs italic mt-1 text-muted-foreground">Click to view regions</p>
+        <p className="text-xs italic mt-1.5 text-accent">Click to explore regions</p>
       )}
     </div>
   );
 
   return (
-    <Card className="h-full shadow-xl flex flex-col border-2 border-card">
-      <CardHeader className="flex flex-row justify-between items-center">
-        <CardTitle className="flex items-center">
-          <Globe className="mr-2 h-6 w-6 text-primary" />
-          {zoomedCountry ? `${zoomedCountry.name} - Regions` : 'Celestial Sphere of Influence'}
+    <Card className="h-full shadow-xl flex flex-col border-2 border-card overflow-hidden">
+      <CardHeader className="flex flex-row justify-between items-center z-10 bg-background/80 backdrop-blur-sm">
+        <CardTitle className="flex items-center text-lg">
+          <Globe className="mr-2 h-5 w-5 text-primary" />
+          {zoomedCountry ? `${zoomedCountry.name} - Territories` : 'Celestial Sphere of Influence'}
         </CardTitle>
         {zoomedCountry && (
-          <Button variant="outline" size="sm" onClick={handleZoomOut} className="border-accent text-accent-foreground hover:bg-accent/20">
-            <ChevronLeft className="mr-1 h-4 w-4" /> Back to Sphere
+          <Button variant="outline" size="sm" onClick={handleZoomOut} className="border-accent text-accent-foreground hover:bg-accent hover:text-accent-foreground">
+            <ChevronLeft className="mr-1 h-4 w-4" /> Sphere View
           </Button>
         )}
       </CardHeader>
       <CardContent className={cn(
-        "flex-grow relative overflow-hidden p-4 bg-muted/30 transition-opacity duration-500",
-        // When zoomed, the main container holding country buttons dims.
+        "flex-grow relative overflow-hidden p-4 bg-muted/20 transition-opacity duration-300",
         zoomedCountry ? "opacity-30" : "opacity-100" 
       )}>
-        <TooltipProvider delayDuration={100}>
-          {/* Render Countries if not zoomed into a specific one */}
+        <TooltipProvider delayDuration={150}>
           {!zoomedCountry && countries.map((country) => (
             countryPositions[country.id] && (
               <Tooltip key={country.id}>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="outline"
+                    variant="outline" // Base variant, colors are applied via getRegionColor
                     className={cn(
-                      `absolute p-3.5 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 transition-all duration-300 hover:scale-105`,
+                      `absolute p-0 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 transition-all duration-300 hover:scale-105`,
                       getRegionColor(country.adoptionLevel, selectedCountryId === country.id),
-                      'rounded-xl min-w-[110px] text-foreground' // Ensure text contrast
+                      'rounded-xl w-32 h-20 flex flex-col justify-center items-center' 
                     )}
                     style={{ top: countryPositions[country.id].top, left: countryPositions[country.id].left }}
                     onClick={() => handleCountryClick(country)}
                     aria-label={`Select ${country.name}`}
                   >
-                    <div className="flex flex-col items-center text-center">
-                      <span className="text-sm font-bold">{country.name}</span>
-                      <span className="text-xs font-medium opacity-90">{(country.adoptionLevel * 100).toFixed(0)}% Influence</span>
-                    </div>
+                    <span className="text-sm font-bold block truncate w-full px-1 text-center">{country.name}</span>
+                    <span className="text-xs font-medium opacity-90 mt-0.5">{(country.adoptionLevel * 100).toFixed(0)}% Influence</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top" align="center">
+                <TooltipContent side="top" align="center" className="bg-popover text-popover-foreground">
                   {renderCountryTooltipContent(country)}
                 </TooltipContent>
               </Tooltip>
@@ -145,69 +145,68 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
           ))}
         </TooltipProvider>
 
-        {/* Influence bubble always renders on top if not zoomed */}
         {showInfluenceBubble && !zoomedCountry && (
           <Button
             variant="default"
             size="icon"
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full w-14 h-14 shadow-2xl animate-pulse bg-accent hover:bg-accent/90"
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full w-16 h-16 shadow-2xl animate-pulse bg-accent hover:bg-accent/90 text-accent-foreground"
             onClick={handleCollect}
             aria-label="Collect Influence Points"
           >
-            <Zap className="w-7 h-7 text-accent-foreground" />
+            <Zap className="w-8 h-8" />
           </Button>
         )}
       </CardContent>
 
-      {/* Separate container for SubRegions, rendered on top and visible only when zoomed */}
+      {/* SubRegions View - Rendered on top */}
       {zoomedCountry && (
-        <div className="absolute inset-0 p-4 pt-[70px] bg-background/30 backdrop-blur-sm overflow-hidden"> {/* Matches CardContent padding + CardHeader approx height */}
-          <TooltipProvider delayDuration={100}>
-            {zoomedCountry.subRegions?.map((subRegion, index) => {
-              const layoutConfig = SUB_REGION_LAYOUT_CONFIG[zoomedCountry.id];
-              let positionStyle = { top: '50%', left: '50%'}; // Default fallback
-              if (layoutConfig && layoutConfig.offsets[index]) {
-                const scaleFactor = 2.8; // Spread out subregions more
-                positionStyle = {
-                  top: `${50 + parseFloat(layoutConfig.offsets[index].top) * scaleFactor}%`,
-                  left: `${50 + parseFloat(layoutConfig.offsets[index].left) * scaleFactor}%`,
-                };
-              } else { 
-                  const angle = (index / (zoomedCountry.subRegions?.length || 1)) * 2 * Math.PI;
-                  const radius = 30; // Percentage radius from center
+        <div className="absolute inset-0 p-4 pt-[70px] bg-background/50 backdrop-blur-md overflow-hidden flex justify-center items-center">
+          <div className="relative w-full h-full max-w-3xl max-h-2xl"> {/* Container for relative positioning of subregions */}
+            <TooltipProvider delayDuration={150}>
+              {zoomedCountry.subRegions?.map((subRegion, index) => {
+                const layoutConfig = SUB_REGION_LAYOUT_CONFIG[zoomedCountry.id];
+                let positionStyle = { top: '50%', left: '50%'}; 
+                if (layoutConfig && layoutConfig.offsets[index]) {
+                  const scaleFactor = 1.8; // Adjusted scale factor for better spread in a constrained view
                   positionStyle = {
-                    top: `${50 + radius * Math.sin(angle)}%`,
-                    left: `${50 + radius * Math.cos(angle)}%`,
+                    top: `${50 + parseFloat(layoutConfig.offsets[index].top) * scaleFactor}%`,
+                    left: `${50 + parseFloat(layoutConfig.offsets[index].left) * scaleFactor}%`,
                   };
-              }
+                } else { 
+                    const angle = (index / (zoomedCountry.subRegions?.length || 1)) * 2 * Math.PI;
+                    const radius = 25 + (index % 2 === 0 ? 0 : 5) ; // Percentage radius from center, slight variation
+                    positionStyle = {
+                      top: `${50 + radius * Math.sin(angle)}%`,
+                      left: `${50 + radius * Math.cos(angle)}%`,
+                    };
+                }
 
-              return (
-                <Tooltip key={subRegion.id}>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        `absolute p-3 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 shadow-lg transition-all duration-300 hover:scale-110`,
-                         getSubRegionColor(subRegion.adoptionLevel),
-                         'border-secondary hover:border-secondary/70 text-foreground', 
-                         'rounded-lg min-w-[100px]'
-                      )}
-                      style={positionStyle}
-                      aria-label={`View ${subRegion.name}`}
-                    >
-                      <div className="flex flex-col items-center text-center">
-                        <span className="text-xs font-semibold">{subRegion.name}</span>
-                        <span className="text-[10px] font-medium opacity-90">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
-                      </div>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" align="center">
-                    {renderSubRegionTooltipContent(subRegion)}
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
-          </TooltipProvider>
+                return (
+                  <Tooltip key={subRegion.id}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          `absolute p-0 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 shadow-lg transition-all duration-300 hover:scale-110`,
+                           getSubRegionColor(subRegion.adoptionLevel),
+                           'text-foreground', 
+                           'rounded-lg w-28 h-[70px] flex flex-col justify-center items-center' // Slightly smaller
+                        )}
+                        style={positionStyle}
+                        aria-label={`View ${subRegion.name}`}
+                      >
+                        <span className="text-xs font-semibold block truncate w-full px-1 text-center">{subRegion.name}</span>
+                        <span className="text-[10px] font-medium opacity-90 mt-0.5">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="center" className="bg-popover text-popover-foreground">
+                      {renderSubRegionTooltipContent(subRegion)}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </TooltipProvider>
+          </div>
         </div>
       )}
     </Card>
