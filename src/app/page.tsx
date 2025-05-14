@@ -9,11 +9,13 @@ import { EvolutionPanel } from '@/components/game/EvolutionPanel';
 import { NewsFeed } from '@/components/game/NewsFeed';
 import { AnalyticsDashboard } from '@/components/game/AnalyticsDashboard';
 import { GlobalEventsDisplay } from '@/components/game/GlobalEventsDisplay';
-import { InteractiveEventModal } from '@/components/game/InteractiveEventModal'; // New Import
+import { InteractiveEventModal } from '@/components/game/InteractiveEventModal';
 import { CULTURAL_MOVEMENTS, EVOLUTION_CATEGORIES, EVOLUTION_ITEMS, INITIAL_COUNTRIES, STARTING_INFLUENCE_POINTS, POTENTIAL_GLOBAL_EVENTS } from '@/config/gameData';
 import type { Country, EvolutionItem, GlobalEvent, GlobalEventEffectProperty, GlobalEventOption } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Lightbulb, AlertCircle, Newspaper, InfoIcon as Info } from 'lucide-react'; // Renamed Info to avoid conflict
 
 const BASE_IP_PER_TURN = 2;
 const ADOPTION_IP_MULTIPLIER = 5; 
@@ -125,9 +127,9 @@ export default function GamePage() {
     
     const resolvedEvent: GlobalEvent = {
       ...eventWithNoChoice,
-      effects: chosenOption.effects, // Option effects replace base event effects
+      effects: chosenOption.effects, 
       chosenOptionId: optionId,
-      hasBeenTriggered: true, // Already true from potential events but good to ensure
+      hasBeenTriggered: true, 
     };
 
     setActiveGlobalEvents(prev => [...prev, resolvedEvent]);
@@ -144,7 +146,7 @@ export default function GamePage() {
   const handleNextTurn = useCallback(() => {
     if (pendingInteractiveEvent) {
       toast({ title: "Action Required", description: "Please respond to the active global event.", variant: "destructive"});
-      setIsEventModalOpen(true); // Ensure modal is open if somehow closed
+      setIsEventModalOpen(true); 
       return;
     }
 
@@ -154,13 +156,12 @@ export default function GamePage() {
     let newRecentEventsSummary = `Day ${nextTurn}: The ${currentMovementName} continues to grow.`;
     let ipFromNonInteractiveEventsThisTurn = 0;
 
-    // 1. Activate Events & Handle Interactions
     const stillActiveEvents: GlobalEvent[] = [];
-    let currentActiveEventsForTurn = [...activeGlobalEvents]; // Use a mutable copy for this turn's calculations
+    let currentActiveEventsForTurn = [...activeGlobalEvents]; 
 
-    allPotentialEvents.forEach((event, index) => {
+    allPotentialEvents.forEach((event) => {
       if (!event.hasBeenTriggered && event.turnStart === nextTurn) {
-        const eventToProcess = {...event}; // clone
+        const eventToProcess = {...event}; 
         setAllPotentialEvents(prev => prev.map(e => e.id === eventToProcess.id ? { ...e, hasBeenTriggered: true } : e));
 
         if (eventToProcess.options && eventToProcess.options.length > 0) {
@@ -168,9 +169,7 @@ export default function GamePage() {
           setIsEventModalOpen(true);
           newRecentEventsSummary += ` ATTENTION: ${eventToProcess.name} requires your decision! ${eventToProcess.description}`;
           toast({ title: "Interactive Event!", description: `${eventToProcess.name} needs your input.`});
-          // Game effectively pauses here until player makes a choice. handleEventOptionSelected will add to activeGlobalEvents.
         } else {
-          // Non-interactive event
           currentActiveEventsForTurn.push(eventToProcess);
           newRecentEventsSummary += ` NEWS: ${eventToProcess.name} has begun! ${eventToProcess.description}`;
           toast({ title: "Global Event!", description: `${eventToProcess.name} has started.`});
@@ -183,7 +182,6 @@ export default function GamePage() {
       }
     });
     
-    // Filter out expired events from the turn's active events list
     const nonExpiredActiveEvents: GlobalEvent[] = [];
     currentActiveEventsForTurn.forEach(event => {
       if (nextTurn < event.turnStart + event.duration) {
@@ -193,9 +191,8 @@ export default function GamePage() {
         toast({ title: "Global Event Over", description: `${event.name} has ended.`});
       }
     });
-    setActiveGlobalEvents(nonExpiredActiveEvents); // Update main state for next turn and display
+    setActiveGlobalEvents(nonExpiredActiveEvents); 
 
-    // 2. Calculate IP
     let pointsFromAdoption = 0;
     countries.forEach(country => {
       if (country.adoptionLevel > 0) {
@@ -210,7 +207,6 @@ export default function GamePage() {
     setInfluencePoints(prev => prev + newPoints);
     newRecentEventsSummary += ` ${newPoints} IP generated.`;
 
-    // 3. Update Countries
     const currentGlobalAdoptionForSpread = countries.reduce((sum, c) => sum + c.adoptionLevel, 0) / (countries.length || 1);
     const hasResistanceManagement = evolvedItemIds.has('adapt_resistance_mgmt');
 
@@ -294,7 +290,7 @@ export default function GamePage() {
       })
     );
     setRecentEvents(newRecentEventsSummary);
-    if (!pendingInteractiveEvent) { // Only toast next day if not waiting for interaction
+    if (!pendingInteractiveEvent) { 
         toast({ title: `Day ${nextTurn}`, description: `The ${currentMovementName} progresses...` });
     }
   }, [currentTurn, currentMovementName, countries, selectedStartCountryId, evolvedItemIds, activeGlobalEvents, getCountryModifiers, allPotentialEvents, toast, pendingInteractiveEvent, handleEventOptionSelected]);
@@ -312,9 +308,8 @@ export default function GamePage() {
             selectedCountryId={selectedStartCountryId}
           />
         </div>
-        <ScrollArea className="md:w-1/3 lg:w-1/4 h-full md:max-h-full">
-          <div className="space-y-4 p-1">
-            <ControlPanel
+        <div className="md:w-1/3 lg:w-1/4 flex flex-col space-y-4 overflow-hidden">
+          <ControlPanel
               movements={CULTURAL_MOVEMENTS}
               countries={INITIAL_COUNTRIES}
               selectedMovementId={selectedMovementId}
@@ -326,44 +321,67 @@ export default function GamePage() {
               currentTurn={currentTurn}
               onNextTurn={handleNextTurn}
               gameStarted={gameStarted}
-              isEventPending={!!pendingInteractiveEvent} // Pass this to ControlPanel
-            />
-            {gameStarted && (
-              <>
-                <EvolutionPanel
-                  categories={EVOLUTION_CATEGORIES}
-                  items={EVOLUTION_ITEMS}
-                  onEvolve={handleEvolve}
-                  influencePoints={influencePoints}
-                  evolvedItemIds={evolvedItemIds}
-                />
-                <GlobalEventsDisplay activeEvents={activeGlobalEvents} currentTurn={currentTurn} />
-                <NewsFeed
-                  culturalMovementName={currentMovementName}
-                  globalAdoptionRate={globalAdoptionRate}
-                  recentEventsSummary={recentEvents}
-                  currentTurn={currentTurn}
-                />
-                <AnalyticsDashboard
-                  countries={countries}
-                  influencePoints={influencePoints}
-                  evolvedItemIds={evolvedItemIds}
-                  evolutionItems={EVOLUTION_ITEMS}
-                  currentTurn={currentTurn}
-                />
-              </>
-            )}
-          </div>
-        </ScrollArea>
+              isEventPending={!!pendingInteractiveEvent}
+          />
+          {gameStarted && (
+            <ScrollArea className="flex-grow min-h-0">
+              <div className="space-y-4 p-1">
+                <Tabs defaultValue="evolution" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-1 h-auto mb-2">
+                    <TabsTrigger value="evolution" className="px-2 py-1.5 text-xs h-auto">
+                      <Lightbulb className="mr-1.5 h-4 w-4" /> Evolve
+                    </TabsTrigger>
+                    <TabsTrigger value="events" className="px-2 py-1.5 text-xs h-auto">
+                      <AlertCircle className="mr-1.5 h-4 w-4" /> Events
+                    </TabsTrigger>
+                    <TabsTrigger value="news" className="px-2 py-1.5 text-xs h-auto">
+                      <Newspaper className="mr-1.5 h-4 w-4" /> News
+                    </TabsTrigger>
+                    <TabsTrigger value="analytics" className="px-2 py-1.5 text-xs h-auto">
+                      <Info className="mr-1.5 h-4 w-4" /> Stats
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="evolution">
+                    <EvolutionPanel
+                      categories={EVOLUTION_CATEGORIES}
+                      items={EVOLUTION_ITEMS}
+                      onEvolve={handleEvolve}
+                      influencePoints={influencePoints}
+                      evolvedItemIds={evolvedItemIds}
+                    />
+                  </TabsContent>
+                  <TabsContent value="events">
+                    <GlobalEventsDisplay activeEvents={activeGlobalEvents} currentTurn={currentTurn} />
+                  </TabsContent>
+                  <TabsContent value="news">
+                    <NewsFeed
+                      culturalMovementName={currentMovementName}
+                      globalAdoptionRate={globalAdoptionRate}
+                      recentEventsSummary={recentEvents}
+                      currentTurn={currentTurn}
+                    />
+                  </TabsContent>
+                  <TabsContent value="analytics">
+                    <AnalyticsDashboard
+                      countries={countries}
+                      influencePoints={influencePoints}
+                      evolvedItemIds={evolvedItemIds}
+                      evolutionItems={EVOLUTION_ITEMS}
+                      currentTurn={currentTurn}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </ScrollArea>
+          )}
+          {!gameStarted && <div className="flex-grow"></div>} {/* Placeholder to push ControlPanel up when game not started */}
+        </div>
       </main>
       <InteractiveEventModal
         event={pendingInteractiveEvent}
         isOpen={isEventModalOpen}
         onClose={() => {
-          // Allowing close via overlay/Esc might be complex if an event *must* be resolved.
-          // For now, let's assume the modal only closes via option selection.
-          // If user *must* choose, onClose could try to re-assert modal or warn.
-          // For simplicity, allow close, but next turn will be blocked.
           setIsEventModalOpen(false); 
         }}
         onOptionSelect={handleEventOptionSelected}
@@ -371,3 +389,5 @@ export default function GamePage() {
     </div>
   );
 }
+
+    
