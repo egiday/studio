@@ -1,6 +1,6 @@
 
-import type { CulturalMovement, EvolutionItem, EvolutionCategory, Country, SubRegion } from '@/types';
-import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film } from 'lucide-react';
+import type { CulturalMovement, EvolutionItem, EvolutionCategory, Country, SubRegion, GlobalEvent } from '@/types';
+import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film, Award, Megaphone, TrendingUp } from 'lucide-react';
 
 export const CULTURAL_MOVEMENTS: CulturalMovement[] = [
   { id: 'digital_revolution', name: 'Digital Revolution', description: 'Fast-spreading through technology networks', icon: Cpu },
@@ -94,18 +94,74 @@ export const INITIAL_COUNTRIES: Country[] = [
 
 export const STARTING_INFLUENCE_POINTS = 50;
 
-// Placeholder for sub-region positions if needed for a more complex layout
-// For this example, sub-regions will be simply listed or positioned generally.
 export const subRegionPositions: Record<string, { baseTop: string; baseLeft: string; offsets: {top: string; left: string}[] }> = {
   usa: {
-    baseTop: '30%', // Original USA top
-    baseLeft: '20%', // Original USA left
-    offsets: [ // Relative offsets for sub-regions
-      { top: '-5%', left: '-5%' }, // NE
-      { top: '5%', left: '-3%' },  // S
-      { top: '-3%', left: '5%' },  // MW
-      { top: '3%', left: '8%' },   // W
+    baseTop: '30%',
+    baseLeft: '20%',
+    offsets: [
+      { top: '-5%', left: '-5%' }, { top: '5%', left: '-3%' }, { top: '-3%', left: '5%' }, { top: '3%', left: '8%' },
     ],
   },
-  // Define for other countries if they get subregions
 };
+
+export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
+  {
+    id: 'global_internet_renaissance',
+    name: 'Global Internet Renaissance',
+    description: 'A wave of new infrastructure and accessibility sweeps the globe, making online communication easier.',
+    turnStart: 3,
+    duration: 5, // Lasts for 5 turns
+    effects: [
+      { targetType: 'global', property: 'culturalOpenness', value: 0.05, isMultiplier: false }, // Additive
+      { targetType: 'global', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true } // Multiplicative
+    ],
+    hasBeenTriggered: false,
+  },
+  {
+    id: 'economic_boom_usa',
+    name: 'Economic Boom in USA',
+    description: 'The USA experiences a period of rapid economic growth, increasing public spending and optimism.',
+    turnStart: 7,
+    duration: 4,
+    effects: [
+      { targetType: 'country', countryId: 'usa', property: 'economicDevelopment', value: 0.1, isMultiplier: false },
+      { targetType: 'country', countryId: 'usa', property: 'adoptionRateModifier', value: 1.15, isMultiplier: true },
+    ],
+    hasBeenTriggered: false,
+  },
+  {
+    id: 'international_peace_prize',
+    name: 'International Peace Prize Awarded',
+    description: 'Your cultural movement is recognized with a prestigious International Peace Prize, boosting its legitimacy.',
+    turnStart: 10,
+    duration: 1, // Instant effect
+    effects: [
+      { targetType: 'global', property: 'ipBonus', value: 50, isMultiplier: false },
+      { targetType: 'global', property: 'resistanceLevel', value: -0.02, isMultiplier: false } // Global slight resistance decrease
+    ],
+    hasBeenTriggered: false,
+  },
+   {
+    id: 'global_tech_conference',
+    name: 'Global Tech Conference',
+    description: 'A major technology conference showcases new digital tools, temporarily boosting digital adoption globally.',
+    turnStart: 4,
+    duration: 2,
+    effects: [
+      { targetType: 'global', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true },
+    ],
+    hasBeenTriggered: false,
+  },
+  {
+    id: 'cultural_olympics_germany',
+    name: 'Cultural Olympics in Germany',
+    description: 'Germany hosts a global cultural festival, increasing its openness to new ideas.',
+    turnStart: 9,
+    duration: 3,
+    effects: [
+      { targetType: 'country', countryId: 'germany', property: 'culturalOpenness', value: 0.15, isMultiplier: false },
+      { targetType: 'country', countryId: 'germany', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true },
+    ],
+    hasBeenTriggered: false,
+  }
+];

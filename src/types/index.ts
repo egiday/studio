@@ -52,3 +52,33 @@ export interface NewsHeadline {
   text: string;
   timestamp: number;
 }
+
+// --- Global Events System Types ---
+export type GlobalEventEffectProperty = 
+  | 'culturalOpenness' 
+  | 'economicDevelopment' 
+  | 'resistanceLevel' 
+  | 'adoptionRateModifier' // This would likely be a multiplier
+  | 'ipBonus'; // Direct IP gain
+
+export type GlobalEventTargetType = 'global' | 'country';
+
+export interface GlobalEventEffect {
+  targetType: GlobalEventTargetType;
+  countryId?: string; // Required if targetType is 'country'
+  property: GlobalEventEffectProperty;
+  value: number; // The amount of change or the multiplier
+  isMultiplier?: boolean; // If true, value is a multiplier (e.g., 1.1 for +10%), else additive
+  duration?: number; // How many turns this specific effect lasts, defaults to event duration
+}
+
+export interface GlobalEvent {
+  id: string;
+  name: string;
+  description: string;
+  turnStart: number; // Turn the event begins
+  duration: number; // How many turns the event lasts
+  effects: GlobalEventEffect[];
+  hasBeenTriggered: boolean; // To ensure one-off events don't re-trigger
+  // isActive will be managed in component state, not stored in config
+}
