@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Coins, CheckCircle, XCircle, Lock } from 'lucide-react';
+import { Coins, CheckCircle, XCircle, Lock, Award, Star } from 'lucide-react'; // Added Award, Star
 import { cn } from '@/lib/utils';
 
 interface EvolutionCardProps {
@@ -46,20 +46,23 @@ export function EvolutionCard({
     tooltipMessage = `Requires ${item.cost} IP. You have ${influencePoints} IP.`;
   }
 
+  const hasSpecialAbility = item.isEvolved && item.specialAbilityName && item.specialAbilityDescription;
+
   return (
     <Card className={cn(
       "shadow-lg flex flex-col justify-between transition-opacity", 
       item.isEvolved ? "bg-green-500/10 dark:bg-green-500/20 border-green-500" : 
-      !canEvolveOverall && !item.isEvolved ? "opacity-70 bg-muted/30" : "bg-card"
+      !canEvolveOverall && !item.isEvolved ? "opacity-70 bg-muted/30" : "bg-card",
+      hasSpecialAbility ? "border-amber-400 dark:border-amber-500 border-2" : "" // Highlight for special ability
     )}>
       <CardHeader>
         <CardTitle className="text-base flex items-center">
           <item.icon className="mr-2 h-5 w-5 text-primary" />
           {item.name}
         </CardTitle>
-        <CardDescription className="text-xs h-10 overflow-y-auto">{item.description}</CardDescription>
+        <CardDescription className="text-xs h-auto min-h-[40px] overflow-y-auto">{item.description}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-grow space-y-2">
         <Badge variant={item.isEvolved ? "default" : "secondary"} className={cn(
           item.isEvolved ? "bg-green-600 text-white" : "",
           "mb-2" 
@@ -73,8 +76,9 @@ export function EvolutionCard({
               {allPrerequisiteNames.map(prereqName => (
                 <li key={prereqName} className={cn(
                   item.prerequisites?.some(pId => {
-                    const prereqItem = EVOLUTION_ITEMS_MOCK.find(i => i.id === pId);
-                    return prereqItem?.name === prereqName && !unmetPrerequisiteNames.includes(prereqName);
+                    // This mock lookup is a placeholder. In a real app, you'd have access to the full items list or a helper.
+                    const isMet = !unmetPrerequisiteNames.includes(prereqName); 
+                    return isMet;
                   }) && !item.isEvolved ? "text-green-500 dark:text-green-400" : 
                   unmetPrerequisiteNames.includes(prereqName) ? "text-destructive" : ""
                 )}>
@@ -82,6 +86,15 @@ export function EvolutionCard({
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+        {hasSpecialAbility && (
+          <div className="mt-3 pt-3 border-t border-border/50">
+            <h4 className="text-sm font-semibold flex items-center text-amber-500 dark:text-amber-400 mb-1">
+              <Award className="mr-1.5 h-4 w-4" />
+              Special Ability: {item.specialAbilityName}
+            </h4>
+            <p className="text-xs text-muted-foreground">{item.specialAbilityDescription}</p>
           </div>
         )}
       </CardContent>
@@ -119,8 +132,10 @@ export function EvolutionCard({
 // Minimal mock for EVOLUTION_ITEMS to satisfy TypeScript in this isolated context
 // In a real scenario, this data would come from props or a shared context/store.
 // We use a different name to avoid linting errors about redefining EVOLUTION_ITEMS from gameData
+// This mock isn't strictly used for logic in this version of the card but helps with local type checking if isolated.
 const EVOLUTION_ITEMS_MOCK: {id: string, name: string}[] = [
     {id: "expr_social_media", name: "Social Media Presence"},
     {id: "expr_apps", name: "Dedicated App"},
     {id: "expr_influencers", name: "Influencer Network"}
 ];
+

@@ -21,28 +21,49 @@ export const EVOLUTION_CATEGORIES: EvolutionCategory[] = [
 
 export const EVOLUTION_ITEMS: EvolutionItem[] = [
   // Expression Methods
-  { id: 'expr_social_media', name: 'Social Media Presence', description: 'Basic online sharing', cost: 10, icon: MessageSquare, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_apps', name: 'Dedicated App', description: 'Mobile community platform', cost: 20, icon: Zap, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media'] },
-  { id: 'expr_gatherings', name: 'Physical Gatherings', description: 'Local community meetups', cost: 15, icon: UsersRound, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_media_broadcast', name: 'Media Broadcast', description: 'TV & Radio presence', cost: 30, icon: Tv, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_word_of_mouth', name: 'Word of Mouth', description: 'Personal testimonials', cost: 5, icon: Hand, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_influencers', name: 'Influencer Network', description: 'Leverage online personalities', cost: 25, icon: Rss, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media']},
-  { id: 'expr_viral_studio', name: 'Viral Content Studio', description: 'Produce highly shareable content leveraging apps and influencers.', cost: 40, icon: Film, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_apps', 'expr_influencers']},
+  { id: 'expr_social_media', name: 'Social Media Presence', description: 'Establishes a basic online presence, allowing for wider reach and faster initial spread in digitally connected regions. Unlocks sharing capabilities.', cost: 10, icon: MessageSquare, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_apps', name: 'Dedicated App', description: 'Develops a mobile application for your movement, fostering a dedicated community and enabling targeted content delivery. Boosts engagement in regions with high smartphone penetration.', cost: 20, icon: Zap, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media'] },
+  { id: 'expr_gatherings', name: 'Physical Gatherings', description: 'Organizes local meetups and events, strengthening community bonds and increasing adoption in areas with strong local networks. Effective in both urban and rural settings.', cost: 15, icon: UsersRound, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_media_broadcast', name: 'Media Broadcast', description: 'Gains presence on traditional media like TV & Radio. Significantly increases awareness in regions with high traditional media consumption, bypassing digital divides.', cost: 30, icon: Tv, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_word_of_mouth', name: 'Word of Mouth Network', description: 'Encourages and empowers individuals to share the movement through personal testimonials and conversations. Provides a slow but steady and resilient form of spread.', cost: 5, icon: Hand, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_influencers', name: 'Influencer Network', description: 'Collaborates with online personalities and thought leaders to promote the movement. Highly effective for reaching specific demographics and accelerating online adoption.', cost: 25, icon: Rss, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media']},
+  { 
+    id: 'expr_viral_studio', 
+    name: 'Viral Content Studio', 
+    description: 'Creates a dedicated team and infrastructure for producing high-quality, engaging, and shareable content tailored for digital platforms. Significantly boosts online spread rate and engagement metrics.', 
+    cost: 40, 
+    icon: Film, 
+    category: 'expression_methods', 
+    isEvolved: false, 
+    prerequisites: ['expr_apps', 'expr_influencers'],
+    specialAbilityName: "Cultural Resonance",
+    specialAbilityDescription: "Content produced by the studio is 20% more effective at increasing adoption. Additionally, there's a chance each turn to trigger a 'Trending Topic' mini-event, granting bonus Influence Points."
+  },
 
   // Cultural Elements
-  { id: 'elem_aesthetic_style', name: 'Visual Style', description: 'Define a unique look', cost: 10, icon: Palette, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_rituals', name: 'Community Rituals', description: 'Shared practices and events', cost: 15, icon: Zap, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_value_system', name: 'Core Values', description: 'Establish guiding principles', cost: 20, icon: BrainCog, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_language', name: 'Unique Language/Jargon', description: 'Specialized vocabulary', cost: 15, icon: Speech, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_concepts', name: 'Key Concepts', description: 'Novel ideas and theories', cost: 25, icon: Lightbulb, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_aesthetic_style', name: 'Visual Style & Branding', description: 'Defines a unique and recognizable aesthetic for the movement, including logos, color palettes, and design language. Increases appeal and memorability.', cost: 10, icon: Palette, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_rituals', name: 'Community Rituals & Practices', description: 'Establishes shared practices, ceremonies, or regular events that reinforce the movement\'s values and build community cohesion. Deepens engagement among adherents.', cost: 15, icon: Sparkles, category: 'cultural_elements', isEvolved: false }, // Changed icon for variety
+  { id: 'elem_value_system', name: 'Core Values & Manifesto', description: 'Articulates a clear set of guiding principles, beliefs, and goals for the movement. Provides intellectual and moral grounding, attracting those who align with its philosophy.', cost: 20, icon: BrainCog, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_language', name: 'Unique Language/Jargon', description: 'Develops specialized vocabulary, slang, or terminology unique to the movement. Fosters a sense of in-group identity and shared understanding among followers.', cost: 15, icon: Speech, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_concepts', name: 'Key Concepts & Teachings', description: 'Introduces novel ideas, theories, or interpretations that form the intellectual core of the movement. Essential for movements focused on philosophy, science, or education.', cost: 25, icon: Lightbulb, category: 'cultural_elements', isEvolved: false },
   
   // Adaptability
-  { id: 'adapt_integration', name: 'Cultural Integration', description: 'Blend with local customs', cost: 20, icon: Merge, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_resource_eff', name: 'Resource Efficiency', description: 'Lower cost of adoption', cost: 15, icon: DollarSign, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_resistance_mgmt', name: 'Resistance Management', description: 'Counter opposing forces', cost: 25, icon: ShieldAlert, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_urban', name: 'Urban Adaptation', description: 'Thrive in cities', cost: 10, icon: Building2, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_rural', name: 'Rural Adaptation', description: 'Spread in countryside', cost: 10, icon: Trees, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_demographic_appeal', name: 'Broad Demographic Appeal', description: 'Appeal to diverse groups', cost: 30, icon: UserCheck, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_integration', name: 'Cultural Integration Strategies', description: 'Develops methods to blend the movement with existing local customs, traditions, and values. Reduces cultural friction and resistance in diverse regions.', cost: 20, icon: Merge, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_resource_eff', name: 'Resource Efficiency', description: 'Optimizes the resources needed for individuals to adopt and participate in the movement, making it more accessible in economically diverse regions. Lowers perceived cost of adoption.', cost: 15, icon: DollarSign, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_resistance_mgmt', name: 'Resistance Management Tactics', description: 'Implements strategies to understand, address, and counter opposing viewpoints and organized resistance. Reduces the growth of resistance and mitigates its negative impact.', cost: 25, icon: ShieldAlert, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_urban', name: 'Urban Adaptation', description: 'Tailors the movement\'s messaging and activities to thrive in densely populated urban environments. Leverages city infrastructure and networks for faster spread.', cost: 10, icon: Building2, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_rural', name: 'Rural Adaptation', description: 'Adapts the movement to effectively spread and take root in less densely populated rural areas and remote communities. Addresses unique challenges of rural outreach.', cost: 10, icon: Trees, category: 'adaptability', isEvolved: false },
+  { 
+    id: 'adapt_demographic_appeal', 
+    name: 'Broad Demographic Appeal', 
+    description: 'Refines the movement to resonate with a wider range of age groups, social classes, and cultural backgrounds. Increases overall potential adoption rate and reduces demographic-specific resistance.', 
+    cost: 30, 
+    icon: UserCheck, 
+    category: 'adaptability', 
+    isEvolved: false,
+    specialAbilityName: "Universal Harmony",
+    specialAbilityDescription: "Significantly reduces the baseline resistance generation rate in all influenced regions. Unlocks special 'Unity Dialogue' options during certain global events, potentially converting resistant populations peacefully."
+  },
 ];
 
 const usaSubRegions: SubRegion[] = [
@@ -56,30 +77,35 @@ const chinaSubRegions: SubRegion[] = [
   { id: 'china_e', name: 'East Coast', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.85, culturalOpenness: 0.45, internetPenetration: 0.75, educationLevel: 0.78, mediaFreedom: 0.15 },
   { id: 'china_w', name: 'West Inland', adoptionLevel: 0, resistanceLevel: 0.35, economicDevelopment: 0.60, culturalOpenness: 0.30, internetPenetration: 0.45, educationLevel: 0.60, mediaFreedom: 0.10 },
   { id: 'china_n', name: 'North', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.70, culturalOpenness: 0.35, internetPenetration: 0.65, educationLevel: 0.70, mediaFreedom: 0.12 },
+  { id: 'china_s', name: 'South', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.78, culturalOpenness: 0.40, internetPenetration: 0.70, educationLevel: 0.72, mediaFreedom: 0.14 },
 ];
 
 const indiaSubRegions: SubRegion[] = [
   { id: 'india_n', name: 'North India', adoptionLevel: 0, resistanceLevel: 0.22, economicDevelopment: 0.58, culturalOpenness: 0.62, internetPenetration: 0.42, educationLevel: 0.62, mediaFreedom: 0.52 },
   { id: 'india_s', name: 'South India', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.65, culturalOpenness: 0.68, internetPenetration: 0.48, educationLevel: 0.65, mediaFreedom: 0.55 },
   { id: 'india_e', name: 'East India', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.55, culturalOpenness: 0.58, internetPenetration: 0.38, educationLevel: 0.58, mediaFreedom: 0.48 },
+  { id: 'india_w', name: 'West India', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.62, culturalOpenness: 0.65, internetPenetration: 0.45, educationLevel: 0.63, mediaFreedom: 0.53 },
 ];
 
 const brazilSubRegions: SubRegion[] = [
   { id: 'brazil_se', name: 'Southeast', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.70, culturalOpenness: 0.82, internetPenetration: 0.75, educationLevel: 0.72, mediaFreedom: 0.62 },
   { id: 'brazil_ne', name: 'Northeast', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.55, culturalOpenness: 0.75, internetPenetration: 0.60, educationLevel: 0.65, mediaFreedom: 0.58 },
   { id: 'brazil_n', name: 'North (Amazon)', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.45, culturalOpenness: 0.70, internetPenetration: 0.50, educationLevel: 0.60, mediaFreedom: 0.55 },
+  { id: 'brazil_cs', name: 'Central-South', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.65, culturalOpenness: 0.78, internetPenetration: 0.68, educationLevel: 0.70, mediaFreedom: 0.60 },
 ];
 
 const nigeriaSubRegions: SubRegion[] = [
   { id: 'nigeria_sw', name: 'Southwest (Lagos)', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.50, culturalOpenness: 0.55, internetPenetration: 0.60, educationLevel: 0.55, mediaFreedom: 0.42 },
   { id: 'nigeria_n', name: 'North', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.30, culturalOpenness: 0.40, internetPenetration: 0.40, educationLevel: 0.45, mediaFreedom: 0.35 },
   { id: 'nigeria_se', name: 'Southeast', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.35, culturalOpenness: 0.48, internetPenetration: 0.45, educationLevel: 0.50, mediaFreedom: 0.38 },
+  { id: 'nigeria_mc', name: 'Middle Belt', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.32, culturalOpenness: 0.45, internetPenetration: 0.42, educationLevel: 0.48, mediaFreedom: 0.37 },
 ];
 
 const germanySubRegions: SubRegion[] = [
   { id: 'germany_w', name: 'West Germany', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.88, culturalOpenness: 0.78, internetPenetration: 0.94, educationLevel: 0.90, mediaFreedom: 0.92 },
   { id: 'germany_e', name: 'East Germany', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.80, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.88 },
   { id: 'germany_s', name: 'South Germany', adoptionLevel: 0, resistanceLevel: 0.09, economicDevelopment: 0.90, culturalOpenness: 0.76, internetPenetration: 0.93, educationLevel: 0.89, mediaFreedom: 0.91 },
+  { id: 'germany_n', name: 'North Germany', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.85, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.87, mediaFreedom: 0.90 },
 ];
 
 export const INITIAL_COUNTRIES: Country[] = [
@@ -136,23 +162,23 @@ export const subRegionPositions: Record<string, { baseTop: string; baseLeft: str
   },
   china: {
     baseTop: '35%', baseLeft: '70%',
-    offsets: [ { top: '-4%', left: '-3%' }, { top: '4%', left: '-5%' }, { top: '0%', left: '4%' } ],
+    offsets: [ { top: '-4%', left: '-3%' }, { top: '4%', left: '-5%' }, { top: '0%', left: '4%' }, { top: '6%', left: '2%' } ],
   },
   india: {
     baseTop: '45%', baseLeft: '65%',
-    offsets: [ { top: '-4%', left: '0%' }, { top: '3%', left: '-4%' }, { top: '3%', left: '4%' } ],
+    offsets: [ { top: '-4%', left: '0%' }, { top: '3%', left: '-4%' }, { top: '3%', left: '4%' }, { top: '7%', left: '0%' } ],
   },
   brazil: {
     baseTop: '60%', baseLeft: '30%',
-    offsets: [ { top: '-4%', left: '-2%' }, { top: '3%', left: '-4%' }, { top: '0%', left: '5%' } ],
+    offsets: [ { top: '-4%', left: '-2%' }, { top: '3%', left: '-4%' }, { top: '0%', left: '5%' }, { top: '6%', left: '2%' } ],
   },
   nigeria: {
     baseTop: '55%', baseLeft: '50%',
-    offsets: [ { top: '-3%', left: '-3%' }, { top: '3%', left: '0%' }, { top: '-2%', left: '4%' } ],
+    offsets: [ { top: '-3%', left: '-3%' }, { top: '3%', left: '0%' }, { top: '-2%', left: '4%' }, { top: '5%', left: '3%' } ],
   },
   germany: {
     baseTop: '30%', baseLeft: '52%',
-    offsets: [ { top: '-4%', left: '-2%' }, { top: '4%', left: '0%' }, { top: '0%', left: '4%' } ],
+    offsets: [ { top: '-4%', left: '-2%' }, { top: '4%', left: '0%' }, { top: '0%', left: '4%' }, { top: '-3%', left: '6%'} ],
   },
 };
 
@@ -235,3 +261,4 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     hasBeenTriggered: false,
   }
 ];
+

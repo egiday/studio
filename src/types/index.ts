@@ -23,6 +23,8 @@ export interface EvolutionItem {
   category: string; // ID of EvolutionCategory
   isEvolved: boolean;
   prerequisites?: string[]; // IDs of other EvolutionItems
+  specialAbilityName?: string;
+  specialAbilityDescription?: string;
 }
 
 export interface SubRegion {
@@ -32,7 +34,6 @@ export interface SubRegion {
   resistanceLevel: number; // 0-1
   economicDevelopment: number; // 0-1, relative to country or absolute
   culturalOpenness: number; // 0-1
-  // Added for more granular simulation if needed, can fallback to country stats
   internetPenetration?: number; // 0-1
   educationLevel?: number; // 0-1
   mediaFreedom?: number; // 0-1
