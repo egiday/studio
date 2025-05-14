@@ -7,6 +7,7 @@ import { WorldMap } from '@/components/game/WorldMap';
 import { ControlPanel } from '@/components/game/ControlPanel';
 import { EvolutionPanel } from '@/components/game/EvolutionPanel';
 import { NewsFeed } from '@/components/game/NewsFeed';
+import { AnalyticsDashboard } from '@/components/game/AnalyticsDashboard'; // Import new component
 import { CULTURAL_MOVEMENTS, EVOLUTION_CATEGORIES, EVOLUTION_ITEMS, INITIAL_COUNTRIES, STARTING_INFLUENCE_POINTS } from '@/config/gameData';
 import type { Country, EvolutionItem } from '@/types';
 import { useToast } from "@/hooks/use-toast";
@@ -98,7 +99,7 @@ export default function GamePage() {
           const baseSpreadRate = 0.01;
           const internetFactor = country.internetPenetration * 0.02;
           const opennessFactor = country.culturalOpenness * 0.02;
-          const evolvedTraitsFactor = (evolvedItemIds.size / EVOLUTION_ITEMS.length) * 0.05;
+          const evolvedTraitsFactor = (evolvedItemIds.size / (EVOLUTION_ITEMS.length || 1)) * 0.05;
           
           let spreadIncrease = baseSpreadRate + internetFactor + opennessFactor + evolvedTraitsFactor;
           
@@ -120,7 +121,7 @@ export default function GamePage() {
     toast({ title: `Day ${currentTurn + 1}`, description: "The movement progresses..." });
   };
   
-  const globalAdoptionRate = countries.reduce((sum, country) => sum + country.adoptionLevel, 0) / countries.length;
+  const globalAdoptionRate = countries.reduce((sum, country) => sum + country.adoptionLevel, 0) / (countries.length || 1);
   const currentMovementName = CULTURAL_MOVEMENTS.find(m => m.id === selectedMovementId)?.name || "Unnamed Movement";
 
   return (
@@ -165,6 +166,13 @@ export default function GamePage() {
                   recentEventsSummary={recentEvents}
                   currentTurn={currentTurn}
                 />
+                <AnalyticsDashboard
+                  countries={countries}
+                  influencePoints={influencePoints}
+                  evolvedItemIds={evolvedItemIds}
+                  evolutionItems={EVOLUTION_ITEMS}
+                  currentTurn={currentTurn}
+                />
               </>
             )}
           </div>
@@ -173,5 +181,3 @@ export default function GamePage() {
     </div>
   );
 }
-
-    
