@@ -7,14 +7,14 @@ import { WorldMap } from '@/components/game/WorldMap';
 import { ControlPanel } from '@/components/game/ControlPanel';
 import { EvolutionPanel } from '@/components/game/EvolutionPanel';
 import { NewsFeed } from '@/components/game/NewsFeed';
-import { AnalyticsDashboard } from '@/components/game/AnalyticsDashboard'; // Import new component
+import { AnalyticsDashboard } from '@/components/game/AnalyticsDashboard';
 import { CULTURAL_MOVEMENTS, EVOLUTION_CATEGORIES, EVOLUTION_ITEMS, INITIAL_COUNTRIES, STARTING_INFLUENCE_POINTS } from '@/config/gameData';
 import type { Country, EvolutionItem } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const BASE_IP_PER_TURN = 2;
-const ADOPTION_IP_MULTIPLIER = 5; // Multiplier for IP generated per adoption point per economic development point
+const ADOPTION_IP_MULTIPLIER = 5; 
 
 export default function GamePage() {
   const [selectedMovementId, setSelectedMovementId] = useState<string | undefined>(undefined);
@@ -28,6 +28,10 @@ export default function GamePage() {
 
   const { toast } = useToast();
 
+  const currentMovementName = CULTURAL_MOVEMENTS.find(m => m.id === selectedMovementId)?.name || "Unnamed Movement";
+  const globalAdoptionRate = countries.reduce((sum, country) => sum + country.adoptionLevel, 0) / (countries.length || 1);
+
+
   const handleMovementChange = (movementId: string) => {
     setSelectedMovementId(movementId);
   };
@@ -40,25 +44,25 @@ export default function GamePage() {
     if (selectedMovementId && selectedStartCountryId) {
       setGameStarted(true);
       setCurrentTurn(1);
-      // Initialize starting country adoption
       setCountries(prevCountries => prevCountries.map(c => 
-        c.id === selectedStartCountryId ? { ...c, adoptionLevel: 0.05 } : c
+        c.id === selectedStartCountryId ? { ...c, adoptionLevel: 0.05, resistanceLevel: c.resistanceLevel > 0 ? c.resistanceLevel * 0.8 : 0.05 } : c // Slightly reduce resistance in starting country
       ));
-      toast({ title: "Revolution Started!", description: `The ${CULTURAL_MOVEMENTS.find(m=>m.id===selectedMovementId)?.name} movement has begun in ${INITIAL_COUNTRIES.find(c=>c.id===selectedStartCountryId)?.name}.` });
-      setRecentEvents(`The ${CULTURAL_MOVEMENTS.find(m=>m.id===selectedMovementId)?.name} movement has begun in ${INITIAL_COUNTRIES.find(c=>c.id===selectedStartCountryId)?.name}. Initial adoption is low.`);
+      const movement = CULTURAL_MOVEMENTS.find(m=>m.id===selectedMovementId)?.name;
+      const country = INITIAL_COUNTRIES.find(c=>c.id===selectedStartCountryId)?.name;
+      toast({ title: "Revolution Started!", description: `The ${movement} movement has begun in ${country}.` });
+      setRecentEvents(`The ${movement} movement has begun in ${country}. Initial adoption is low.`);
     }
   };
 
   const handleEvolve = (itemId: string) => {
     const item = EVOLUTION_ITEMS.find(i => i.id === itemId);
     if (item && influencePoints >= item.cost && !evolvedItemIds.has(itemId)) {
-      // Check prerequisites
       const canEvolve = !item.prerequisites || item.prerequisites.every(prereqId => evolvedItemIds.has(prereqId));
       if (canEvolve) {
         setInfluencePoints(prev => prev - item.cost);
         setEvolvedItemIds(prev => new Set(prev).add(itemId));
         toast({ title: "Evolution Unlocked!", description: `${item.name} has been evolved.` });
-        setRecentEvents(`${item.name} was adopted, strengthening the movement.`);
+        setRecentEvents(`${item.name} was adopted, strengthening the ${currentMovementName}.`);
       } else {
         toast({ title: "Evolution Failed", description: `Prerequisites for ${item.name} not met.`, variant: "destructive" });
       }
@@ -75,54 +79,81 @@ export default function GamePage() {
   const handleNextTurn = () => {
     setCurrentTurn(prev => prev + 1);
     
-    // Calculate Influence Points based on adoption levels
     let pointsFromAdoption = 0;
     countries.forEach(country => {
       if (country.adoptionLevel > 0) {
-        // IP from this country = adoption_level * economic_development * multiplier
         pointsFromAdoption += country.adoptionLevel * country.economicDevelopment * ADOPTION_IP_MULTIPLIER;
       }
     });
     
-    // Add base points per turn and points from evolved items (e.g., traits that generate IP)
-    const evolvedIpBoost = evolvedItemIds.size * 0.5; // Example: each evolved item gives a small IP boost
+    const evolvedIpBoost = evolvedItemIds.size * 0.5; 
     const newPoints = Math.floor(BASE_IP_PER_TURN + pointsFromAdoption + evolvedIpBoost);
     
     setInfluencePoints(prev => prev + newPoints);
     
-    let newRecentEventsSummary = `Day ${currentTurn + 1}: The movement continues to grow. ${newPoints} IP generated.`;
+    let newRecentEventsSummary = `Day ${currentTurn + 1}: The ${currentMovementName} continues to grow. ${newPoints} IP generated.`;
+
+    const currentGlobalAdoptionForSpread = countries.reduce((sum, c) => sum + c.adoptionLevel, 0) / (countries.length || 1);
 
     setCountries(prevCountries => 
       prevCountries.map(country => {
         let newAdoptionLevel = country.adoptionLevel;
-        if (country.adoptionLevel > 0 && country.adoptionLevel < 1) {
-          const baseSpreadRate = 0.01;
-          const internetFactor = country.internetPenetration * 0.02;
-          const opennessFactor = country.culturalOpenness * 0.02;
-          const evolvedTraitsFactor = (evolvedItemIds.size / (EVOLUTION_ITEMS.length || 1)) * 0.05;
-          
-          let spreadIncrease = baseSpreadRate + internetFactor + opennessFactor + evolvedTraitsFactor;
-          
-          // Bonus for starting country
-          if (country.id === selectedStartCountryId) {
-            spreadIncrease *= 1.5;
-          }
 
-          newAdoptionLevel = Math.min(1, country.adoptionLevel + spreadIncrease);
+        if (country.adoptionLevel >= 1) { 
+          return { ...country, adoptionLevel: 1 };
+        }
+
+        const internetFactor = country.internetPenetration * 0.02;
+        const opennessFactor = country.culturalOpenness * 0.02;
+        const evolvedTraitsSpreadBonus = (evolvedItemIds.size / (EVOLUTION_ITEMS.length || 1)) * 0.03;
+
+        let spreadIncrease = 0;
+
+        if (country.adoptionLevel > 0) {
+          const internalGrowthRate = 0.01;
+          spreadIncrease = internalGrowthRate + internetFactor + opennessFactor + evolvedTraitsSpreadBonus;
           
-          if (newAdoptionLevel > country.adoptionLevel && newAdoptionLevel > 0.1 && Math.random() < 0.3) {
-            newRecentEventsSummary += ` ${country.name} sees growing interest.`;
+          if (country.id === selectedStartCountryId) {
+            spreadIncrease *= 1.5; 
+          } else {
+            spreadIncrease *= 0.7; // Non-starting countries grow internally a bit slower
+          }
+        } else {
+          const baseChanceToStart = 0.005; 
+          const globalInfluenceFactor = currentGlobalAdoptionForSpread * 0.1;
+          
+          let chance = baseChanceToStart + 
+                       (internetFactor / 2) + 
+                       (opennessFactor / 2) + 
+                       globalInfluenceFactor + 
+                       (evolvedTraitsSpreadBonus / 2);
+          
+          chance *= (1 - country.resistanceLevel * 0.5); // Resistance reduces chance
+
+          if (Math.random() < chance) {
+            spreadIncrease = 0.005 + (opennessFactor / 4); // Initial small adoption
+            if (spreadIncrease > 0) {
+                 newRecentEventsSummary += ` Whispers of the ${currentMovementName} reach ${country.name}.`;
+            }
           }
         }
+        
+        newAdoptionLevel = Math.min(1, country.adoptionLevel + spreadIncrease);
+        newAdoptionLevel = Math.max(0, newAdoptionLevel);
+
+        // Adjusted condition to avoid duplicate messaging for initial spread.
+        if (spreadIncrease > 0 && country.adoptionLevel > 0 && newAdoptionLevel > country.adoptionLevel && 
+            newAdoptionLevel > 0.1 && country.adoptionLevel <= 0.1 && Math.random() < 0.3) {
+           newRecentEventsSummary += ` ${country.name} shows growing interest in the ${currentMovementName}.`;
+        }
+        
         return { ...country, adoptionLevel: newAdoptionLevel };
       })
     );
     setRecentEvents(newRecentEventsSummary);
-    toast({ title: `Day ${currentTurn + 1}`, description: "The movement progresses..." });
+    toast({ title: `Day ${currentTurn + 1}`, description: `The ${currentMovementName} progresses...` });
   };
   
-  const globalAdoptionRate = countries.reduce((sum, country) => sum + country.adoptionLevel, 0) / (countries.length || 1);
-  const currentMovementName = CULTURAL_MOVEMENTS.find(m => m.id === selectedMovementId)?.name || "Unnamed Movement";
 
   return (
     <div className="flex flex-col h-screen bg-background">
