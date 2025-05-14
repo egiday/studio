@@ -42,8 +42,8 @@ export interface RivalMovement {
   startingCountryId: string;
   aggressiveness: number; // 0-1, general likelihood to act
   personality: AIPersonalityType; // Defines strategic tendencies
-  focus: 'spread' | 'resistance';
-  playerStance: DiplomaticStance; // Rival's stance towards the player
+  focus: 'spread' | 'resistance'; // This is illustrative, personality drives more now
+  playerStance: DiplomaticStance;
 }
 
 export interface RivalPresence {
@@ -61,13 +61,13 @@ export interface SubRegion {
   name: string;
   adoptionLevel: number; // 0-1 Player's culture
   resistanceLevel: number; // 0-1 Towards player's culture
-  resistanceArchetype?: ResistanceArchetype | null; // New
+  resistanceArchetype?: ResistanceArchetype | null;
   economicDevelopment: number; // 0-1, relative to country or absolute
   culturalOpenness: number; // 0-1
   internetPenetration?: number; // 0-1
   educationLevel?: number; // 0-1
   mediaFreedom?: number; // 0-1
-  rivalPresence?: RivalPresence | null; // Rival influence in this sub-region
+  rivalPresences: RivalPresence[]; // Changed from rivalPresence: RivalPresence | null
 }
 
 export interface Country {
@@ -80,9 +80,9 @@ export interface Country {
   mediaFreedom: number; // 0-1 (Can be average of subregions or base if no subregions)
   adoptionLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist) Player's culture
   resistanceLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist) Towards player's culture
-  resistanceArchetype?: ResistanceArchetype | null; // New - for countries without subregions
+  resistanceArchetype?: ResistanceArchetype | null;
   subRegions?: SubRegion[];
-  rivalPresence?: RivalPresence | null; // Rival influence in this country (if no subregions)
+  rivalPresences: RivalPresence[]; // Changed from rivalPresence: RivalPresence | null
 }
 
 export interface NewsHeadline {
@@ -128,14 +128,3 @@ export interface GlobalEvent {
   hasBeenTriggered: boolean; // To ensure one-off events don't re-trigger
   chosenOptionId?: string; // ID of the chosen option, if applicable
 }
-
-// --- Diplomacy System Types ---
-// export type DiplomaticActionType =
-//   | 'ImproveRelations'     // Hostile -> Neutral, Neutral -> Allied
-//   | 'DamageRelations'      // Allied -> Neutral, Neutral -> Hostile
-//   | 'DeclareWar'           // Any -> Hostile (more severe)
-//   | 'OfferPeace'           // Hostile -> Neutral (requires acceptance)
-//   | 'FormAlliance'         // Neutral -> Allied (requires acceptance)
-//   | 'BreakAlliance';       // Allied -> Neutral
-
-// We'll use DiplomaticStance for player actions for now, action types are for future AI.
