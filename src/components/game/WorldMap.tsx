@@ -2,7 +2,7 @@
 'use client';
 
 import type { Country, SubRegion } from '@/types';
-import Image from 'next/image';
+// import Image from 'next/image'; // No longer needed
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe, Zap, ChevronLeft } from 'lucide-react';
@@ -14,7 +14,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { subRegionPositions as SUB_REGION_LAYOUT_CONFIG } from '@/config/gameData'; // Renamed for clarity
+import { subRegionPositions as SUB_REGION_LAYOUT_CONFIG, countryPositions } from '@/config/gameData';
 
 interface WorldMapProps {
   countries: Country[];
@@ -22,16 +22,6 @@ interface WorldMapProps {
   onCollectInfluence: (points: number) => void;
   selectedCountryId?: string;
 }
-
-// Simplified representation of country positions on a generic map
-const countryPositions: Record<string, { top: string; left: string }> = {
-  usa: { top: '30%', left: '20%' },
-  china: { top: '35%', left: '70%' },
-  india: { top: '45%', left: '65%' },
-  brazil: { top: '60%', left: '30%' },
-  nigeria: { top: '55%', left: '50%' },
-  germany: { top: '30%', left: '52%' },
-};
 
 export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selectedCountryId }: WorldMapProps) {
   const [showInfluenceBubble, setShowInfluenceBubble] = useState(true);
@@ -43,21 +33,21 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
     setShowInfluenceBubble(false);
     setTimeout(() => setShowInfluenceBubble(true), 5000); // Respawn bubble after 5s
   };
-  
-  const getCountryColor = (adoptionLevel: number) => {
-    if (adoptionLevel > 0.75) return 'bg-primary/70 hover:bg-primary/80';
-    if (adoptionLevel > 0.5) return 'bg-primary/50 hover:bg-primary/60';
-    if (adoptionLevel > 0.25) return 'bg-primary/30 hover:bg-primary/40';
-    if (adoptionLevel > 0) return 'bg-primary/10 hover:bg-primary/20';
-    return 'bg-muted/30 hover:bg-muted/40';
+
+  const getRegionColor = (adoptionLevel: number) => { // Renamed for clarity
+    if (adoptionLevel > 0.75) return 'bg-primary/80 hover:bg-primary/90 border-primary';
+    if (adoptionLevel > 0.5) return 'bg-primary/60 hover:bg-primary/70 border-primary/70';
+    if (adoptionLevel > 0.25) return 'bg-primary/40 hover:bg-primary/50 border-primary/50';
+    if (adoptionLevel > 0) return 'bg-primary/20 hover:bg-primary/30 border-primary/30';
+    return 'bg-muted/50 hover:bg-muted/60 border-muted-foreground/30';
   };
 
   const handleCountryClick = (country: Country) => {
-    onCountrySelect(country.id); // For starting country selection
+    onCountrySelect(country.id);
     if (country.subRegions && country.subRegions.length > 0) {
       setZoomedCountry(country);
     } else {
-      setZoomedCountry(null); // Ensure zoom out if clicking a country without subregions
+      setZoomedCountry(null);
     }
   };
 
@@ -76,7 +66,7 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
       </div>
     </div>
   );
-  
+
   const renderCountryTooltipContent = (country: Country) => (
     <div className="p-2 space-y-1 text-sm w-48">
       <p className="font-bold text-base mb-1">{country.name}</p>
@@ -86,7 +76,7 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
         <span className="font-medium">Education:</span><span className="text-right">{(country.educationLevel * 100).toFixed(0)}%</span>
         <span className="font-medium">Economy:</span><span className="text-right">{(country.economicDevelopment * 100).toFixed(0)}%</span>
         <span className="font-medium">Openness:</span><span className="text-right">{(country.culturalOpenness * 100).toFixed(0)}%</span>
-        <span className="font-medium">Media Freedom:</span><span className="text-right">{(country.mediaFreedom * 100).toFixed(0)}%</span>
+        <span className="font-medium">Media:</span><span className="text-right">{(country.mediaFreedom * 100).toFixed(0)}%</span>
         <span className="font-medium">Resistance:</span><span className="text-right">{(country.resistanceLevel * 100).toFixed(0)}%</span>
       </div>
       {country.subRegions && country.subRegions.length > 0 && (
@@ -99,7 +89,7 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
     <Card className="h-full shadow-xl flex flex-col">
       <CardHeader className="flex flex-row justify-between items-center">
         <CardTitle className="flex items-center">
-          <Globe className="mr-2 h-6 w-6 text-primary" /> 
+          <Globe className="mr-2 h-6 w-6 text-primary" />
           {zoomedCountry ? `${zoomedCountry.name} - Regions` : 'World Overview'}
         </CardTitle>
         {zoomedCountry && (
@@ -108,16 +98,12 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
           </Button>
         )}
       </CardHeader>
-      <CardContent className="flex-grow relative overflow-hidden p-0">
+      <CardContent className={cn(
+        "flex-grow relative overflow-hidden p-4 bg-gradient-to-br from-background to-muted/30 transition-opacity duration-500",
+        zoomedCountry ? "opacity-70" : "opacity-100" // Dim background slightly when zoomed
+      )}>
         <TooltipProvider delayDuration={100}>
-          <Image
-            src="https://placehold.co/1200x800/A9CCE3/2E4053.png?text=Political+World+Map"
-            alt="World Map"
-            layout="fill"
-            objectFit="cover"
-            data-ai-hint="world map political"
-            className={cn("transition-opacity duration-300", zoomedCountry ? "opacity-20" : "opacity-60")}
-          />
+          {/* Background Image Removed */}
 
           {!zoomedCountry ? (
             countries.map((country) => (
@@ -126,19 +112,19 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
                   <TooltipTrigger asChild>
                     <Button
                       variant="outline"
-                      size="sm"
                       className={cn(
-                        `absolute p-2 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 rounded-lg shadow-lg transition-colors`,
-                        getCountryColor(country.adoptionLevel),
-                        selectedCountryId === country.id ? 'border-secondary ring-2 ring-secondary' : 'border-primary/50 hover:border-primary'
+                        `absolute p-3 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 shadow-lg transition-all duration-300 hover:scale-105`,
+                        getRegionColor(country.adoptionLevel),
+                        selectedCountryId === country.id ? 'ring-2 ring-offset-2 ring-accent scale-105' : 'border-opacity-50',
+                        'rounded-xl min-w-[100px]' // Abstract shape
                       )}
                       style={{ top: countryPositions[country.id].top, left: countryPositions[country.id].left }}
                       onClick={() => handleCountryClick(country)}
                       aria-label={`Select ${country.name}`}
                     >
-                      <div className="flex flex-col items-center">
+                      <div className="flex flex-col items-center text-center">
                         <span className="text-sm font-bold">{country.name}</span>
-                        <span className="text-xs font-medium opacity-90">{(country.adoptionLevel * 100).toFixed(0)}%</span>
+                        <span className="text-xs font-medium opacity-90">{(country.adoptionLevel * 100).toFixed(0)}% Adopted</span>
                       </div>
                     </Button>
                   </TooltipTrigger>
@@ -152,20 +138,30 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
             // Render SubRegions
             zoomedCountry.subRegions?.map((subRegion, index) => {
               const layoutConfig = SUB_REGION_LAYOUT_CONFIG[zoomedCountry.id];
-              let positionStyle = {};
+              let positionStyle = { top: '50%', left: '50%'}; // Default fallback
               if (layoutConfig && layoutConfig.offsets[index]) {
                 const baseTopPercent = parseFloat(layoutConfig.baseTop);
                 const baseLeftPercent = parseFloat(layoutConfig.baseLeft);
                 const offsetTopPercent = parseFloat(layoutConfig.offsets[index].top);
                 const offsetLeftPercent = parseFloat(layoutConfig.offsets[index].left);
+
+                // Adjust offsets to be relative to the center of the "zoomed" view
+                // This is a simplified approach. A real SVG map would handle this better.
+                const viewCenterX = 50; 
+                const viewCenterY = 50;
+                const scaleFactor = 2.5; // How much to "spread out" subregions
+
                 positionStyle = {
-                  top: `${baseTopPercent + offsetTopPercent}%`,
-                  left: `${baseLeftPercent + offsetLeftPercent}%`,
+                  top: `${viewCenterY + offsetTopPercent * scaleFactor}%`,
+                  left: `${viewCenterX + offsetLeftPercent * scaleFactor}%`,
                 };
+
               } else { // Fallback positioning if config is missing
+                  const angle = (index / (zoomedCountry.subRegions?.length || 1)) * 2 * Math.PI;
+                  const radius = 25; // Percentage radius from center
                   positionStyle = {
-                    top: `${20 + index * 15}%`, // Simple stacking for fallback, increased spacing
-                    left: '50%',
+                    top: `${50 + radius * Math.sin(angle)}%`,
+                    left: `${50 + radius * Math.cos(angle)}%`,
                   };
               }
 
@@ -174,18 +170,18 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
                   <TooltipTrigger asChild>
                     <Button
                       variant="outline"
-                      size="sm" // keep sm for consistency, but p-2 makes it effectively larger
                       className={cn(
-                        `absolute p-2 h-auto transform -translate-x-1/2 -translate-y-1/2 border rounded-md shadow-md transition-colors`,
-                        getCountryColor(subRegion.adoptionLevel), 
-                         'border-accent hover:border-accent/70 text-accent-foreground' 
+                        `absolute p-2.5 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 shadow-md transition-all duration-300 hover:scale-110`,
+                         getRegionColor(subRegion.adoptionLevel),
+                         'border-accent hover:border-accent/70 text-foreground', // Use foreground for better contrast on colored bg
+                         'rounded-lg min-w-[90px]' // Abstract shape for subregions
                       )}
                       style={positionStyle}
                       aria-label={`View ${subRegion.name}`}
                     >
-                      <div className="flex flex-col items-center">
-                        <span className="text-sm font-semibold">{subRegion.name}</span>
-                        <span className="text-xs font-medium opacity-90">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
+                      <div className="flex flex-col items-center text-center">
+                        <span className="text-xs font-semibold">{subRegion.name}</span>
+                        <span className="text-[10px] font-medium opacity-90">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
                       </div>
                     </Button>
                   </TooltipTrigger>
@@ -197,7 +193,7 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
             })
           )}
         </TooltipProvider>
-        {showInfluenceBubble && !zoomedCountry && ( // Only show bubble in world view
+        {showInfluenceBubble && !zoomedCountry && (
           <Button
             variant="default"
             size="icon"
@@ -212,3 +208,4 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
     </Card>
   );
 }
+
