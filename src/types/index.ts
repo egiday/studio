@@ -27,10 +27,10 @@ export interface EvolutionItem {
   specialAbilityDescription?: string;
 }
 
-export type AIPersonalityType = 
-  | 'AggressiveExpansionist' 
+export type AIPersonalityType =
+  | 'AggressiveExpansionist'
   | 'CautiousConsolidator';
-  // Future: | 'OpportunisticInfiltrator'; 
+  // Future: | 'OpportunisticInfiltrator';
 
 export type DiplomaticStance = 'Neutral' | 'Hostile' | 'Allied';
 
@@ -38,11 +38,11 @@ export interface RivalMovement {
   id: string;
   name: string;
   icon: LucideIcon;
-  color: string; 
+  color: string;
   startingCountryId: string;
   aggressiveness: number; // 0-1, general likelihood to act
   personality: AIPersonalityType; // Defines strategic tendencies
-  focus: 'spread' | 'resistance'; 
+  focus: 'spread' | 'resistance';
   playerStance: DiplomaticStance; // Rival's stance towards the player
 }
 
@@ -51,11 +51,17 @@ export interface RivalPresence {
   influenceLevel: number; // 0-1
 }
 
+export type ResistanceArchetype =
+  | 'TraditionalistGuardians' // Resists change, strong in low openness areas
+  | 'CounterCulturalRebels'   // Pushes back against established player culture
+  | 'AuthoritarianSuppressors'; // Uses heavy-handed tactics, impacts IP/costs
+
 export interface SubRegion {
   id: string;
   name: string;
   adoptionLevel: number; // 0-1 Player's culture
   resistanceLevel: number; // 0-1 Towards player's culture
+  resistanceArchetype?: ResistanceArchetype | null; // New
   economicDevelopment: number; // 0-1, relative to country or absolute
   culturalOpenness: number; // 0-1
   internetPenetration?: number; // 0-1
@@ -74,6 +80,7 @@ export interface Country {
   mediaFreedom: number; // 0-1 (Can be average of subregions or base if no subregions)
   adoptionLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist) Player's culture
   resistanceLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist) Towards player's culture
+  resistanceArchetype?: ResistanceArchetype | null; // New - for countries without subregions
   subRegions?: SubRegion[];
   rivalPresence?: RivalPresence | null; // Rival influence in this country (if no subregions)
 }
@@ -123,12 +130,12 @@ export interface GlobalEvent {
 }
 
 // --- Diplomacy System Types ---
-export type DiplomaticActionType = 
-  | 'ImproveRelations'     // Hostile -> Neutral, Neutral -> Allied
-  | 'DamageRelations'      // Allied -> Neutral, Neutral -> Hostile
-  | 'DeclareWar'           // Any -> Hostile (more severe)
-  | 'OfferPeace'           // Hostile -> Neutral (requires acceptance)
-  | 'FormAlliance'         // Neutral -> Allied (requires acceptance)
-  | 'BreakAlliance';       // Allied -> Neutral
+// export type DiplomaticActionType =
+//   | 'ImproveRelations'     // Hostile -> Neutral, Neutral -> Allied
+//   | 'DamageRelations'      // Allied -> Neutral, Neutral -> Hostile
+//   | 'DeclareWar'           // Any -> Hostile (more severe)
+//   | 'OfferPeace'           // Hostile -> Neutral (requires acceptance)
+//   | 'FormAlliance'         // Neutral -> Allied (requires acceptance)
+//   | 'BreakAlliance';       // Allied -> Neutral
 
 // We'll use DiplomaticStance for player actions for now, action types are for future AI.
