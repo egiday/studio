@@ -10,20 +10,30 @@ import { NewsFeed } from '@/components/game/NewsFeed';
 import { AnalyticsDashboard } from '@/components/game/AnalyticsDashboard';
 import { GlobalEventsDisplay } from '@/components/game/GlobalEventsDisplay';
 import { InteractiveEventModal } from '@/components/game/InteractiveEventModal';
-import { DiplomacyPanel } from '@/components/game/DiplomacyPanel'; // Import DiplomacyPanel
+import { DiplomacyPanel } from '@/components/game/DiplomacyPanel';
 import { CULTURAL_MOVEMENTS, EVOLUTION_CATEGORIES, EVOLUTION_ITEMS, INITIAL_COUNTRIES, STARTING_INFLUENCE_POINTS, POTENTIAL_GLOBAL_EVENTS, RIVAL_MOVEMENTS } from '@/config/gameData';
 import type { Country, SubRegion, EvolutionItem, GlobalEvent, GlobalEventEffectProperty, GlobalEventOption, RivalMovement, RivalPresence, DiplomaticStance } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Lightbulb, AlertCircle, Newspaper, Info as InfoIcon, Handshake } from 'lucide-react'; // Added Handshake
+import { Lightbulb, AlertCircle, Newspaper, Info as InfoIcon, Handshake, Trophy, Skull } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+
 
 const BASE_IP_PER_TURN = 2;
 const ADOPTION_IP_MULTIPLIER = 5;
-const RIVAL_SPREAD_PENALTY = 0.15; 
-const RIVAL_COUNTER_RESISTANCE_CHANCE = 0.15; 
+const RIVAL_SPREAD_PENALTY = 0.15;
+const RIVAL_COUNTER_RESISTANCE_CHANCE = 0.15;
 const RIVAL_COUNTER_RESISTANCE_AMOUNT = 0.03;
 const DIPLOMACY_STANCE_CHANGE_COST = 10;
+
+// Win/Loss Condition Thresholds
+const WIN_PLAYER_GLOBAL_ADOPTION = 0.70;
+const WIN_RIVAL_MAX_GLOBAL_INFLUENCE = 0.15;
+const LOSE_RIVAL_DOMINANCE_THRESHOLD = 0.60;
+const LOSE_PLAYER_COLLAPSE_ADOPTION = 0.05;
+const LOSE_PLAYER_MIN_PEAK_ADOPTION = 0.20;
+const LOSE_IP_ZERO_STREAK_TURNS = 3;
 
 
 export default function GamePage() {
@@ -36,7 +46,7 @@ export default function GamePage() {
     subRegions: c.subRegions ? c.subRegions.map(sr => ({ ...sr, rivalPresence: sr.rivalPresence || null })) : undefined,
     rivalPresence: c.rivalPresence || null,
   })));
-  const [rivalMovements, setRivalMovements] = useState<RivalMovement[]>(RIVAL_MOVEMENTS.map(r => ({...r, playerStance: r.playerStance || 'Hostile'}))); // Initialize stance
+  const [rivalMovements, setRivalMovements] = useState<RivalMovement[]>(RIVAL_MOVEMENTS.map(r => ({...r, playerStance: r.playerStance || 'Hostile'})));
   const [gameStarted, setGameStarted] = useState(false);
   const [currentTurn, setCurrentTurn] = useState(0);
   const [recentEvents, setRecentEvents] = useState("The cultural movement is just beginning.");
@@ -47,14 +57,21 @@ export default function GamePage() {
   const [pendingInteractiveEvent, setPendingInteractiveEvent] = useState<GlobalEvent | null>(null);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
 
+  const [gameOver, setGameOver] = useState(false);
+  const [gameOverTitle, setGameOverTitle] = useState("");
+  const [gameOverDescription, setGameOverDescription] = useState("");
+  const [maxPlayerAdoptionEver, setMaxPlayerAdoptionEver] = useState(0);
+  const [ipZeroStreak, setIpZeroStreak] = useState(0);
+
+
   const { toast } = useToast();
 
   const currentMovementName = CULTURAL_MOVEMENTS.find(m => m.id === selectedMovementId)?.name || "Unnamed Movement";
 
-  const calculateGlobalAdoptionRate = useCallback(() => {
+  const calculateGlobalAdoptionRate = useCallback((currentCountries: Country[]): number => {
     let totalPlayerAdoption = 0;
-    let numReportingUnits = 0; 
-    countries.forEach(country => {
+    let numReportingUnits = 0;
+    currentCountries.forEach(country => {
       if (country.subRegions && country.subRegions.length > 0) {
         country.subRegions.forEach(sr => {
           totalPlayerAdoption += sr.adoptionLevel;
@@ -66,8 +83,28 @@ export default function GamePage() {
       }
     });
     return numReportingUnits > 0 ? totalPlayerAdoption / numReportingUnits : 0;
-  }, [countries]);
-  const globalAdoptionRate = calculateGlobalAdoptionRate();
+  }, []);
+
+  const calculateRivalGlobalInfluence = useCallback((rivalId: string, currentCountries: Country[]): number => {
+    let totalRivalInfluence = 0;
+    let numReportingUnits = 0;
+    currentCountries.forEach(country => {
+      if (country.subRegions && country.subRegions.length > 0) {
+        country.subRegions.forEach(sr => {
+          if (sr.rivalPresence && sr.rivalPresence.rivalId === rivalId) {
+            totalRivalInfluence += sr.rivalPresence.influenceLevel;
+          }
+          numReportingUnits++;
+        });
+      } else {
+        if (country.rivalPresence && country.rivalPresence.rivalId === rivalId) {
+          totalRivalInfluence += country.rivalPresence.influenceLevel;
+        }
+        numReportingUnits++;
+      }
+    });
+    return numReportingUnits > 0 ? totalRivalInfluence / numReportingUnits : 0;
+  }, []);
 
 
   const handleMovementChange = (movementId: string) => {
@@ -106,8 +143,8 @@ export default function GamePage() {
           if (c.id === rival.startingCountryId) {
             const rivalPresenceObj: RivalPresence = { rivalId: rival.id, influenceLevel: 0.05 };
             if (c.subRegions && c.subRegions.length > 0) {
-              const targetSubRegionIndex = c.subRegions.findIndex(sr => sr.name.includes("Citadel") || sr.name.includes("Capital") || sr.name.includes("Nexus")) 
-              const actualIndex = targetSubRegionIndex !== -1 ? targetSubRegionIndex : Math.floor(Math.random() * c.subRegions.length); // Random if no special name
+              const targetSubRegionIndex = c.subRegions.findIndex(sr => sr.name.includes("Citadel") || sr.name.includes("Capital") || sr.name.includes("Nexus"))
+              const actualIndex = targetSubRegionIndex !== -1 ? targetSubRegionIndex : Math.floor(Math.random() * c.subRegions.length);
 
               const updatedSubRegions = c.subRegions.map((sr, index) =>
                 index === actualIndex ? { ...sr, rivalPresence: rivalPresenceObj } : sr
@@ -158,14 +195,14 @@ export default function GamePage() {
       economicDevelopment: { additive: 0, multiplicative: 1 },
       resistanceLevel: { additive: 0, multiplicative: 1 },
       adoptionRateModifier: { additive: 0, multiplicative: 1 },
-      ipBonus: { additive: 0, multiplicative: 1 }, 
+      ipBonus: { additive: 0, multiplicative: 1 },
     };
 
     currentActiveEvents.forEach(event => {
       event.effects.forEach(effect => {
         if (effect.targetType === 'global' || (effect.targetType === 'country' && effect.countryId === countryId)) {
           const prop = effect.property as GlobalEventEffectProperty;
-          if (prop !== 'ipBonus' && modifiers[prop]) { 
+          if (modifiers[prop]) {
              if (effect.isMultiplier) {
                 modifiers[prop]!.multiplicative *= effect.value;
              } else {
@@ -194,11 +231,11 @@ export default function GamePage() {
 
     const resolvedEvent: GlobalEvent = {
       ...eventWithNoChoice,
-      effects: chosenOption.effects, 
+      effects: chosenOption.effects,
       chosenOptionId: optionId,
-      hasBeenTriggered: true, 
+      hasBeenTriggered: true,
     };
-    
+
     const hasOngoingEffects = chosenOption.effects.some(eff => eff.property !== 'ipBonus');
     if (hasOngoingEffects) {
         setActiveGlobalEvents(prev => [...prev, resolvedEvent]);
@@ -223,6 +260,8 @@ export default function GamePage() {
       setIsEventModalOpen(true);
       return;
     }
+    if (gameOver) return;
+
 
     const nextTurn = currentTurn + 1;
     setCurrentTurn(nextTurn);
@@ -231,10 +270,10 @@ export default function GamePage() {
     let ipFromNonInteractiveEventsThisTurn = 0;
 
     const newlyTriggeredNonInteractiveEvents: GlobalEvent[] = [];
-    setAllPotentialEvents(prevAllEvents => 
+    setAllPotentialEvents(prevAllEvents =>
       prevAllEvents.map(event => {
         if (!event.hasBeenTriggered && event.turnStart === nextTurn) {
-          const eventToProcess = { ...event, hasBeenTriggered: true }; 
+          const eventToProcess = { ...event, hasBeenTriggered: true };
           if (eventToProcess.options && eventToProcess.options.length > 0) {
             setPendingInteractiveEvent(eventToProcess);
             setIsEventModalOpen(true);
@@ -252,12 +291,12 @@ export default function GamePage() {
               }
             });
           }
-          return eventToProcess; 
+          return eventToProcess;
         }
-        return event; 
+        return event;
       })
     );
-    
+
     let currentActiveGlobalEvents = activeGlobalEvents;
     setActiveGlobalEvents(prevActiveEvents => {
         const currentEventsForTurn = [...prevActiveEvents, ...newlyTriggeredNonInteractiveEvents];
@@ -277,7 +316,7 @@ export default function GamePage() {
 
     let pointsFromAdoptionThisTurn = 0;
     countries.forEach(country => {
-      const countryModifiers = getCountryModifiers(country.id, currentActiveGlobalEvents); 
+      const countryModifiers = getCountryModifiers(country.id, currentActiveGlobalEvents);
       if (country.subRegions && country.subRegions.length > 0) {
         country.subRegions.forEach(sr => {
           if (sr.adoptionLevel > 0) {
@@ -294,16 +333,25 @@ export default function GamePage() {
       }
     });
 
-    const evolvedIpBoost = evolvedItemIds.size * 0.5; 
+    const evolvedIpBoost = evolvedItemIds.size * 0.5;
     const newPoints = Math.floor(BASE_IP_PER_TURN + pointsFromAdoptionThisTurn + evolvedIpBoost + ipFromNonInteractiveEventsThisTurn);
-    setInfluencePoints(prev => prev + newPoints);
+    
+    setInfluencePoints(prev => {
+      const updatedIP = prev + newPoints;
+      if (updatedIP <= 0) {
+        setIpZeroStreak(currentStreak => currentStreak + 1);
+      } else {
+        setIpZeroStreak(0);
+      }
+      return updatedIP;
+    });
     newRecentEventsSummary += ` ${newPoints} IP generated.`;
 
-    const currentGlobalAdoptionForSpreadCalc = calculateGlobalAdoptionRate();
+    const currentGlobalAdoptionForSpreadCalc = calculateGlobalAdoptionRate(countries);
     const hasResistanceManagement = evolvedItemIds.has('adapt_resistance_mgmt');
 
     let updatedCountries = countries.map(country => {
-      const countryModifiers = getCountryModifiers(country.id, currentActiveGlobalEvents); 
+      const countryModifiers = getCountryModifiers(country.id, currentActiveGlobalEvents);
       let updatedCountry = { ...country };
 
       if (updatedCountry.subRegions && updatedCountry.subRegions.length > 0) {
@@ -314,30 +362,30 @@ export default function GamePage() {
           let currentSubRegion = { ...sr };
           const srInternetPenetration = sr.internetPenetration ?? country.internetPenetration;
           const srCulturalOpenness = sr.culturalOpenness ?? country.culturalOpenness;
-          
+
           let effectiveCulturalOpenness = Math.max(0, Math.min(1, (srCulturalOpenness + countryModifiers.culturalOpenness.additive) * countryModifiers.culturalOpenness.multiplicative));
           let newAdoptionLevel = currentSubRegion.adoptionLevel;
           let newResistanceLevel = Math.max(0, Math.min(1, (currentSubRegion.resistanceLevel + countryModifiers.resistanceLevel.additive) * countryModifiers.resistanceLevel.multiplicative));
 
           if (hasResistanceManagement && newAdoptionLevel > 0 && newResistanceLevel > 0.05) {
-            newResistanceLevel = Math.max(0.01, newResistanceLevel - 0.01); 
+            newResistanceLevel = Math.max(0.01, newResistanceLevel - 0.01);
           }
 
-          if (newAdoptionLevel > 0.3 && newAdoptionLevel < 0.9) { 
+          if (newAdoptionLevel > 0.3 && newAdoptionLevel < 0.9) {
             let resistanceIncreaseFactor = (0.005 * (1 - effectiveCulturalOpenness)) * (newAdoptionLevel - 0.2);
-            if (hasResistanceManagement) resistanceIncreaseFactor *= 0.3; 
-            if (Math.random() < 0.3) { 
+            if (hasResistanceManagement) resistanceIncreaseFactor *= 0.3;
+            if (Math.random() < 0.3) {
               const previousResistance = newResistanceLevel;
               newResistanceLevel = Math.min(0.9, newResistanceLevel + resistanceIncreaseFactor);
-              if (newResistanceLevel > previousResistance + 0.001) { 
+              if (newResistanceLevel > previousResistance + 0.001) {
                 newRecentEventsSummary += ` ${currentSubRegion.name} in ${country.name} shows increased opposition to ${currentMovementName}.`;
               }
             }
           }
 
-          if (newAdoptionLevel >= 1) { 
+          if (newAdoptionLevel >= 1) {
             totalSubRegionAdoption += 1;
-            totalSubRegionResistance += Math.max(0.01, newResistanceLevel - 0.05); 
+            totalSubRegionResistance += Math.max(0.01, newResistanceLevel - 0.05);
             return { ...currentSubRegion, adoptionLevel: 1, resistanceLevel: Math.max(0.01, newResistanceLevel - 0.05) };
           }
 
@@ -346,43 +394,43 @@ export default function GamePage() {
           const evolvedTraitsSpreadBonus = (evolvedItemIds.size / (EVOLUTION_ITEMS.length || 1)) * 0.03;
           let spreadIncrease = 0;
 
-          if (newAdoptionLevel > 0) { 
-            const internalGrowthRate = 0.01; 
+          if (newAdoptionLevel > 0) {
+            const internalGrowthRate = 0.01;
             spreadIncrease = internalGrowthRate + internetFactor + opennessFactor + evolvedTraitsSpreadBonus;
-            
-            const isStartingSubRegion = country.id === selectedStartCountryId && 
-                                        country.subRegions && 
-                                        country.subRegions.length > 0 && 
+
+            const isStartingSubRegion = country.id === selectedStartCountryId &&
+                                        country.subRegions &&
+                                        country.subRegions.length > 0 &&
                                         country.subRegions[0].id === sr.id;
 
             if (isStartingSubRegion && sr.adoptionLevel > 0.04) {
-                spreadIncrease *= 1.2; 
+                spreadIncrease *= 1.2;
             } else {
-                 spreadIncrease *= 0.8; 
+                 spreadIncrease *= 0.8;
             }
-            spreadIncrease *= (1 - newResistanceLevel * 0.75); 
-          } else { 
+            spreadIncrease *= (1 - newResistanceLevel * 0.75);
+          } else {
             const baseChanceToStart = 0.005;
-            const globalInfluenceFactor = currentGlobalAdoptionForSpreadCalc * 0.1; 
+            const globalInfluenceFactor = currentGlobalAdoptionForSpreadCalc * 0.1;
             let chance = baseChanceToStart + (internetFactor / 2) + (opennessFactor / 2) + globalInfluenceFactor + (evolvedTraitsSpreadBonus / 2);
-            chance *= (1 - newResistanceLevel * 0.9); 
+            chance *= (1 - newResistanceLevel * 0.9);
             if (Math.random() < chance) {
-              spreadIncrease = 0.005 + (opennessFactor / 4); 
+              spreadIncrease = 0.005 + (opennessFactor / 4);
               if (spreadIncrease > 0) {
                  newRecentEventsSummary += ` Whispers of ${currentMovementName} reach ${currentSubRegion.name} in ${country.name}.`;
               }
             }
           }
-          
+
           spreadIncrease *= countryModifiers.adoptionRateModifier.multiplicative;
           spreadIncrease += countryModifiers.adoptionRateModifier.additive;
 
           if (currentSubRegion.rivalPresence && currentSubRegion.rivalPresence.influenceLevel > 0.01) {
-            spreadIncrease *= (1 - (RIVAL_SPREAD_PENALTY + currentSubRegion.rivalPresence.influenceLevel * 0.1)); 
+            spreadIncrease *= (1 - (RIVAL_SPREAD_PENALTY + currentSubRegion.rivalPresence.influenceLevel * 0.1));
           }
 
           newAdoptionLevel = Math.min(1, newAdoptionLevel + spreadIncrease);
-          newAdoptionLevel = Math.max(0, newAdoptionLevel); 
+          newAdoptionLevel = Math.max(0, newAdoptionLevel);
 
           if (spreadIncrease > 0 && currentSubRegion.adoptionLevel === 0 && newAdoptionLevel > 0.005 && Math.random() < 0.5) {
           } else if (spreadIncrease > 0 && currentSubRegion.adoptionLevel > 0 && newAdoptionLevel > currentSubRegion.adoptionLevel && newAdoptionLevel > 0.1 && currentSubRegion.adoptionLevel <= 0.1 && Math.random() < 0.3) {
@@ -397,7 +445,7 @@ export default function GamePage() {
         updatedCountry.adoptionLevel = totalSubRegionAdoption / updatedCountry.subRegions.length;
         updatedCountry.resistanceLevel = totalSubRegionResistance / updatedCountry.subRegions.length;
 
-      } else { 
+      } else {
         let baseCulturalOpenness = country.culturalOpenness;
         let effectiveCulturalOpenness = Math.max(0, Math.min(1, (baseCulturalOpenness + countryModifiers.culturalOpenness.additive) * countryModifiers.culturalOpenness.multiplicative));
         let newAdoptionLevel = country.adoptionLevel;
@@ -427,8 +475,8 @@ export default function GamePage() {
         if (country.adoptionLevel > 0) {
           const internalGrowthRate = 0.01;
           spreadIncrease = internalGrowthRate + internetFactor + opennessFactor + evolvedTraitsSpreadBonus;
-          if (country.id === selectedStartCountryId) spreadIncrease *= 1.5; 
-          else spreadIncrease *= 0.7; 
+          if (country.id === selectedStartCountryId) spreadIncrease *= 1.5;
+          else spreadIncrease *= 0.7;
           spreadIncrease *= (1 - newResistanceLevel * 0.75);
         } else {
           const baseChanceToStart = 0.005;
@@ -465,7 +513,7 @@ export default function GamePage() {
     rivalMovements.forEach(rival => {
       updatedCountries = updatedCountries.map(country => {
         let modCountry = {...country};
-        const countryCulturalOpenness = modCountry.culturalOpenness; 
+        const countryCulturalOpenness = modCountry.culturalOpenness;
 
         if (modCountry.subRegions && modCountry.subRegions.length > 0) {
            modCountry.subRegions = modCountry.subRegions.map(sr => {
@@ -475,21 +523,21 @@ export default function GamePage() {
             const srPlayerAdoption = modSr.adoptionLevel;
             let srPlayerResistance = modSr.resistanceLevel;
 
-            const baseGain = (0.02 + Math.random() * 0.03) * rival.aggressiveness; // Slightly increased base gain
-            const resistanceFactor = (1 - srCulturalOpenness * 0.35); // Slightly less penalty from openness
-            const playerPresencePenalty = srPlayerAdoption * 0.20; // Slightly less penalty from player presence
+            const baseGain = (0.02 + Math.random() * 0.03) * rival.aggressiveness;
+            const resistanceFactor = (1 - srCulturalOpenness * 0.35);
+            const playerPresencePenalty = srPlayerAdoption * 0.20;
 
             if (rival.personality === 'AggressiveExpansionist') {
-              if (srRivalPresence) { 
-                if (Math.random() < (0.35 + rival.aggressiveness * 0.35) && srRivalPresence.influenceLevel < 0.95) { // Increased chance
+              if (srRivalPresence) {
+                if (Math.random() < (0.35 + rival.aggressiveness * 0.35) && srRivalPresence.influenceLevel < 0.95) {
                   const increase = baseGain * resistanceFactor * (1 - playerPresencePenalty);
                   modSr.rivalPresence = { ...srRivalPresence, influenceLevel: Math.min(0.95, srRivalPresence.influenceLevel + increase) };
                   if (increase > 0.001) newRecentEventsSummary += ` ${rival.name} intensifies efforts in ${sr.name}, ${country.name}.`;
                 }
-              } else { 
-                const neighborInfluenced = modCountry.subRegions?.some(s => s.rivalPresence?.rivalId === rival.id && s.rivalPresence.influenceLevel > (0.04 + (1-rival.aggressiveness)*0.1) ); // Lower threshold for spread
-                if (neighborInfluenced && Math.random() < (0.025 + rival.aggressiveness * 0.20)) { // Increased base chance
-                  const initialInfluence = (0.015 + Math.random() * 0.035) * resistanceFactor * (1 - playerPresencePenalty); // Slightly higher initial
+              } else {
+                const neighborInfluenced = modCountry.subRegions?.some(s => s.rivalPresence?.rivalId === rival.id && s.rivalPresence.influenceLevel > (0.04 + (1-rival.aggressiveness)*0.1) );
+                if (neighborInfluenced && Math.random() < (0.025 + rival.aggressiveness * 0.20)) {
+                  const initialInfluence = (0.015 + Math.random() * 0.035) * resistanceFactor * (1 - playerPresencePenalty);
                   if(initialInfluence > 0) {
                     modSr.rivalPresence = { rivalId: rival.id, influenceLevel: Math.max(0.005, initialInfluence) };
                     newRecentEventsSummary += ` ${rival.name} makes a push into ${sr.name}, ${country.name}.`;
@@ -497,9 +545,9 @@ export default function GamePage() {
                 }
               }
             } else if (rival.personality === 'CautiousConsolidator') {
-              if (srRivalPresence) { 
-                if (Math.random() < (0.65 + rival.aggressiveness * 0.25) && srRivalPresence.influenceLevel < 0.98) {  // Increased chance
-                  const increase = baseGain * resistanceFactor * (1 - playerPresencePenalty * 0.4);  // Less penalty
+              if (srRivalPresence) {
+                if (Math.random() < (0.65 + rival.aggressiveness * 0.25) && srRivalPresence.influenceLevel < 0.98) {
+                  const increase = baseGain * resistanceFactor * (1 - playerPresencePenalty * 0.4);
                   modSr.rivalPresence = { ...srRivalPresence, influenceLevel: Math.min(0.98, srRivalPresence.influenceLevel + increase) };
                   if (increase > 0.001 && srRivalPresence.influenceLevel < 0.8) newRecentEventsSummary += ` ${rival.name} fortifies its position in ${sr.name}, ${country.name}.`;
                 }
@@ -510,12 +558,12 @@ export default function GamePage() {
                     }
                 }
 
-              } else { 
-                const dominantInCountry = (modCountry.subRegions?.filter(s => s.rivalPresence?.rivalId === rival.id && s.rivalPresence.influenceLevel > 0.55).length ?? 0) / (modCountry.subRegions?.length ?? 1) > 0.45; // Lower threshold
-                const neighborStronglyInfluenced = modCountry.subRegions?.some(s => s.rivalPresence?.rivalId === rival.id && s.rivalPresence.influenceLevel > 0.25); // Lower threshold
+              } else {
+                const dominantInCountry = (modCountry.subRegions?.filter(s => s.rivalPresence?.rivalId === rival.id && s.rivalPresence.influenceLevel > 0.55).length ?? 0) / (modCountry.subRegions?.length ?? 1) > 0.45;
+                const neighborStronglyInfluenced = modCountry.subRegions?.some(s => s.rivalPresence?.rivalId === rival.id && s.rivalPresence.influenceLevel > 0.25);
 
-                if (dominantInCountry && neighborStronglyInfluenced && Math.random() < (0.025 + rival.aggressiveness * 0.06)) { // Increased chance
-                   const initialInfluence = (0.008 + Math.random() * 0.02) * resistanceFactor * (1 - playerPresencePenalty); // Slightly higher initial
+                if (dominantInCountry && neighborStronglyInfluenced && Math.random() < (0.025 + rival.aggressiveness * 0.06)) {
+                   const initialInfluence = (0.008 + Math.random() * 0.02) * resistanceFactor * (1 - playerPresencePenalty);
                    if(initialInfluence > 0) {
                     modSr.rivalPresence = { rivalId: rival.id, influenceLevel: Math.max(0.005, initialInfluence) };
                     newRecentEventsSummary += ` ${rival.name} carefully expands to ${sr.name}, ${country.name}.`;
@@ -525,28 +573,28 @@ export default function GamePage() {
             }
             return modSr;
           });
-        } else { 
+        } else {
             const countryRivalPresence = modCountry.rivalPresence?.rivalId === rival.id ? modCountry.rivalPresence : null;
             const playerAdoption = modCountry.adoptionLevel;
             let playerResistance = modCountry.resistanceLevel;
-            const baseGainCountry = (0.02 + Math.random() * 0.03) * rival.aggressiveness; // Slightly increased
-            const resistanceFactorCountry = (1 - countryCulturalOpenness * 0.35); // Slightly less penalty
-            const playerPresencePenaltyCountry = playerAdoption * 0.20; // Slightly less penalty
+            const baseGainCountry = (0.02 + Math.random() * 0.03) * rival.aggressiveness;
+            const resistanceFactorCountry = (1 - countryCulturalOpenness * 0.35);
+            const playerPresencePenaltyCountry = playerAdoption * 0.20;
 
             if (rival.personality === 'AggressiveExpansionist') {
               if (countryRivalPresence) {
-                if (Math.random() < (0.35 + rival.aggressiveness * 0.35) && countryRivalPresence.influenceLevel < 0.95) { // Increased chance
+                if (Math.random() < (0.35 + rival.aggressiveness * 0.35) && countryRivalPresence.influenceLevel < 0.95) {
                   const increase = baseGainCountry * resistanceFactorCountry * (1 - playerPresencePenaltyCountry);
                   modCountry.rivalPresence = { ...countryRivalPresence, influenceLevel: Math.min(0.95, countryRivalPresence.influenceLevel + increase) };
                    if (increase > 0.001) newRecentEventsSummary += ` ${rival.name} intensifies efforts in ${country.name}.`;
                 }
-              } else if (modCountry.id !== rival.startingCountryId) { 
+              } else if (modCountry.id !== rival.startingCountryId) {
                  const sourceCountryStrong = updatedCountries.some(c =>
-                    (c.rivalPresence?.rivalId === rival.id && c.rivalPresence.influenceLevel > (0.18 + (1-rival.aggressiveness)*0.2)) || // Lower threshold
+                    (c.rivalPresence?.rivalId === rival.id && c.rivalPresence.influenceLevel > (0.18 + (1-rival.aggressiveness)*0.2)) ||
                     c.subRegions?.some(sr => sr.rivalPresence?.rivalId === rival.id && sr.rivalPresence.influenceLevel > (0.18 + (1-rival.aggressiveness)*0.2))
                 );
-                if (sourceCountryStrong && Math.random() < (0.01 + rival.aggressiveness * 0.02)) { // Increased chance
-                    const initialInfluence = (0.015 + Math.random() * 0.035) * resistanceFactorCountry * (1 - playerPresencePenaltyCountry); // Slightly higher initial
+                if (sourceCountryStrong && Math.random() < (0.01 + rival.aggressiveness * 0.02)) {
+                    const initialInfluence = (0.015 + Math.random() * 0.035) * resistanceFactorCountry * (1 - playerPresencePenaltyCountry);
                     if(initialInfluence > 0) {
                         modCountry.rivalPresence = { rivalId: rival.id, influenceLevel: Math.max(0.005, initialInfluence) };
                         newRecentEventsSummary += ` ${rival.name} launches an offensive into ${country.name}!`;
@@ -555,8 +603,8 @@ export default function GamePage() {
               }
             } else if (rival.personality === 'CautiousConsolidator') {
               if (countryRivalPresence) {
-                 if (Math.random() < (0.65 + rival.aggressiveness * 0.25) && countryRivalPresence.influenceLevel < 0.98) { // Increased chance
-                    const increase = baseGainCountry * resistanceFactorCountry * (1 - playerPresencePenaltyCountry * 0.4); // Less penalty
+                 if (Math.random() < (0.65 + rival.aggressiveness * 0.25) && countryRivalPresence.influenceLevel < 0.98) {
+                    const increase = baseGainCountry * resistanceFactorCountry * (1 - playerPresencePenaltyCountry * 0.4);
                     modCountry.rivalPresence = { ...countryRivalPresence, influenceLevel: Math.min(0.98, countryRivalPresence.influenceLevel + increase) };
                     if (increase > 0.001 && countryRivalPresence.influenceLevel < 0.8) newRecentEventsSummary += ` ${rival.name} fortifies its position in ${country.name}.`;
                 }
@@ -566,13 +614,13 @@ export default function GamePage() {
                          newRecentEventsSummary += ` ${rival.name} stirs dissent against ${currentMovementName} in ${country.name}.`;
                     }
                 }
-              } else if (modCountry.id !== rival.startingCountryId) { 
+              } else if (modCountry.id !== rival.startingCountryId) {
                 const sourceCountryDominant = updatedCountries.some(c =>
-                    (c.rivalPresence?.rivalId === rival.id && c.rivalPresence.influenceLevel > 0.65) || // Lower threshold
+                    (c.rivalPresence?.rivalId === rival.id && c.rivalPresence.influenceLevel > 0.65) ||
                     c.subRegions?.some(sr => sr.rivalPresence?.rivalId === rival.id && sr.rivalPresence.influenceLevel > 0.65)
                 );
-                 if (sourceCountryDominant && Math.random() < (0.0035 + rival.aggressiveness * 0.006)) { // Increased chance
-                    const initialInfluence = (0.008 + Math.random() * 0.02) * resistanceFactorCountry * (1 - playerPresencePenaltyCountry); // Slightly higher initial
+                 if (sourceCountryDominant && Math.random() < (0.0035 + rival.aggressiveness * 0.006)) {
+                    const initialInfluence = (0.008 + Math.random() * 0.02) * resistanceFactorCountry * (1 - playerPresencePenaltyCountry);
                      if(initialInfluence > 0) {
                         modCountry.rivalPresence = { rivalId: rival.id, influenceLevel: Math.max(0.005, initialInfluence) };
                         newRecentEventsSummary += ` ${rival.name} cautiously establishes a presence in ${country.name}.`;
@@ -581,22 +629,22 @@ export default function GamePage() {
               }
             }
         }
-        
+
         if (modCountry.subRegions && modCountry.subRegions.length > 0) {
             const rivalInfluencesInSubRegions = modCountry.subRegions
                 .map(sr => sr.rivalPresence)
                 .filter(rp => rp?.rivalId === rival.id) as RivalPresence[];
-            
+
             if (rivalInfluencesInSubRegions.length > 0) {
                 const averageInfluence = rivalInfluencesInSubRegions.reduce((sum, rp) => sum + rp.influenceLevel, 0) / rivalInfluencesInSubRegions.length;
                 const otherRivalsPresent = modCountry.subRegions.some(sr => sr.rivalPresence && sr.rivalPresence.rivalId !== rival.id && sr.rivalPresence.influenceLevel > averageInfluence);
                 if (!otherRivalsPresent || averageInfluence > (modCountry.rivalPresence?.influenceLevel ?? 0) ) {
-                     modCountry.rivalPresence = { 
-                        rivalId: rival.id, 
+                     modCountry.rivalPresence = {
+                        rivalId: rival.id,
                         influenceLevel: averageInfluence,
                     };
                 }
-            } else if (modCountry.rivalPresence?.rivalId === rival.id) { 
+            } else if (modCountry.rivalPresence?.rivalId === rival.id) {
                  const strongestOtherRival = modCountry.subRegions
                     .map(sr => sr.rivalPresence)
                     .filter(rp => rp && rp.rivalId !== rival.id)
@@ -616,12 +664,79 @@ export default function GamePage() {
     setCountries(updatedCountries);
     setRecentEvents(newRecentEventsSummary);
 
-    if (!pendingInteractiveEvent) {
+    // --- WIN/LOSS CONDITION CHECKS ---
+    let isGameOver = false;
+    let newGameOverTitle = "";
+    let newGameOverDescription = "";
+
+    const playerGlobalAdoption = calculateGlobalAdoptionRate(updatedCountries);
+    setMaxPlayerAdoptionEver(prevMax => Math.max(prevMax, playerGlobalAdoption));
+
+    const rivalGlobalInfluences = rivalMovements.map(rival => ({
+      id: rival.id,
+      name: rival.name,
+      influence: calculateRivalGlobalInfluence(rival.id, updatedCountries),
+    }));
+
+    // Player Win Condition
+    const allRivalsSuppressed = rivalGlobalInfluences.every(r => r.influence < WIN_RIVAL_MAX_GLOBAL_INFLUENCE);
+    if (playerGlobalAdoption >= WIN_PLAYER_GLOBAL_ADOPTION && allRivalsSuppressed) {
+      isGameOver = true;
+      newGameOverTitle = "Global Harmony Achieved!";
+      newGameOverDescription = `The ${currentMovementName} has become the guiding light for the world, achieving ${(playerGlobalAdoption * 100).toFixed(0)}% global adoption. Rival ideologies have diminished, paving the way for a new era of unity.`;
+    }
+
+    if (!isGameOver) {
+      // Rival Dominance (Lose Condition)
+      const dominantRival = rivalGlobalInfluences.find(r => r.influence >= LOSE_RIVAL_DOMINANCE_THRESHOLD);
+      if (dominantRival) {
+        isGameOver = true;
+        newGameOverTitle = "Rival Ascendancy";
+        newGameOverDescription = `${dominantRival.name} has achieved global dominance with ${(dominantRival.influence * 100).toFixed(0)}% influence, overshadowing your movement. The world follows a different path.`;
+      }
+    }
+
+    if (!isGameOver) {
+      // Player Collapse - IP (Lose Condition)
+      if (influencePoints + newPoints <= 0 && ipZeroStreak + 1 >= LOSE_IP_ZERO_STREAK_TURNS) {
+         isGameOver = true;
+         newGameOverTitle = "Economic Collapse";
+         newGameOverDescription = `The ${currentMovementName} has run out of resources. With no Influence Points for ${LOSE_IP_ZERO_STREAK_TURNS} consecutive days, your movement has dissolved.`;
+      } else if (influencePoints + newPoints > 0) {
+        setIpZeroStreak(0);
+      }
+
+      // Player Collapse - Adoption (Lose Condition)
+      if (maxPlayerAdoptionEver >= LOSE_PLAYER_MIN_PEAK_ADOPTION && playerGlobalAdoption < LOSE_PLAYER_COLLAPSE_ADOPTION) {
+        isGameOver = true;
+        newGameOverTitle = "Cultural Regression";
+        newGameOverDescription = `Despite initial success, the ${currentMovementName} has faded into obscurity. Global adoption fell to ${(playerGlobalAdoption * 100).toFixed(1)}%, and the world's attention has moved on.`;
+      }
+    }
+
+    if (isGameOver) {
+      setGameOver(true);
+      setGameOverTitle(newGameOverTitle);
+      setGameOverDescription(newGameOverDescription);
+      setTimeout(() => { // Ensure toast appears after state update for modal
+        toast({
+          title: newGameOverTitle,
+          description: "The game has concluded.",
+          variant: newGameOverTitle.includes("Achieved") ? "default" : "destructive",
+          duration: 10000,
+        });
+      }, 0);
+    }
+    // --- END WIN/LOSS CHECKS ---
+
+
+    if (!pendingInteractiveEvent && !isGameOver) {
       setTimeout(() => {
         toast({ title: `Day ${nextTurn}`, description: `The ${currentMovementName} progresses...` });
       }, 0);
     }
-  }, [currentTurn, currentMovementName, countries, selectedStartCountryId, evolvedItemIds, activeGlobalEvents, getCountryModifiers, allPotentialEvents, toast, pendingInteractiveEvent, handleEventOptionSelected, calculateGlobalAdoptionRate, rivalMovements]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTurn, currentMovementName, countries, selectedStartCountryId, evolvedItemIds, activeGlobalEvents, getCountryModifiers, allPotentialEvents, toast, pendingInteractiveEvent, handleEventOptionSelected, calculateGlobalAdoptionRate, rivalMovements, influencePoints, gameOver, calculateRivalGlobalInfluence, ipZeroStreak, maxPlayerAdoptionEver, currentMovementName]);
 
   const handleDiplomaticAction = (rivalId: string, newStance: DiplomaticStance) => {
     const rival = rivalMovements.find(r => r.id === rivalId);
@@ -637,8 +752,8 @@ export default function GamePage() {
     }
 
     setInfluencePoints(prev => prev - DIPLOMACY_STANCE_CHANGE_COST);
-    setRivalMovements(prevRivals => 
-      prevRivals.map(r => 
+    setRivalMovements(prevRivals =>
+      prevRivals.map(r =>
         r.id === rivalId ? { ...r, playerStance: newStance } : r
       )
     );
@@ -668,7 +783,7 @@ export default function GamePage() {
         <div className="md:w-1/3 lg:w-1/4 flex flex-col space-y-4 overflow-hidden">
           <ControlPanel
             movements={CULTURAL_MOVEMENTS}
-            countries={INITIAL_COUNTRIES} 
+            countries={INITIAL_COUNTRIES}
             selectedMovementId={selectedMovementId}
             selectedCountryId={selectedStartCountryId}
             influencePoints={influencePoints}
@@ -679,6 +794,7 @@ export default function GamePage() {
             onNextTurn={handleNextTurn}
             gameStarted={gameStarted}
             isEventPending={!!pendingInteractiveEvent}
+            gameOver={gameOver}
           />
           {gameStarted && (
             <ScrollArea className="flex-grow min-h-0">
@@ -717,7 +833,7 @@ export default function GamePage() {
                   <TabsContent value="news">
                     <NewsFeed
                       culturalMovementName={currentMovementName}
-                      globalAdoptionRate={globalAdoptionRate}
+                      globalAdoptionRate={calculateGlobalAdoptionRate(countries)}
                       recentEventsSummary={recentEvents}
                       currentTurn={currentTurn}
                     />
@@ -732,7 +848,7 @@ export default function GamePage() {
                     />
                   </TabsContent>
                   <TabsContent value="diplomacy">
-                    <DiplomacyPanel 
+                    <DiplomacyPanel
                       rivalMovements={rivalMovements}
                       onDiplomaticAction={handleDiplomaticAction}
                       influencePoints={influencePoints}
@@ -752,7 +868,24 @@ export default function GamePage() {
         }}
         onOptionSelect={handleEventOptionSelected}
       />
+      {gameOver && (
+        <AlertDialog open={gameOver} onOpenChange={(open) => { if(!open) setGameOver(false); /* For now, just close. True restart needed later */ }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center">
+                {gameOverTitle.includes("Achieved") ? <Trophy className="mr-2 h-6 w-6 text-primary" /> : <Skull className="mr-2 h-6 w-6 text-destructive" />}
+                {gameOverTitle}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {gameOverDescription}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setGameOver(false)}>Acknowledge</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
-
