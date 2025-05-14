@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -10,6 +11,9 @@ import { CULTURAL_MOVEMENTS, EVOLUTION_CATEGORIES, EVOLUTION_ITEMS, INITIAL_COUN
 import type { Country, EvolutionItem } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from '@/components/ui/scroll-area';
+
+const BASE_IP_PER_TURN = 2;
+const ADOPTION_IP_MULTIPLIER = 5; // Multiplier for IP generated per adoption point per economic development point
 
 export default function GamePage() {
   const [selectedMovementId, setSelectedMovementId] = useState<string | undefined>(undefined);
@@ -69,13 +73,23 @@ export default function GamePage() {
 
   const handleNextTurn = () => {
     setCurrentTurn(prev => prev + 1);
-    // Simple spread simulation:
-    // Increase adoption in countries, especially the starting one or ones with evolved traits.
-    // Add some random influence points.
-    const newPoints = Math.floor(Math.random() * (evolvedItemIds.size + 1) * 2) + 5; // More points if more evolved
+    
+    // Calculate Influence Points based on adoption levels
+    let pointsFromAdoption = 0;
+    countries.forEach(country => {
+      if (country.adoptionLevel > 0) {
+        // IP from this country = adoption_level * economic_development * multiplier
+        pointsFromAdoption += country.adoptionLevel * country.economicDevelopment * ADOPTION_IP_MULTIPLIER;
+      }
+    });
+    
+    // Add base points per turn and points from evolved items (e.g., traits that generate IP)
+    const evolvedIpBoost = evolvedItemIds.size * 0.5; // Example: each evolved item gives a small IP boost
+    const newPoints = Math.floor(BASE_IP_PER_TURN + pointsFromAdoption + evolvedIpBoost);
+    
     setInfluencePoints(prev => prev + newPoints);
     
-    let newRecentEventsSummary = `Day ${currentTurn + 1}: The movement continues to grow. ${newPoints} IP gained.`;
+    let newRecentEventsSummary = `Day ${currentTurn + 1}: The movement continues to grow. ${newPoints} IP generated.`;
 
     setCountries(prevCountries => 
       prevCountries.map(country => {
@@ -159,3 +173,5 @@ export default function GamePage() {
     </div>
   );
 }
+
+    
