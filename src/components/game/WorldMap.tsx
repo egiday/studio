@@ -45,11 +45,11 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
   };
   
   const getCountryColor = (adoptionLevel: number) => {
-    if (adoptionLevel > 0.75) return 'bg-primary/70';
-    if (adoptionLevel > 0.5) return 'bg-primary/50';
-    if (adoptionLevel > 0.25) return 'bg-primary/30';
-    if (adoptionLevel > 0) return 'bg-primary/10';
-    return 'bg-muted/30';
+    if (adoptionLevel > 0.75) return 'bg-primary/70 hover:bg-primary/80';
+    if (adoptionLevel > 0.5) return 'bg-primary/50 hover:bg-primary/60';
+    if (adoptionLevel > 0.25) return 'bg-primary/30 hover:bg-primary/40';
+    if (adoptionLevel > 0) return 'bg-primary/10 hover:bg-primary/20';
+    return 'bg-muted/30 hover:bg-muted/40';
   };
 
   const handleCountryClick = (country: Country) => {
@@ -116,7 +116,7 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
             layout="fill"
             objectFit="cover"
             data-ai-hint="world map political"
-            className="opacity-50"
+            className={cn("transition-opacity duration-300", zoomedCountry ? "opacity-20" : "opacity-60")}
           />
 
           {!zoomedCountry ? (
@@ -128,7 +128,7 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
                       variant="outline"
                       size="sm"
                       className={cn(
-                        `absolute p-2 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 rounded-lg shadow-lg`,
+                        `absolute p-2 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 rounded-lg shadow-lg transition-colors`,
                         getCountryColor(country.adoptionLevel),
                         selectedCountryId === country.id ? 'border-secondary ring-2 ring-secondary' : 'border-primary/50 hover:border-primary'
                       )}
@@ -137,8 +137,8 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
                       aria-label={`Select ${country.name}`}
                     >
                       <div className="flex flex-col items-center">
-                        <span className="text-xs font-semibold">{country.name}</span>
-                        <span className="text-xs opacity-80">{(country.adoptionLevel * 100).toFixed(0)}%</span>
+                        <span className="text-sm font-bold">{country.name}</span>
+                        <span className="text-xs font-medium opacity-90">{(country.adoptionLevel * 100).toFixed(0)}%</span>
                       </div>
                     </Button>
                   </TooltipTrigger>
@@ -164,7 +164,7 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
                 };
               } else { // Fallback positioning if config is missing
                   positionStyle = {
-                    top: `${20 + index * 10}%`, // Simple stacking for fallback
+                    top: `${20 + index * 15}%`, // Simple stacking for fallback, increased spacing
                     left: '50%',
                   };
               }
@@ -174,19 +174,18 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
                   <TooltipTrigger asChild>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="sm" // keep sm for consistency, but p-2 makes it effectively larger
                       className={cn(
-                        `absolute p-1.5 h-auto transform -translate-x-1/2 -translate-y-1/2 border rounded-md shadow-md text-xs`,
-                        getCountryColor(subRegion.adoptionLevel), // Use same color logic for consistency
-                         'border-accent hover:border-accent/70' // Different border for regions
+                        `absolute p-2 h-auto transform -translate-x-1/2 -translate-y-1/2 border rounded-md shadow-md transition-colors`,
+                        getCountryColor(subRegion.adoptionLevel), 
+                         'border-accent hover:border-accent/70 text-accent-foreground' 
                       )}
                       style={positionStyle}
-                      // onClick={() => console.log("Region selected:", subRegion.id)} // Future: handle region selection
                       aria-label={`View ${subRegion.name}`}
                     >
                       <div className="flex flex-col items-center">
-                        <span className="text-xs font-medium">{subRegion.name}</span>
-                        <span className="text-xxs opacity-70">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
+                        <span className="text-sm font-semibold">{subRegion.name}</span>
+                        <span className="text-xs font-medium opacity-90">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
                       </div>
                     </Button>
                   </TooltipTrigger>
