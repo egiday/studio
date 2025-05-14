@@ -29,8 +29,10 @@ export interface EvolutionItem {
 
 export type AIPersonalityType = 
   | 'AggressiveExpansionist' 
-  | 'CautiousConsolidator' 
-  | 'OpportunisticInfiltrator'; // Added for future expansion
+  | 'CautiousConsolidator';
+  // Future: | 'OpportunisticInfiltrator'; 
+
+export type DiplomaticStance = 'Neutral' | 'Hostile' | 'Allied';
 
 export interface RivalMovement {
   id: string;
@@ -40,8 +42,8 @@ export interface RivalMovement {
   startingCountryId: string;
   aggressiveness: number; // 0-1, general likelihood to act
   personality: AIPersonalityType; // Defines strategic tendencies
-  // 'focus' can be used by personalities differently, e.g., Cautious might focus on building resistance in OWN regions.
   focus: 'spread' | 'resistance'; 
+  playerStance: DiplomaticStance; // Rival's stance towards the player
 }
 
 export interface RivalPresence {
@@ -86,9 +88,9 @@ export interface NewsHeadline {
 export type GlobalEventEffectProperty =
   | 'culturalOpenness'
   | 'economicDevelopment'
-  | 'resistanceLevel'
-  | 'adoptionRateModifier' // This would likely be a multiplier
-  | 'ipBonus'; // Direct IP gain
+  | 'resistanceLevel' // Modifies player's resistance to their own culture
+  | 'adoptionRateModifier' // This would likely be a multiplier for player's culture
+  | 'ipBonus'; // Direct IP gain for player
 
 export type GlobalEventTargetType = 'global' | 'country'; // Sub-region targeting could be added later
 
@@ -119,3 +121,12 @@ export interface GlobalEvent {
   hasBeenTriggered: boolean; // To ensure one-off events don't re-trigger
   chosenOptionId?: string; // ID of the chosen option, if applicable
 }
+
+// --- Diplomacy System Types (Future) ---
+export type DiplomaticActionType = 
+  | 'OfferAlliance' 
+  | 'BreakAlliance' 
+  | 'DeclareHostility' 
+  | 'NegotiatePeace' 
+  | 'OfferTradeDeal'
+  | 'DemandTerritory'; // Example actions
