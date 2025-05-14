@@ -126,7 +126,7 @@ export function ControlPanel({
         )}
         {selectedCountryId && gameStarted && (
            <div className="text-sm text-muted-foreground">
-            Origin: {countries.find(c => c.id === selectedStartCountryId)?.name}
+            Origin: {countries.find(c => c.id === selectedCountryId)?.name}
           </div>
         )}
       </CardContent>
