@@ -27,15 +27,21 @@ export interface EvolutionItem {
   specialAbilityDescription?: string;
 }
 
+export type AIPersonalityType = 
+  | 'AggressiveExpansionist' 
+  | 'CautiousConsolidator' 
+  | 'OpportunisticInfiltrator'; // Added for future expansion
+
 export interface RivalMovement {
   id: string;
   name: string;
   icon: LucideIcon;
-  color: string; // e.g., 'text-red-500' or 'border-red-500' or a hex for inline style
+  color: string; 
   startingCountryId: string;
-  // Basic AI parameters - can be expanded later for personalities
-  aggressiveness: number; // 0-1
-  focus: 'spread' | 'resistance'; // Simple strategy
+  aggressiveness: number; // 0-1, general likelihood to act
+  personality: AIPersonalityType; // Defines strategic tendencies
+  // 'focus' can be used by personalities differently, e.g., Cautious might focus on building resistance in OWN regions.
+  focus: 'spread' | 'resistance'; 
 }
 
 export interface RivalPresence {
