@@ -27,16 +27,33 @@ export interface EvolutionItem {
   specialAbilityDescription?: string;
 }
 
+export interface RivalMovement {
+  id: string;
+  name: string;
+  icon: LucideIcon;
+  color: string; // e.g., 'text-red-500' or 'border-red-500' or a hex for inline style
+  startingCountryId: string;
+  // Basic AI parameters - can be expanded later for personalities
+  aggressiveness: number; // 0-1
+  focus: 'spread' | 'resistance'; // Simple strategy
+}
+
+export interface RivalPresence {
+  rivalId: string;
+  influenceLevel: number; // 0-1
+}
+
 export interface SubRegion {
   id: string;
   name: string;
-  adoptionLevel: number; // 0-1
-  resistanceLevel: number; // 0-1
+  adoptionLevel: number; // 0-1 Player's culture
+  resistanceLevel: number; // 0-1 Towards player's culture
   economicDevelopment: number; // 0-1, relative to country or absolute
   culturalOpenness: number; // 0-1
   internetPenetration?: number; // 0-1
   educationLevel?: number; // 0-1
   mediaFreedom?: number; // 0-1
+  rivalPresence?: RivalPresence | null; // Rival influence in this sub-region
 }
 
 export interface Country {
@@ -47,9 +64,10 @@ export interface Country {
   economicDevelopment: number; // 0-1 (Can be average of subregions or base if no subregions)
   culturalOpenness: number; // 0-1 (Can be average of subregions or base if no subregions)
   mediaFreedom: number; // 0-1 (Can be average of subregions or base if no subregions)
-  adoptionLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist)
-  resistanceLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist)
+  adoptionLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist) Player's culture
+  resistanceLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist) Towards player's culture
   subRegions?: SubRegion[];
+  rivalPresence?: RivalPresence | null; // Rival influence in this country (if no subregions)
 }
 
 export interface NewsHeadline {
@@ -59,10 +77,10 @@ export interface NewsHeadline {
 }
 
 // --- Global Events System Types ---
-export type GlobalEventEffectProperty = 
-  | 'culturalOpenness' 
-  | 'economicDevelopment' 
-  | 'resistanceLevel' 
+export type GlobalEventEffectProperty =
+  | 'culturalOpenness'
+  | 'economicDevelopment'
+  | 'resistanceLevel'
   | 'adoptionRateModifier' // This would likely be a multiplier
   | 'ipBonus'; // Direct IP gain
 
@@ -94,6 +112,4 @@ export interface GlobalEvent {
   options?: GlobalEventOption[]; // Optional choices for the player
   hasBeenTriggered: boolean; // To ensure one-off events don't re-trigger
   chosenOptionId?: string; // ID of the chosen option, if applicable
-  // isActive will be managed in component state / by presence in activeGlobalEvents array
 }
-
