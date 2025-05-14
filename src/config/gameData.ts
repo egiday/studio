@@ -46,10 +46,40 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
 ];
 
 const usaSubRegions: SubRegion[] = [
-  { id: 'usa_ne', name: 'Northeast', adoptionLevel: 0.02, resistanceLevel: 0.12, economicDevelopment: 0.92, culturalOpenness: 0.75 },
-  { id: 'usa_s', name: 'South', adoptionLevel: 0.01, resistanceLevel: 0.15, economicDevelopment: 0.85, culturalOpenness: 0.65 },
-  { id: 'usa_mw', name: 'Midwest', adoptionLevel: 0.015, resistanceLevel: 0.10, economicDevelopment: 0.88, culturalOpenness: 0.70 },
-  { id: 'usa_w', name: 'West', adoptionLevel: 0.025, resistanceLevel: 0.08, economicDevelopment: 0.95, culturalOpenness: 0.80 },
+  { id: 'usa_ne', name: 'Northeast', adoptionLevel: 0.0, resistanceLevel: 0.12, economicDevelopment: 0.92, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.88, mediaFreedom: 0.82 },
+  { id: 'usa_s', name: 'South', adoptionLevel: 0.0, resistanceLevel: 0.15, economicDevelopment: 0.85, culturalOpenness: 0.65, internetPenetration: 0.88, educationLevel: 0.82, mediaFreedom: 0.78 },
+  { id: 'usa_mw', name: 'Midwest', adoptionLevel: 0.0, resistanceLevel: 0.10, economicDevelopment: 0.88, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.80 },
+  { id: 'usa_w', name: 'West', adoptionLevel: 0.0, resistanceLevel: 0.08, economicDevelopment: 0.95, culturalOpenness: 0.80, internetPenetration: 0.93, educationLevel: 0.90, mediaFreedom: 0.85 },
+];
+
+const chinaSubRegions: SubRegion[] = [
+  { id: 'china_e', name: 'East Coast', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.85, culturalOpenness: 0.45, internetPenetration: 0.75, educationLevel: 0.78, mediaFreedom: 0.15 },
+  { id: 'china_w', name: 'West Inland', adoptionLevel: 0, resistanceLevel: 0.35, economicDevelopment: 0.60, culturalOpenness: 0.30, internetPenetration: 0.45, educationLevel: 0.60, mediaFreedom: 0.10 },
+  { id: 'china_n', name: 'North', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.70, culturalOpenness: 0.35, internetPenetration: 0.65, educationLevel: 0.70, mediaFreedom: 0.12 },
+];
+
+const indiaSubRegions: SubRegion[] = [
+  { id: 'india_n', name: 'North India', adoptionLevel: 0, resistanceLevel: 0.22, economicDevelopment: 0.58, culturalOpenness: 0.62, internetPenetration: 0.42, educationLevel: 0.62, mediaFreedom: 0.52 },
+  { id: 'india_s', name: 'South India', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.65, culturalOpenness: 0.68, internetPenetration: 0.48, educationLevel: 0.65, mediaFreedom: 0.55 },
+  { id: 'india_e', name: 'East India', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.55, culturalOpenness: 0.58, internetPenetration: 0.38, educationLevel: 0.58, mediaFreedom: 0.48 },
+];
+
+const brazilSubRegions: SubRegion[] = [
+  { id: 'brazil_se', name: 'Southeast', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.70, culturalOpenness: 0.82, internetPenetration: 0.75, educationLevel: 0.72, mediaFreedom: 0.62 },
+  { id: 'brazil_ne', name: 'Northeast', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.55, culturalOpenness: 0.75, internetPenetration: 0.60, educationLevel: 0.65, mediaFreedom: 0.58 },
+  { id: 'brazil_n', name: 'North (Amazon)', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.45, culturalOpenness: 0.70, internetPenetration: 0.50, educationLevel: 0.60, mediaFreedom: 0.55 },
+];
+
+const nigeriaSubRegions: SubRegion[] = [
+  { id: 'nigeria_sw', name: 'Southwest (Lagos)', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.50, culturalOpenness: 0.55, internetPenetration: 0.60, educationLevel: 0.55, mediaFreedom: 0.42 },
+  { id: 'nigeria_n', name: 'North', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.30, culturalOpenness: 0.40, internetPenetration: 0.40, educationLevel: 0.45, mediaFreedom: 0.35 },
+  { id: 'nigeria_se', name: 'Southeast', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.35, culturalOpenness: 0.48, internetPenetration: 0.45, educationLevel: 0.50, mediaFreedom: 0.38 },
+];
+
+const germanySubRegions: SubRegion[] = [
+  { id: 'germany_w', name: 'West Germany', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.88, culturalOpenness: 0.78, internetPenetration: 0.94, educationLevel: 0.90, mediaFreedom: 0.92 },
+  { id: 'germany_e', name: 'East Germany', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.80, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.88 },
+  { id: 'germany_s', name: 'South Germany', adoptionLevel: 0, resistanceLevel: 0.09, economicDevelopment: 0.90, culturalOpenness: 0.76, internetPenetration: 0.93, educationLevel: 0.89, mediaFreedom: 0.91 },
 ];
 
 export const INITIAL_COUNTRIES: Country[] = [
@@ -64,31 +94,36 @@ export const INITIAL_COUNTRIES: Country[] = [
     id: 'china', name: 'China', 
     internetPenetration: 0.6, educationLevel: 0.7, economicDevelopment: 0.75, 
     culturalOpenness: 0.4, mediaFreedom: 0.2, 
-    adoptionLevel: 0, resistanceLevel: 0.3 
+    adoptionLevel: 0, resistanceLevel: 0.3,
+    subRegions: chinaSubRegions,
   },
   { 
     id: 'india', name: 'India', 
     internetPenetration: 0.4, educationLevel: 0.6, economicDevelopment: 0.6, 
     culturalOpenness: 0.6, mediaFreedom: 0.5, 
-    adoptionLevel: 0, resistanceLevel: 0.2 
+    adoptionLevel: 0, resistanceLevel: 0.2,
+    subRegions: indiaSubRegions,
   },
   { 
     id: 'brazil', name: 'Brazil', 
     internetPenetration: 0.7, educationLevel: 0.7, economicDevelopment: 0.65, 
     culturalOpenness: 0.8, mediaFreedom: 0.6, 
-    adoptionLevel: 0, resistanceLevel: 0.15 
+    adoptionLevel: 0, resistanceLevel: 0.15,
+    subRegions: brazilSubRegions,
   },
   { 
     id: 'nigeria', name: 'Nigeria', 
     internetPenetration: 0.5, educationLevel: 0.5, economicDevelopment: 0.4, 
     culturalOpenness: 0.5, mediaFreedom: 0.4, 
-    adoptionLevel: 0, resistanceLevel: 0.25 
+    adoptionLevel: 0, resistanceLevel: 0.25,
+    subRegions: nigeriaSubRegions,
   },
   { 
     id: 'germany', name: 'Germany', 
     internetPenetration: 0.92, educationLevel: 0.88, economicDevelopment: 0.85, 
     culturalOpenness: 0.75, mediaFreedom: 0.9, 
-    adoptionLevel: 0, resistanceLevel: 0.1 
+    adoptionLevel: 0, resistanceLevel: 0.1,
+    subRegions: germanySubRegions,
   },
 ];
 
@@ -96,13 +131,31 @@ export const STARTING_INFLUENCE_POINTS = 50;
 
 export const subRegionPositions: Record<string, { baseTop: string; baseLeft: string; offsets: {top: string; left: string}[] }> = {
   usa: {
-    baseTop: '30%',
-    baseLeft: '20%',
-    offsets: [
-      { top: '-5%', left: '-5%' }, { top: '5%', left: '-3%' }, { top: '-3%', left: '5%' }, { top: '3%', left: '8%' },
-    ],
+    baseTop: '30%', baseLeft: '20%',
+    offsets: [ { top: '-5%', left: '-5%' }, { top: '5%', left: '-3%' }, { top: '-3%', left: '5%' }, { top: '3%', left: '8%' } ],
+  },
+  china: {
+    baseTop: '35%', baseLeft: '70%',
+    offsets: [ { top: '-4%', left: '-3%' }, { top: '4%', left: '-5%' }, { top: '0%', left: '4%' } ],
+  },
+  india: {
+    baseTop: '45%', baseLeft: '65%',
+    offsets: [ { top: '-4%', left: '0%' }, { top: '3%', left: '-4%' }, { top: '3%', left: '4%' } ],
+  },
+  brazil: {
+    baseTop: '60%', baseLeft: '30%',
+    offsets: [ { top: '-4%', left: '-2%' }, { top: '3%', left: '-4%' }, { top: '0%', left: '5%' } ],
+  },
+  nigeria: {
+    baseTop: '55%', baseLeft: '50%',
+    offsets: [ { top: '-3%', left: '-3%' }, { top: '3%', left: '0%' }, { top: '-2%', left: '4%' } ],
+  },
+  germany: {
+    baseTop: '30%', baseLeft: '52%',
+    offsets: [ { top: '-4%', left: '-2%' }, { top: '4%', left: '0%' }, { top: '0%', left: '4%' } ],
   },
 };
+
 
 export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
   {
@@ -111,7 +164,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     description: 'A wave of new infrastructure and accessibility sweeps the globe, making online communication easier.',
     turnStart: 3,
     duration: 5, 
-    effects: [ // Base effects if not interactive / or if options are additive
+    effects: [ 
       { targetType: 'global', property: 'culturalOpenness', value: 0.05, isMultiplier: false },
       { targetType: 'global', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true } 
     ],
@@ -130,7 +183,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
         text: 'Invest in Cultural Outreach (Cost: 20 IP)',
         description: 'Launch targeted campaigns in China, hoping to offer solace and new perspectives. Reduces resistance slightly, small adoption boost in China, but costs IP.',
         effects: [
-          { targetType: 'country', countryId: 'china', property: 'resistanceLevel', value: -0.03, isMultiplier: false },
+          { targetType: 'country', countryId: 'china', property: 'resistanceLevel', value: -0.03, isMultiplier: false }, // This effect might need to be distributed to sub-regions or handled carefully.
           { targetType: 'country', countryId: 'china', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true },
           { targetType: 'global', property: 'ipBonus', value: -20, isMultiplier: false }, // Cost
         ],
@@ -140,7 +193,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
         text: 'Focus Efforts Elsewhere',
         description: 'Avoid entanglement in China\'s crisis and focus your resources on more stable regions. Slight global adoption boost due to focused efforts.',
         effects: [
-          { targetType: 'global', property: 'adoptionRateModifier', value: 1.03, isMultiplier: true }, // Small global boost
+          { targetType: 'global', property: 'adoptionRateModifier', value: 1.03, isMultiplier: true }, 
         ],
       },
     ],
@@ -154,7 +207,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     duration: 1, 
     effects: [
       { targetType: 'global', property: 'ipBonus', value: 50, isMultiplier: false },
-      { targetType: 'global', property: 'resistanceLevel', value: -0.02, isMultiplier: false } 
+      { targetType: 'global', property: 'resistanceLevel', value: -0.02, isMultiplier: false } // Global resistance reduction
     ],
     hasBeenTriggered: false,
   },

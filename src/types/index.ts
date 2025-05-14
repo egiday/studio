@@ -32,6 +32,10 @@ export interface SubRegion {
   resistanceLevel: number; // 0-1
   economicDevelopment: number; // 0-1, relative to country or absolute
   culturalOpenness: number; // 0-1
+  // Added for more granular simulation if needed, can fallback to country stats
+  internetPenetration?: number; // 0-1
+  educationLevel?: number; // 0-1
+  mediaFreedom?: number; // 0-1
 }
 
 export interface Country {
@@ -39,11 +43,11 @@ export interface Country {
   name: string;
   internetPenetration: number; // 0-1
   educationLevel: number; // 0-1
-  economicDevelopment: number; // 0-1
-  culturalOpenness: number; // 0-1
-  mediaFreedom: number; // 0-1
-  adoptionLevel: number; // 0-1, dynamic (overall for country)
-  resistanceLevel: number; // 0-1, dynamic (overall for country)
+  economicDevelopment: number; // 0-1 (Can be average of subregions or base if no subregions)
+  culturalOpenness: number; // 0-1 (Can be average of subregions or base if no subregions)
+  mediaFreedom: number; // 0-1 (Can be average of subregions or base if no subregions)
+  adoptionLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist)
+  resistanceLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist)
   subRegions?: SubRegion[];
 }
 
@@ -61,7 +65,7 @@ export type GlobalEventEffectProperty =
   | 'adoptionRateModifier' // This would likely be a multiplier
   | 'ipBonus'; // Direct IP gain
 
-export type GlobalEventTargetType = 'global' | 'country';
+export type GlobalEventTargetType = 'global' | 'country'; // Sub-region targeting could be added later
 
 export interface GlobalEventEffect {
   targetType: GlobalEventTargetType;

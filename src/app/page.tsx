@@ -11,7 +11,7 @@ import { AnalyticsDashboard } from '@/components/game/AnalyticsDashboard';
 import { GlobalEventsDisplay } from '@/components/game/GlobalEventsDisplay';
 import { InteractiveEventModal } from '@/components/game/InteractiveEventModal';
 import { CULTURAL_MOVEMENTS, EVOLUTION_CATEGORIES, EVOLUTION_ITEMS, INITIAL_COUNTRIES, STARTING_INFLUENCE_POINTS, POTENTIAL_GLOBAL_EVENTS } from '@/config/gameData';
-import type { Country, EvolutionItem, GlobalEvent, GlobalEventEffectProperty, GlobalEventOption } from '@/types';
+import type { Country, SubRegion, EvolutionItem, GlobalEvent, GlobalEventEffectProperty, GlobalEventOption } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,7 +25,10 @@ export default function GamePage() {
   const [selectedStartCountryId, setSelectedStartCountryId] = useState<string | undefined>(undefined);
   const [influencePoints, setInfluencePoints] = useState(STARTING_INFLUENCE_POINTS);
   const [evolvedItemIds, setEvolvedItemIds] = useState<Set<string>>(new Set());
-  const [countries, setCountries] = useState<Country[]>(INITIAL_COUNTRIES.map(c => ({...c}))); 
+  const [countries, setCountries] = useState<Country[]>(INITIAL_COUNTRIES.map(c => ({
+    ...c, 
+    subRegions: c.subRegions ? c.subRegions.map(sr => ({...sr})) : undefined 
+  }))); 
   const [gameStarted, setGameStarted] = useState(false);
   const [currentTurn, setCurrentTurn] = useState(0);
   const [recentEvents, setRecentEvents] = useState("The cultural movement is just beginning.");
@@ -39,7 +42,24 @@ export default function GamePage() {
   const { toast } = useToast();
 
   const currentMovementName = CULTURAL_MOVEMENTS.find(m => m.id === selectedMovementId)?.name || "Unnamed Movement";
-  const globalAdoptionRate = countries.reduce((sum, country) => sum + country.adoptionLevel, 0) / (countries.length || 1);
+  
+  const calculateGlobalAdoptionRate = useCallback(() => {
+    let totalAdoption = 0;
+    let numReportingUnits = 0;
+    countries.forEach(country => {
+      if (country.subRegions && country.subRegions.length > 0) {
+        country.subRegions.forEach(sr => {
+          totalAdoption += sr.adoptionLevel;
+          numReportingUnits++;
+        });
+      } else {
+        totalAdoption += country.adoptionLevel;
+        numReportingUnits++;
+      }
+    });
+    return numReportingUnits > 0 ? totalAdoption / numReportingUnits : 0;
+  }, [countries]);
+  const globalAdoptionRate = calculateGlobalAdoptionRate();
 
 
   const handleMovementChange = (movementId: string) => {
@@ -54,13 +74,25 @@ export default function GamePage() {
     if (selectedMovementId && selectedStartCountryId) {
       setGameStarted(true);
       setCurrentTurn(1);
-      setCountries(prevCountries => prevCountries.map(c => 
-        c.id === selectedStartCountryId ? { ...c, adoptionLevel: 0.05, resistanceLevel: c.resistanceLevel > 0 ? c.resistanceLevel * 0.8 : 0.05 } : c
-      ));
+      setCountries(prevCountries => prevCountries.map(c => {
+        if (c.id === selectedStartCountryId) {
+          if (c.subRegions && c.subRegions.length > 0) {
+            // Start in the first sub-region of the selected country
+            const updatedSubRegions = c.subRegions.map((sr, index) => 
+              index === 0 ? { ...sr, adoptionLevel: 0.05, resistanceLevel: sr.resistanceLevel > 0 ? sr.resistanceLevel * 0.8 : 0.05 } : sr
+            );
+            const newCountryAdoption = updatedSubRegions.reduce((sum, sr) => sum + sr.adoptionLevel, 0) / updatedSubRegions.length;
+            return { ...c, subRegions: updatedSubRegions, adoptionLevel: newCountryAdoption };
+          } else {
+            return { ...c, adoptionLevel: 0.05, resistanceLevel: c.resistanceLevel > 0 ? c.resistanceLevel * 0.8 : 0.05 };
+          }
+        }
+        return c;
+      }));
       const movement = CULTURAL_MOVEMENTS.find(m=>m.id===selectedMovementId)?.name;
-      const country = INITIAL_COUNTRIES.find(c=>c.id===selectedStartCountryId)?.name;
-      toast({ title: "Revolution Started!", description: `The ${movement} movement has begun in ${country}.` });
-      setRecentEvents(`The ${movement} movement has begun in ${country}. Initial adoption is low.`);
+      const countryName = INITIAL_COUNTRIES.find(c=>c.id===selectedStartCountryId)?.name;
+      toast({ title: "Revolution Started!", description: `The ${movement} movement has begun in ${countryName}.` });
+      setRecentEvents(`The ${movement} movement has begun in ${countryName}. Initial adoption is low.`);
     }
   };
 
@@ -153,11 +185,11 @@ export default function GamePage() {
     const nextTurn = currentTurn + 1;
     setCurrentTurn(nextTurn);
     
-    let newRecentEventsSummary = `Day ${nextTurn}: The ${currentMovementName} continues to grow.`;
+    let newRecentEventsSummary = `Day ${nextTurn}: The ${currentMovementName} continues its journey.`;
     let ipFromNonInteractiveEventsThisTurn = 0;
 
     const stillActiveEvents: GlobalEvent[] = [];
-    let currentActiveEventsForTurn = [...activeGlobalEvents]; 
+    let currentActiveEventsForTurnProcessing = [...activeGlobalEvents]; 
 
     allPotentialEvents.forEach((event) => {
       if (!event.hasBeenTriggered && event.turnStart === nextTurn) {
@@ -170,7 +202,7 @@ export default function GamePage() {
           newRecentEventsSummary += ` ATTENTION: ${eventToProcess.name} requires your decision! ${eventToProcess.description}`;
           toast({ title: "Interactive Event!", description: `${eventToProcess.name} needs your input.`});
         } else {
-          currentActiveEventsForTurn.push(eventToProcess);
+          currentActiveEventsForTurnProcessing.push(eventToProcess);
           newRecentEventsSummary += ` NEWS: ${eventToProcess.name} has begun! ${eventToProcess.description}`;
           toast({ title: "Global Event!", description: `${eventToProcess.name} has started.`});
           eventToProcess.effects.forEach(effect => {
@@ -183,7 +215,7 @@ export default function GamePage() {
     });
     
     const nonExpiredActiveEvents: GlobalEvent[] = [];
-    currentActiveEventsForTurn.forEach(event => {
+    currentActiveEventsForTurnProcessing.forEach(event => {
       if (nextTurn < event.turnStart + event.duration) {
         nonExpiredActiveEvents.push(event);
       } else {
@@ -193,107 +225,186 @@ export default function GamePage() {
     });
     setActiveGlobalEvents(nonExpiredActiveEvents); 
 
-    let pointsFromAdoption = 0;
+    let pointsFromAdoptionThisTurn = 0;
     countries.forEach(country => {
-      if (country.adoptionLevel > 0) {
-        const countryModifiers = getCountryModifiers(country.id, nonExpiredActiveEvents);
-        const effectiveEconDev = Math.max(0, country.economicDevelopment + countryModifiers.economicDevelopment.additive) * countryModifiers.economicDevelopment.multiplicative;
-        pointsFromAdoption += country.adoptionLevel * effectiveEconDev * ADOPTION_IP_MULTIPLIER;
+      const countryModifiers = getCountryModifiers(country.id, nonExpiredActiveEvents);
+      if (country.subRegions && country.subRegions.length > 0) {
+        country.subRegions.forEach(sr => {
+          if (sr.adoptionLevel > 0) {
+            const effectiveEconDev = Math.max(0, (sr.economicDevelopment + countryModifiers.economicDevelopment.additive) * countryModifiers.economicDevelopment.multiplicative);
+            pointsFromAdoptionThisTurn += sr.adoptionLevel * effectiveEconDev * ADOPTION_IP_MULTIPLIER;
+          }
+        });
+      } else {
+        if (country.adoptionLevel > 0) {
+          const effectiveEconDev = Math.max(0, (country.economicDevelopment + countryModifiers.economicDevelopment.additive) * countryModifiers.economicDevelopment.multiplicative);
+          pointsFromAdoptionThisTurn += country.adoptionLevel * effectiveEconDev * ADOPTION_IP_MULTIPLIER;
+        }
       }
     });
     
     const evolvedIpBoost = evolvedItemIds.size * 0.5; 
-    const newPoints = Math.floor(BASE_IP_PER_TURN + pointsFromAdoption + evolvedIpBoost + ipFromNonInteractiveEventsThisTurn);
+    const newPoints = Math.floor(BASE_IP_PER_TURN + pointsFromAdoptionThisTurn + evolvedIpBoost + ipFromNonInteractiveEventsThisTurn);
     setInfluencePoints(prev => prev + newPoints);
     newRecentEventsSummary += ` ${newPoints} IP generated.`;
 
-    const currentGlobalAdoptionForSpread = countries.reduce((sum, c) => sum + c.adoptionLevel, 0) / (countries.length || 1);
+    const currentGlobalAdoptionForSpreadCalc = calculateGlobalAdoptionRate();
     const hasResistanceManagement = evolvedItemIds.has('adapt_resistance_mgmt');
 
     setCountries(prevCountries => 
       prevCountries.map(country => {
         const countryModifiers = getCountryModifiers(country.id, nonExpiredActiveEvents);
-        
-        let baseCulturalOpenness = country.culturalOpenness;
-        let effectiveCulturalOpenness = Math.max(0, Math.min(1, (baseCulturalOpenness + countryModifiers.culturalOpenness.additive) * countryModifiers.culturalOpenness.multiplicative));
+        let updatedCountry = { ...country };
 
-        let newAdoptionLevel = country.adoptionLevel;
-        let newResistanceLevel = Math.max(0, Math.min(1, (country.resistanceLevel + countryModifiers.resistanceLevel.additive) * countryModifiers.resistanceLevel.multiplicative));
+        if (updatedCountry.subRegions && updatedCountry.subRegions.length > 0) {
+          let totalSubRegionAdoption = 0;
+          let totalSubRegionResistance = 0;
 
+          updatedCountry.subRegions = updatedCountry.subRegions.map(sr => {
+            let currentSubRegion = {...sr};
+            
+            // Use sub-region stats if available, else fallback to country stats for these factors
+            const srInternetPenetration = currentSubRegion.internetPenetration ?? country.internetPenetration;
+            const srCulturalOpenness = currentSubRegion.culturalOpenness ?? country.culturalOpenness; // Base for this sub-region
+            
+            let effectiveCulturalOpenness = Math.max(0, Math.min(1, (srCulturalOpenness + countryModifiers.culturalOpenness.additive) * countryModifiers.culturalOpenness.multiplicative));
+            
+            let newAdoptionLevel = currentSubRegion.adoptionLevel;
+            let newResistanceLevel = Math.max(0, Math.min(1, (currentSubRegion.resistanceLevel + countryModifiers.resistanceLevel.additive) * countryModifiers.resistanceLevel.multiplicative));
 
-        if (hasResistanceManagement && newAdoptionLevel > 0 && newResistanceLevel > 0.05) {
-            newResistanceLevel = Math.max(0.05, newResistanceLevel - 0.01); 
-        }
-
-        if (newAdoptionLevel > 0.3 && newAdoptionLevel < 0.9) {
-            let resistanceIncreaseFactor = (0.005 * (1 - effectiveCulturalOpenness)) * (newAdoptionLevel - 0.2);
-            if (hasResistanceManagement) {
-                resistanceIncreaseFactor *= 0.3; 
+            if (hasResistanceManagement && newAdoptionLevel > 0 && newResistanceLevel > 0.05) {
+                newResistanceLevel = Math.max(0.05, newResistanceLevel - 0.01); 
             }
-            if (Math.random() < 0.3) { 
-                const previousResistance = newResistanceLevel;
-                newResistanceLevel = Math.min(0.9, newResistanceLevel + resistanceIncreaseFactor);
-                if (newResistanceLevel > previousResistance + 0.005) { 
-                     newRecentEventsSummary += ` ${country.name} shows increased opposition.`;
+
+            if (newAdoptionLevel > 0.3 && newAdoptionLevel < 0.9) {
+                let resistanceIncreaseFactor = (0.005 * (1 - effectiveCulturalOpenness)) * (newAdoptionLevel - 0.2);
+                if (hasResistanceManagement) resistanceIncreaseFactor *= 0.3; 
+                if (Math.random() < 0.3) { 
+                    const previousResistance = newResistanceLevel;
+                    newResistanceLevel = Math.min(0.9, newResistanceLevel + resistanceIncreaseFactor);
+                    if (newResistanceLevel > previousResistance + 0.005) { 
+                         newRecentEventsSummary += ` ${currentSubRegion.name} in ${country.name} shows increased opposition.`;
+                    }
                 }
             }
-        }
 
-        if (country.adoptionLevel >= 1) { 
-          return { ...country, adoptionLevel: 1, resistanceLevel: Math.max(0.01, newResistanceLevel - 0.05) };
-        }
-
-        const internetFactor = country.internetPenetration * 0.02;
-        const opennessFactor = effectiveCulturalOpenness * 0.02;
-        const evolvedTraitsSpreadBonus = (evolvedItemIds.size / (EVOLUTION_ITEMS.length || 1)) * 0.03;
-        
-        let spreadIncrease = 0;
-
-        if (country.adoptionLevel > 0) {
-          const internalGrowthRate = 0.01;
-          spreadIncrease = internalGrowthRate + internetFactor + opennessFactor + evolvedTraitsSpreadBonus;
-          
-          if (country.id === selectedStartCountryId) {
-            spreadIncrease *= 1.5; 
-          } else {
-            spreadIncrease *= 0.7; 
-          }
-          spreadIncrease *= (1 - newResistanceLevel * 0.75); 
-        } else {
-          const baseChanceToStart = 0.005; 
-          const globalInfluenceFactor = currentGlobalAdoptionForSpread * 0.1;
-          
-          let chance = baseChanceToStart + (internetFactor / 2) + (opennessFactor / 2) + globalInfluenceFactor + (evolvedTraitsSpreadBonus / 2);
-          chance *= (1 - newResistanceLevel * 0.9); 
-
-          if (Math.random() < chance) {
-            spreadIncrease = 0.005 + (opennessFactor / 4); 
-            if (spreadIncrease > 0) {
-                 newRecentEventsSummary += ` Whispers of ${currentMovementName} reach ${country.name}.`;
+            if (newAdoptionLevel >= 1) { 
+              totalSubRegionAdoption += 1;
+              totalSubRegionResistance += Math.max(0.01, newResistanceLevel - 0.05);
+              return { ...currentSubRegion, adoptionLevel: 1, resistanceLevel: Math.max(0.01, newResistanceLevel - 0.05) };
             }
-          }
-        }
-        
-        spreadIncrease *= countryModifiers.adoptionRateModifier.multiplicative;
-        spreadIncrease += countryModifiers.adoptionRateModifier.additive;
 
-        newAdoptionLevel = Math.min(1, country.adoptionLevel + spreadIncrease);
-        newAdoptionLevel = Math.max(0, newAdoptionLevel);
+            const internetFactor = srInternetPenetration * 0.02;
+            const opennessFactor = effectiveCulturalOpenness * 0.02;
+            const evolvedTraitsSpreadBonus = (evolvedItemIds.size / (EVOLUTION_ITEMS.length || 1)) * 0.03;
+            
+            let spreadIncrease = 0;
 
-        if (spreadIncrease > 0 && country.adoptionLevel === 0 && newAdoptionLevel > 0 && newAdoptionLevel > 0.01 && Math.random() < 0.5) {
-           // Covered
-        } else if (spreadIncrease > 0 && country.adoptionLevel > 0 && newAdoptionLevel > country.adoptionLevel && newAdoptionLevel > 0.1 && country.adoptionLevel <= 0.1 && Math.random() < 0.3) {
-           newRecentEventsSummary += ` ${country.name} shows growing interest in ${currentMovementName}.`;
+            if (newAdoptionLevel > 0) {
+              const internalGrowthRate = 0.01;
+              spreadIncrease = internalGrowthRate + internetFactor + opennessFactor + evolvedTraitsSpreadBonus;
+              if (country.id === selectedStartCountryId && currentSubRegion.adoptionLevel > 0.04) spreadIncrease *= 1.2; // Slight boost for origin country's active regions
+              else spreadIncrease *= 0.8; 
+              spreadIncrease *= (1 - newResistanceLevel * 0.75); 
+            } else {
+              const baseChanceToStart = 0.005; 
+              const globalInfluenceFactor = currentGlobalAdoptionForSpreadCalc * 0.1;
+              let chance = baseChanceToStart + (internetFactor / 2) + (opennessFactor / 2) + globalInfluenceFactor + (evolvedTraitsSpreadBonus / 2);
+              chance *= (1 - newResistanceLevel * 0.9); 
+              if (Math.random() < chance) {
+                spreadIncrease = 0.005 + (opennessFactor / 4); 
+                if (spreadIncrease > 0) {
+                     newRecentEventsSummary += ` Whispers of ${currentMovementName} reach ${currentSubRegion.name} in ${country.name}.`;
+                }
+              }
+            }
+            
+            spreadIncrease *= countryModifiers.adoptionRateModifier.multiplicative;
+            spreadIncrease += countryModifiers.adoptionRateModifier.additive;
+
+            newAdoptionLevel = Math.min(1, newAdoptionLevel + spreadIncrease);
+            newAdoptionLevel = Math.max(0, newAdoptionLevel);
+
+            if (spreadIncrease > 0 && currentSubRegion.adoptionLevel === 0 && newAdoptionLevel > 0.01 && Math.random() < 0.5) {
+               // Covered
+            } else if (spreadIncrease > 0 && currentSubRegion.adoptionLevel > 0 && newAdoptionLevel > currentSubRegion.adoptionLevel && newAdoptionLevel > 0.1 && currentSubRegion.adoptionLevel <= 0.1 && Math.random() < 0.3) {
+               newRecentEventsSummary += ` ${currentSubRegion.name} in ${country.name} shows growing interest in ${currentMovementName}.`;
+            }
+            
+            totalSubRegionAdoption += newAdoptionLevel;
+            totalSubRegionResistance += newResistanceLevel;
+            return { ...currentSubRegion, adoptionLevel: newAdoptionLevel, resistanceLevel: newResistanceLevel };
+          });
+
+          updatedCountry.adoptionLevel = totalSubRegionAdoption / updatedCountry.subRegions.length;
+          updatedCountry.resistanceLevel = totalSubRegionResistance / updatedCountry.subRegions.length;
+
+        } else { // Country without sub-regions (original logic)
+            let baseCulturalOpenness = country.culturalOpenness;
+            let effectiveCulturalOpenness = Math.max(0, Math.min(1, (baseCulturalOpenness + countryModifiers.culturalOpenness.additive) * countryModifiers.culturalOpenness.multiplicative));
+            let newAdoptionLevel = country.adoptionLevel;
+            let newResistanceLevel = Math.max(0, Math.min(1, (country.resistanceLevel + countryModifiers.resistanceLevel.additive) * countryModifiers.resistanceLevel.multiplicative));
+
+            if (hasResistanceManagement && newAdoptionLevel > 0 && newResistanceLevel > 0.05) {
+                newResistanceLevel = Math.max(0.05, newResistanceLevel - 0.01); 
+            }
+            if (newAdoptionLevel > 0.3 && newAdoptionLevel < 0.9) {
+                let resistanceIncreaseFactor = (0.005 * (1 - effectiveCulturalOpenness)) * (newAdoptionLevel - 0.2);
+                if (hasResistanceManagement) resistanceIncreaseFactor *= 0.3; 
+                if (Math.random() < 0.3) { 
+                    const previousResistance = newResistanceLevel;
+                    newResistanceLevel = Math.min(0.9, newResistanceLevel + resistanceIncreaseFactor);
+                    if (newResistanceLevel > previousResistance + 0.005) { 
+                         newRecentEventsSummary += ` ${country.name} shows increased opposition.`;
+                    }
+                }
+            }
+            if (country.adoptionLevel >= 1) { 
+              return { ...country, adoptionLevel: 1, resistanceLevel: Math.max(0.01, newResistanceLevel - 0.05) };
+            }
+            const internetFactor = country.internetPenetration * 0.02;
+            const opennessFactor = effectiveCulturalOpenness * 0.02;
+            const evolvedTraitsSpreadBonus = (evolvedItemIds.size / (EVOLUTION_ITEMS.length || 1)) * 0.03;
+            let spreadIncrease = 0;
+            if (country.adoptionLevel > 0) {
+              const internalGrowthRate = 0.01;
+              spreadIncrease = internalGrowthRate + internetFactor + opennessFactor + evolvedTraitsSpreadBonus;
+              if (country.id === selectedStartCountryId) spreadIncrease *= 1.5; 
+              else spreadIncrease *= 0.7; 
+              spreadIncrease *= (1 - newResistanceLevel * 0.75); 
+            } else {
+              const baseChanceToStart = 0.005; 
+              const globalInfluenceFactor = currentGlobalAdoptionForSpreadCalc * 0.1;
+              let chance = baseChanceToStart + (internetFactor / 2) + (opennessFactor / 2) + globalInfluenceFactor + (evolvedTraitsSpreadBonus / 2);
+              chance *= (1 - newResistanceLevel * 0.9); 
+              if (Math.random() < chance) {
+                spreadIncrease = 0.005 + (opennessFactor / 4); 
+                if (spreadIncrease > 0) {
+                     newRecentEventsSummary += ` Whispers of ${currentMovementName} reach ${country.name}.`;
+                }
+              }
+            }
+            spreadIncrease *= countryModifiers.adoptionRateModifier.multiplicative;
+            spreadIncrease += countryModifiers.adoptionRateModifier.additive;
+            newAdoptionLevel = Math.min(1, country.adoptionLevel + spreadIncrease);
+            newAdoptionLevel = Math.max(0, newAdoptionLevel);
+
+            if (spreadIncrease > 0 && country.adoptionLevel === 0 && newAdoptionLevel > 0 && newAdoptionLevel > 0.01 && Math.random() < 0.5) {
+               // Covered
+            } else if (spreadIncrease > 0 && country.adoptionLevel > 0 && newAdoptionLevel > country.adoptionLevel && newAdoptionLevel > 0.1 && country.adoptionLevel <= 0.1 && Math.random() < 0.3) {
+               newRecentEventsSummary += ` ${country.name} shows growing interest in ${currentMovementName}.`;
+            }
+            updatedCountry.adoptionLevel = newAdoptionLevel;
+            updatedCountry.resistanceLevel = newResistanceLevel;
         }
-        
-        return { ...country, adoptionLevel: newAdoptionLevel, resistanceLevel: newResistanceLevel, culturalOpenness: baseCulturalOpenness }; 
+        return updatedCountry;
       })
     );
     setRecentEvents(newRecentEventsSummary);
     if (!pendingInteractiveEvent) { 
         toast({ title: `Day ${nextTurn}`, description: `The ${currentMovementName} progresses...` });
     }
-  }, [currentTurn, currentMovementName, countries, selectedStartCountryId, evolvedItemIds, activeGlobalEvents, getCountryModifiers, allPotentialEvents, toast, pendingInteractiveEvent, handleEventOptionSelected]);
+  }, [currentTurn, currentMovementName, countries, selectedStartCountryId, evolvedItemIds, activeGlobalEvents, getCountryModifiers, allPotentialEvents, toast, pendingInteractiveEvent, handleEventOptionSelected, calculateGlobalAdoptionRate]);
   
 
   return (
@@ -389,5 +500,3 @@ export default function GamePage() {
     </div>
   );
 }
-
-    
