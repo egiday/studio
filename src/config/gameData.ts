@@ -64,6 +64,77 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     specialAbilityName: "Universal Harmony",
     specialAbilityDescription: "Significantly reduces the baseline resistance generation rate in all influenced regions. Unlocks special 'Unity Dialogue' options during certain global events, potentially converting resistant populations peacefully."
   },
+
+  // New Extensive Items
+  // Expression Methods
+  { 
+    id: 'expr_grassroots_kits', 
+    name: 'Grassroots Organizing Kits', 
+    description: 'Provides toolkits, funding, and training for local leaders to independently organize events and promote the movement, enhancing local adoption and authenticity.', 
+    cost: 25, 
+    icon: Megaphone, 
+    category: 'expression_methods', 
+    isEvolved: false, 
+    prerequisites: ['expr_word_of_mouth', 'expr_gatherings']
+  },
+  { 
+    id: 'expr_global_syndication', 
+    name: 'Global Media Syndication', 
+    description: 'Establishes partnerships to distribute cultural content through international media networks, creating a persistent global presence.', 
+    cost: 50, 
+    icon: TrendingUp, 
+    category: 'expression_methods', 
+    isEvolved: false, 
+    prerequisites: ['expr_media_broadcast', 'expr_viral_studio'],
+    specialAbilityName: "Ubiquitous Presence",
+    specialAbilityDescription: "All media-based expressions (Broadcast, Viral Studio) become 15% more effective globally. Reduces cost of future media-related evolutions by 10%."
+  },
+
+  // Cultural Elements
+  { 
+    id: 'elem_mythology_lore', 
+    name: 'Mythology & Lore Creation', 
+    description: 'Develops a rich tapestry of stories, myths, historical narratives, and symbolic figures that deepen the cultural narrative and emotional connection for adherents.', 
+    cost: 30, 
+    icon: BrainCog, // Re-using BrainCog as it fits well
+    category: 'cultural_elements', 
+    isEvolved: false, 
+    prerequisites: ['elem_value_system', 'elem_concepts']
+  },
+  { 
+    id: 'elem_interactive_education', 
+    name: 'Interactive Educational Platform', 
+    description: 'Creates an online platform with courses, simulations, and interactive content about the movement\'s core tenets, boosting retention and deeper understanding among adherents.', 
+    cost: 35, 
+    icon: School, // Re-using School
+    category: 'cultural_elements', 
+    isEvolved: false, 
+    prerequisites: ['elem_concepts', 'expr_apps']
+  },
+
+  // Adaptability
+  { 
+    id: 'adapt_ai_localization', 
+    name: 'AI-Powered Localization Engine', 
+    description: 'Utilizes advanced AI to rapidly translate and culturally adapt content for diverse languages and regional nuances, dramatically increasing integration speed and relevance.', 
+    cost: 45, 
+    icon: GitFork, 
+    category: 'adaptability', 
+    isEvolved: false, 
+    prerequisites: ['adapt_integration', 'expr_apps'],
+    specialAbilityName: "Hyper-Adaptation",
+    specialAbilityDescription: "Reduces cultural resistance penalties arising from regional differences by 50%. Automatically translates basic communications to any region."
+  },
+  { 
+    id: 'adapt_crisis_protocol', 
+    name: 'Global Crisis Response Protocol', 
+    description: 'Establishes protocols, resources, and communication channels to swiftly adapt messaging and support adherents during global crises, maintaining loyalty and preventing spread decline.', 
+    cost: 30, 
+    icon: Siren, 
+    category: 'adaptability', 
+    isEvolved: false, 
+    prerequisites: ['adapt_resistance_mgmt']
+  },
 ];
 
 const usaSubRegions: SubRegion[] = [
@@ -74,39 +145,40 @@ const usaSubRegions: SubRegion[] = [
 ];
 
 const chinaSubRegions: SubRegion[] = [
-  { id: 'china_e', name: 'East Coast', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.85, culturalOpenness: 0.45, internetPenetration: 0.75, educationLevel: 0.78, mediaFreedom: 0.15 },
-  { id: 'china_w', name: 'West Inland', adoptionLevel: 0, resistanceLevel: 0.35, economicDevelopment: 0.60, culturalOpenness: 0.30, internetPenetration: 0.45, educationLevel: 0.60, mediaFreedom: 0.10 },
-  { id: 'china_n', name: 'North', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.70, culturalOpenness: 0.35, internetPenetration: 0.65, educationLevel: 0.70, mediaFreedom: 0.12 },
-  { id: 'china_s', name: 'South', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.78, culturalOpenness: 0.40, internetPenetration: 0.70, educationLevel: 0.72, mediaFreedom: 0.14 },
+  { id: 'china_e', name: 'East Coast Cities', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.85, culturalOpenness: 0.45, internetPenetration: 0.75, educationLevel: 0.78, mediaFreedom: 0.15 },
+  { id: 'china_w_rural', name: 'West Inland Rural', adoptionLevel: 0, resistanceLevel: 0.35, economicDevelopment: 0.60, culturalOpenness: 0.30, internetPenetration: 0.45, educationLevel: 0.60, mediaFreedom: 0.10 },
+  { id: 'china_n_industrial', name: 'North Industrial Belt', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.70, culturalOpenness: 0.35, internetPenetration: 0.65, educationLevel: 0.70, mediaFreedom: 0.12 },
+  { id: 'china_s_special_econ', name: 'South Special Economic Zones', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.78, culturalOpenness: 0.40, internetPenetration: 0.70, educationLevel: 0.72, mediaFreedom: 0.14 },
 ];
 
 const indiaSubRegions: SubRegion[] = [
-  { id: 'india_n', name: 'North India', adoptionLevel: 0, resistanceLevel: 0.22, economicDevelopment: 0.58, culturalOpenness: 0.62, internetPenetration: 0.42, educationLevel: 0.62, mediaFreedom: 0.52 },
-  { id: 'india_s', name: 'South India', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.65, culturalOpenness: 0.68, internetPenetration: 0.48, educationLevel: 0.65, mediaFreedom: 0.55 },
-  { id: 'india_e', name: 'East India', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.55, culturalOpenness: 0.58, internetPenetration: 0.38, educationLevel: 0.58, mediaFreedom: 0.48 },
-  { id: 'india_w', name: 'West India', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.62, culturalOpenness: 0.65, internetPenetration: 0.45, educationLevel: 0.63, mediaFreedom: 0.53 },
+  { id: 'india_n_plains', name: 'North Indo-Gangetic Plain', adoptionLevel: 0, resistanceLevel: 0.22, economicDevelopment: 0.58, culturalOpenness: 0.62, internetPenetration: 0.42, educationLevel: 0.62, mediaFreedom: 0.52 },
+  { id: 'india_s_tech_hubs', name: 'South Tech Hubs', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.65, culturalOpenness: 0.68, internetPenetration: 0.48, educationLevel: 0.65, mediaFreedom: 0.55 },
+  { id: 'india_e_tribal', name: 'East Tribal Regions', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.55, culturalOpenness: 0.58, internetPenetration: 0.38, educationLevel: 0.58, mediaFreedom: 0.48 },
+  { id: 'india_w_financial', name: 'West Financial Centers', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.62, culturalOpenness: 0.65, internetPenetration: 0.45, educationLevel: 0.63, mediaFreedom: 0.53 },
 ];
 
 const brazilSubRegions: SubRegion[] = [
-  { id: 'brazil_se', name: 'Southeast', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.70, culturalOpenness: 0.82, internetPenetration: 0.75, educationLevel: 0.72, mediaFreedom: 0.62 },
-  { id: 'brazil_ne', name: 'Northeast', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.55, culturalOpenness: 0.75, internetPenetration: 0.60, educationLevel: 0.65, mediaFreedom: 0.58 },
-  { id: 'brazil_n', name: 'North (Amazon)', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.45, culturalOpenness: 0.70, internetPenetration: 0.50, educationLevel: 0.60, mediaFreedom: 0.55 },
-  { id: 'brazil_cs', name: 'Central-South', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.65, culturalOpenness: 0.78, internetPenetration: 0.68, educationLevel: 0.70, mediaFreedom: 0.60 },
+  { id: 'brazil_se_metro', name: 'Southeast Megalopolis', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.70, culturalOpenness: 0.82, internetPenetration: 0.75, educationLevel: 0.72, mediaFreedom: 0.62 },
+  { id: 'brazil_ne_coastal', name: 'Northeast Coastal', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.55, culturalOpenness: 0.75, internetPenetration: 0.60, educationLevel: 0.65, mediaFreedom: 0.58 },
+  { id: 'brazil_n_amazon', name: 'North (Amazon Basin)', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.45, culturalOpenness: 0.70, internetPenetration: 0.50, educationLevel: 0.60, mediaFreedom: 0.55 },
+  { id: 'brazil_cs_agri', name: 'Central-South Agri-business', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.65, culturalOpenness: 0.78, internetPenetration: 0.68, educationLevel: 0.70, mediaFreedom: 0.60 },
 ];
 
 const nigeriaSubRegions: SubRegion[] = [
-  { id: 'nigeria_sw', name: 'Southwest (Lagos)', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.50, culturalOpenness: 0.55, internetPenetration: 0.60, educationLevel: 0.55, mediaFreedom: 0.42 },
-  { id: 'nigeria_n', name: 'North', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.30, culturalOpenness: 0.40, internetPenetration: 0.40, educationLevel: 0.45, mediaFreedom: 0.35 },
-  { id: 'nigeria_se', name: 'Southeast', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.35, culturalOpenness: 0.48, internetPenetration: 0.45, educationLevel: 0.50, mediaFreedom: 0.38 },
-  { id: 'nigeria_mc', name: 'Middle Belt', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.32, culturalOpenness: 0.45, internetPenetration: 0.42, educationLevel: 0.48, mediaFreedom: 0.37 },
+  { id: 'nigeria_sw_lagos', name: 'Southwest (Lagos Metro)', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.50, culturalOpenness: 0.55, internetPenetration: 0.60, educationLevel: 0.55, mediaFreedom: 0.42 },
+  { id: 'nigeria_n_kano', name: 'North (Kano Region)', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.30, culturalOpenness: 0.40, internetPenetration: 0.40, educationLevel: 0.45, mediaFreedom: 0.35 },
+  { id: 'nigeria_se_delta', name: 'Southeast (Niger Delta)', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.35, culturalOpenness: 0.48, internetPenetration: 0.45, educationLevel: 0.50, mediaFreedom: 0.38 },
+  { id: 'nigeria_mc_jos', name: 'Middle Belt (Jos Plateau)', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.32, culturalOpenness: 0.45, internetPenetration: 0.42, educationLevel: 0.48, mediaFreedom: 0.37 },
 ];
 
 const germanySubRegions: SubRegion[] = [
-  { id: 'germany_w', name: 'West Germany', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.88, culturalOpenness: 0.78, internetPenetration: 0.94, educationLevel: 0.90, mediaFreedom: 0.92 },
-  { id: 'germany_e', name: 'East Germany', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.80, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.88 },
-  { id: 'germany_s', name: 'South Germany', adoptionLevel: 0, resistanceLevel: 0.09, economicDevelopment: 0.90, culturalOpenness: 0.76, internetPenetration: 0.93, educationLevel: 0.89, mediaFreedom: 0.91 },
-  { id: 'germany_n', name: 'North Germany', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.85, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.87, mediaFreedom: 0.90 },
+  { id: 'germany_w_rhine', name: 'West (Rhine-Ruhr)', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.88, culturalOpenness: 0.78, internetPenetration: 0.94, educationLevel: 0.90, mediaFreedom: 0.92 },
+  { id: 'germany_e_berlin', name: 'East (Berlin-Brandenburg)', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.80, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.88 },
+  { id: 'germany_s_bavaria', name: 'South (Bavaria)', adoptionLevel: 0, resistanceLevel: 0.09, economicDevelopment: 0.90, culturalOpenness: 0.76, internetPenetration: 0.93, educationLevel: 0.89, mediaFreedom: 0.91 },
+  { id: 'germany_n_hamburg', name: 'North (Hamburg Port)', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.85, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.87, mediaFreedom: 0.90 },
 ];
+
 
 export const INITIAL_COUNTRIES: Country[] = [
   { 
@@ -262,3 +334,4 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
   }
 ];
 
+    
