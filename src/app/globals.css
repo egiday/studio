@@ -4,95 +4,95 @@
 
 @layer base {
   :root {
-    --background: 240 30% 18%; /* Dark Indigo Blue */
-    --foreground: 45 50% 90%; /* Light Cream/Gold */
+    --background: 240 30% 12%; /* Deep Celestial Indigo */
+    --foreground: 45 50% 92%; /* Soft Stellar Gold/Off-white */
     
-    --card: 240 30% 22%; /* Slightly Lighter Dark Indigo Blue */
-    --card-foreground: 45 50% 90%;
+    --card: 240 30% 18%; /* Slightly Lighter Celestial Indigo */
+    --card-foreground: 45 50% 92%;
     
-    --popover: 240 30% 22%;
-    --popover-foreground: 45 50% 90%;
+    --popover: 240 30% 16%; /* Darker Popover for depth */
+    --popover-foreground: 45 50% 92%;
     
-    --primary: 40 90% 55%; /* Vibrant Gold/Amber */
-    --primary-foreground: 240 30% 15%; /* Dark Indigo for text on gold */
+    --primary: 40 90% 60%; /* Vibrant Stellar Gold */
+    --primary-foreground: 240 30% 10%; /* Very Dark Indigo for text on gold */
     
-    --secondary: 180 50% 45%; /* Deep Teal */
-    --secondary-foreground: 45 50% 95%; /* Very Light Cream for text on teal */
+    --secondary: 200 60% 50%; /* Sapphire Blue */
+    --secondary-foreground: 45 50% 95%; /* Very Light Cream for text on sapphire */
     
-    --muted: 240 20% 30%; /* Muted Indigo */
-    --muted-foreground: 240 20% 70%; /* Lighter Muted Indigo */
+    --muted: 240 25% 25%; /* Muted Dark Indigo */
+    --muted-foreground: 240 25% 65%; /* Lighter Muted Indigo */
     
-    --accent: 330 80% 60%; /* Bright Magenta/Pink */
+    --accent: 320 70% 65%; /* Cosmic Pink/Magenta */
     --accent-foreground: 0 0% 100%; /* White for text on accent */
     
-    --destructive: 0 70% 50%; /* A slightly desaturated red for better harmony */
+    --destructive: 0 70% 55%; /* Richer Red */
     --destructive-foreground: 0 0% 98%;
     
-    --border: 240 20% 35%;
-    --input: 240 20% 28%;
-    --ring: 40 90% 65%; /* A slightly lighter Gold for focus rings */
+    --border: 240 25% 30%; /* More visible border */
+    --input: 240 25% 22%; /* Distinct input background */
+    --ring: 40 90% 65%; /* Brighter Gold for focus rings */
     
     --radius: 0.5rem;
 
-    --chart-1: 40 90% 60%; /* Gold variations */
-    --chart-2: 180 50% 50%; /* Teal variations */
-    --chart-3: 330 80% 65%; /* Accent variations */
-    --chart-4: 210 70% 60%; /* A contrasting blue */
-    --chart-5: 270 60% 65%; /* A contrasting purple */
+    --chart-1: 40 90% 62%; /* Stellar Gold */
+    --chart-2: 200 60% 55%; /* Sapphire */
+    --chart-3: 320 70% 68%; /* Cosmic Pink */
+    --chart-4: 150 60% 50%; /* Emerald Green */
+    --chart-5: 270 60% 65%; /* Deep Violet */
 
-    --sidebar-background: 240 30% 20%; /* Darker than main card */
-    --sidebar-foreground: 45 50% 85%;
-    --sidebar-primary: 40 90% 50%;
-    --sidebar-primary-foreground: 240 30% 12%;
-    --sidebar-accent: 330 80% 55%;
+    --sidebar-background: 240 30% 14%; /* Darker than main card for sidebar */
+    --sidebar-foreground: 45 50% 90%;
+    --sidebar-primary: 40 90% 58%;
+    --sidebar-primary-foreground: 240 30% 8%;
+    --sidebar-accent: 320 70% 62%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 240 20% 30%;
-    --sidebar-ring: 40 90% 60%;
+    --sidebar-border: 240 25% 28%;
+    --sidebar-ring: 40 90% 62%;
   }
 
   .dark {
-    --background: 240 35% 10%; /* Very Dark Indigo */
-    --foreground: 45 40% 85%; /* Soft Light Gold */
+    --background: 240 35% 8%; /* Even Deeper Indigo for Dark Mode */
+    --foreground: 45 45% 88%; /* Softer Light Gold */
 
-    --card: 240 35% 14%; 
-    --card-foreground: 45 40% 85%;
+    --card: 240 35% 12%; 
+    --card-foreground: 45 45% 88%;
 
-    --popover: 240 35% 14%;
-    --popover-foreground: 45 40% 85%;
+    --popover: 240 35% 10%;
+    --popover-foreground: 45 45% 88%;
 
-    --primary: 40 80% 60%; /* Slightly Softer Gold for dark mode */
-    --primary-foreground: 240 35% 8%; 
+    --primary: 40 85% 62%; /* Slightly Brighter Gold for dark mode contrast */
+    --primary-foreground: 240 35% 6%; 
 
-    --secondary: 180 60% 50%; /* Slightly Brighter Teal */
-    --secondary-foreground: 180 60% 10%; 
+    --secondary: 200 65% 52%; /* Brighter Sapphire */
+    --secondary-foreground: 200 65% 95%; 
 
-    --muted: 240 25% 20%;
-    --muted-foreground: 240 25% 60%;
+    --muted: 240 30% 20%;
+    --muted-foreground: 240 30% 60%;
 
-    --accent: 330 70% 65%; /* Slightly Softer Magenta */
+    --accent: 320 75% 68%; /* Brighter Cosmic Pink */
     --accent-foreground: 0 0% 100%; 
 
-    --destructive: 0 60% 45%;
+    --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 25% 25%;
-    --input: 240 25% 18%;
-    --ring: 40 80% 70%;
+    --border: 240 30% 22%;
+    --input: 240 30% 16%;
+    --ring: 40 85% 68%;
     
-    --chart-1: 40 80% 65%;
-    --chart-2: 180 60% 55%;
-    --chart-3: 330 70% 70%;
-    --chart-4: 210 60% 65%;
-    --chart-5: 270 50% 70%;
+    --chart-1: 40 85% 65%;
+    --chart-2: 200 65% 58%;
+    --chart-3: 320 75% 70%;
+    --chart-4: 150 65% 52%;
+    --chart-5: 270 65% 68%;
 
-    --sidebar-background: 240 35% 12%;
-    --sidebar-foreground: 45 40% 80%;
-    --sidebar-primary: 40 80% 55%;
-    --sidebar-primary-foreground: 240 35% 6%;
-    --sidebar-accent: 330 70% 60%;
+    --sidebar-background: 240 35% 10%;
+    --sidebar-foreground: 45 45% 85%;
+    --sidebar-primary: 40 85% 60%;
+    --sidebar-primary-foreground: 240 35% 4%;
+    --sidebar-accent: 320 75% 65%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 240 25% 22%;
-    --sidebar-ring: 40 80% 65%;
+    --sidebar-border: 240 30% 20%;
+    --sidebar-ring: 40 85% 65%;
   }
 }
 
