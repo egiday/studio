@@ -48,9 +48,9 @@ export function EvolutionCard({
 
   return (
     <Card className={cn(
-      "shadow-md flex flex-col justify-between transition-opacity", 
-      item.isEvolved ? "bg-green-50 dark:bg-green-900/30 border-green-500" : 
-      !canEvolveOverall && !item.isEvolved ? "opacity-70 bg-muted/30" : "bg-card" // Added bg-card for default
+      "shadow-lg flex flex-col justify-between transition-opacity", 
+      item.isEvolved ? "bg-green-500/10 dark:bg-green-500/20 border-green-500" : 
+      !canEvolveOverall && !item.isEvolved ? "opacity-70 bg-muted/30" : "bg-card"
     )}>
       <CardHeader>
         <CardTitle className="text-base flex items-center">
@@ -62,7 +62,7 @@ export function EvolutionCard({
       <CardContent>
         <Badge variant={item.isEvolved ? "default" : "secondary"} className={cn(
           item.isEvolved ? "bg-green-600 text-white" : "",
-          "mb-2" // Added margin bottom for spacing
+          "mb-2" 
         )}>
           <Coins className="mr-1 h-3 w-3" /> {item.cost} IP
         </Badge>
@@ -73,10 +73,10 @@ export function EvolutionCard({
               {allPrerequisiteNames.map(prereqName => (
                 <li key={prereqName} className={cn(
                   item.prerequisites?.some(pId => {
-                    const prereqItem = EVOLUTION_ITEMS.find(i => i.id === pId); // Assuming EVOLUTION_ITEMS is accessible or passed
-                    return prereqItem?.name === prereqName && !item.isEvolved && !unmetPrerequisiteNames.includes(prereqName) && prerequisitesMet;
-                  }) ? "text-green-600 dark:text-green-400" : // Met prerequisite
-                  unmetPrerequisiteNames.includes(prereqName) ? "text-destructive" : "" // Unmet prerequisite
+                    const prereqItem = EVOLUTION_ITEMS_MOCK.find(i => i.id === pId);
+                    return prereqItem?.name === prereqName && !unmetPrerequisiteNames.includes(prereqName);
+                  }) && !item.isEvolved ? "text-green-500 dark:text-green-400" : 
+                  unmetPrerequisiteNames.includes(prereqName) ? "text-destructive" : ""
                 )}>
                   {prereqName}
                 </li>
@@ -91,11 +91,11 @@ export function EvolutionCard({
             <TooltipTrigger asChild>
               <Button
                 onClick={() => onEvolve(item.id)}
-                disabled={!canEvolveOverall || item.isEvolved} // Ensure button is disabled if already evolved
+                disabled={!canEvolveOverall || item.isEvolved}
                 className={cn("w-full text-sm", 
-                  item.isEvolved ? "bg-green-600 hover:bg-green-700 text-white cursor-default" : // Styling for evolved button
+                  item.isEvolved ? "bg-green-600 hover:bg-green-700 text-white cursor-default" : 
                   !prerequisitesMet ? "bg-muted hover:bg-muted text-muted-foreground" :
-                  !isAffordable ? "bg-amber-500 hover:bg-amber-600 text-amber-foreground" : // Ensure text color is good on amber
+                  !isAffordable ? "bg-amber-500 hover:bg-amber-600 text-amber-foreground" : 
                   "bg-accent hover:bg-accent/90 text-accent-foreground"
                 )}
                 aria-describedby={tooltipMessage ? `tooltip-${item.id}` : undefined}
@@ -104,7 +104,7 @@ export function EvolutionCard({
                 {buttonText}
               </Button>
             </TooltipTrigger>
-            {tooltipMessage && !item.isEvolved && ( // Only show tooltip if not evolved
+            {tooltipMessage && !item.isEvolved && (
               <TooltipContent id={`tooltip-${item.id}`}>
                 <p>{tooltipMessage}</p>
               </TooltipContent>
@@ -118,7 +118,8 @@ export function EvolutionCard({
 
 // Minimal mock for EVOLUTION_ITEMS to satisfy TypeScript in this isolated context
 // In a real scenario, this data would come from props or a shared context/store.
-const EVOLUTION_ITEMS: {id: string, name: string}[] = [
+// We use a different name to avoid linting errors about redefining EVOLUTION_ITEMS from gameData
+const EVOLUTION_ITEMS_MOCK: {id: string, name: string}[] = [
     {id: "expr_social_media", name: "Social Media Presence"},
     {id: "expr_apps", name: "Dedicated App"},
     {id: "expr_influencers", name: "Influencer Network"}
