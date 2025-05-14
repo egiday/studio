@@ -15,9 +15,12 @@ import {
 import { cn } from '@/lib/utils';
 import { subRegionPositions as SUB_REGION_LAYOUT_CONFIG, countryPositions } from '@/config/gameData';
 
+const RIVAL_ICON_VISIBILITY_THRESHOLD = 0.15; // Show rival icon if influence > 15%
+const RIVAL_DOMINANCE_THRESHOLD = 0.2; // Rival is dominant if influence > 20% and > player
+
 interface WorldMapProps {
   countries: Country[];
-  rivalMovements: RivalMovement[]; // Add rival movements prop
+  rivalMovements: RivalMovement[];
   onCountrySelect: (countryId: string) => void;
   onCollectInfluence: (points: number) => void;
   selectedCountryId?: string;
@@ -34,42 +37,44 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
     setTimeout(() => setShowInfluenceBubble(true), 10000);
   };
 
-  const getRivalById = (rivalId: string) => rivalMovements.find(r => r.id === rivalId);
+  const getRivalById = (rivalId: string): RivalMovement | undefined => rivalMovements.find(r => r.id === rivalId);
 
-  const getRegionColor = (adoptionLevel: number, isSelected: boolean, rivalPresenceInfluence: number = 0) => {
-    let baseColorClass = 'bg-muted/50 hover:bg-muted/60 border-border/50';
+  const getRegionStyling = (
+    adoptionLevel: number,
+    isSelected: boolean,
+    rivalPresence: Country['rivalPresence'] | SubRegion['rivalPresence']
+  ): { bgClass: string; borderClass: string; textClass: string; shadowClass: string } => {
+    let bgClass = 'bg-muted/50 hover:bg-muted/60';
+    let borderClass = 'border-border/50';
+    let textClass = 'text-foreground';
     let shadowClass = 'shadow-md';
 
-    if (adoptionLevel > 0.8) { baseColorClass = 'bg-primary/90 hover:bg-primary border-primary/70'; shadowClass = 'shadow-xl shadow-primary/50'; }
-    else if (adoptionLevel > 0.6) { baseColorClass = 'bg-primary/70 hover:bg-primary/80 border-primary/60'; shadowClass = 'shadow-lg shadow-primary/30'; }
-    else if (adoptionLevel > 0.4) { baseColorClass = 'bg-primary/50 hover:bg-primary/60 border-primary/50'; shadowClass = 'shadow-md shadow-primary/20'; }
-    else if (adoptionLevel > 0.2) { baseColorClass = 'bg-secondary/70 hover:bg-secondary/80 border-secondary/60'; shadowClass = 'shadow-lg shadow-secondary/30'; }
-    else if (adoptionLevel > 0.05) { baseColorClass = 'bg-secondary/40 hover:bg-secondary/50 border-secondary/40'; shadowClass = 'shadow-md shadow-secondary/20'; }
-    else if (adoptionLevel > 0) { baseColorClass = 'bg-secondary/20 hover:bg-secondary/30 border-secondary/30'; shadowClass = 'shadow-sm shadow-secondary/10'; }
+    const rival = rivalPresence ? getRivalById(rivalPresence.rivalId) : null;
+
+    if (rival && rivalPresence && rivalPresence.influenceLevel > adoptionLevel && rivalPresence.influenceLevel > RIVAL_DOMINANCE_THRESHOLD) {
+      // Rival is dominant
+      bgClass = `bg-[${rival.color}]/30 hover:bg-[${rival.color}]/40`; // Muted rival color
+      borderClass = `border-[${rival.color}]`; // Bright rival border
+      textClass = 'text-white'; // Assume rival colors are dark enough for white text
+      shadowClass = `shadow-lg shadow-[${rival.color}]/40`;
+    } else {
+      // Player is dominant or no significant rival
+      if (adoptionLevel > 0.8) { bgClass = 'bg-primary/90 hover:bg-primary'; borderClass = 'border-primary/70'; shadowClass = `shadow-xl shadow-primary/50`; }
+      else if (adoptionLevel > 0.6) { bgClass = 'bg-primary/70 hover:bg-primary/80'; borderClass = 'border-primary/60'; shadowClass = `shadow-lg shadow-primary/30`; }
+      else if (adoptionLevel > 0.4) { bgClass = 'bg-primary/50 hover:bg-primary/60'; borderClass = 'border-primary/50'; shadowClass = `shadow-md shadow-primary/20`; }
+      else if (adoptionLevel > 0.2) { bgClass = 'bg-secondary/70 hover:bg-secondary/80'; borderClass = 'border-secondary/60'; shadowClass = `shadow-lg shadow-secondary/30`; }
+      else if (adoptionLevel > 0.05) { bgClass = 'bg-secondary/40 hover:bg-secondary/50'; borderClass = 'border-secondary/40'; shadowClass = `shadow-md shadow-secondary/20`; }
+      else if (adoptionLevel > 0) { bgClass = 'bg-secondary/20 hover:bg-secondary/30'; borderClass = 'border-secondary/30'; shadowClass = `shadow-sm shadow-secondary/10`; }
+    }
     
-    // If rival has more influence, tint towards rival color or mute player color
-    if (rivalPresenceInfluence > adoptionLevel && rivalPresenceInfluence > 0.1) {
-        baseColorClass = 'bg-slate-500/50 hover:bg-slate-500/60 border-slate-600/50'; // Muted color if rival dominant
+    if (isSelected) {
+      borderClass = 'border-accent ring-4 ring-offset-2 ring-offset-background ring-accent';
+      shadowClass = `shadow-xl shadow-accent/50`;
     }
 
-
-    const selectedClass = isSelected ? `ring-4 ring-offset-2 ring-offset-background ring-accent scale-105 ${shadowClass} shadow-accent/50` : shadowClass;
-    return cn(baseColorClass, selectedClass, 'text-foreground');
+    return { bgClass, borderClass, textClass, shadowClass };
   };
 
-  const getSubRegionColor = (adoptionLevel: number, rivalPresenceInfluence: number = 0) => {
-    let color = 'bg-muted/60 hover:bg-muted/70 border-border/40';
-    if (adoptionLevel > 0.8) color = 'bg-primary/80 hover:bg-primary/90 border-primary/60 shadow-md shadow-primary/20';
-    else if (adoptionLevel > 0.6) color = 'bg-primary/60 hover:bg-primary/70 border-primary/50 shadow-sm shadow-primary/10';
-    else if (adoptionLevel > 0.4) color = 'bg-secondary/80 hover:bg-secondary/90 border-secondary/70 shadow-md shadow-secondary/20';
-    else if (adoptionLevel > 0.2) color = 'bg-secondary/60 hover:bg-secondary/70 border-secondary/50 shadow-sm shadow-secondary/10';
-    else if (adoptionLevel > 0) color = 'bg-secondary/30 hover:bg-secondary/40 border-secondary/30';
-
-    if (rivalPresenceInfluence > adoptionLevel && rivalPresenceInfluence > 0.1) {
-        color = 'bg-slate-400/60 hover:bg-slate-400/70 border-slate-500/50';
-    }
-    return color;
-  }
 
   const handleCountryClick = (country: Country) => {
     onCountrySelect(country.id);
@@ -84,17 +89,19 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
     setZoomedCountry(null);
   };
 
-  const renderRivalIndicator = (rivalPresence: Country['rivalPresence'] | SubRegion['rivalPresence']) => {
-    if (!rivalPresence || rivalPresence.influenceLevel < 0.01) return null;
+  const renderRivalIcon = (rivalPresence: Country['rivalPresence'] | SubRegion['rivalPresence']) => {
+    if (!rivalPresence || rivalPresence.influenceLevel < RIVAL_ICON_VISIBILITY_THRESHOLD) return null;
     const rival = getRivalById(rivalPresence.rivalId);
     if (!rival) return null;
     
+    const RivalIconComponent = rival.icon;
     return (
       <div 
-        className="absolute top-1 right-1 w-3 h-3 rounded-full border border-background"
-        style={{ backgroundColor: rival.color }}
+        className="absolute top-1 right-1 p-0.5 rounded-full bg-black/30 backdrop-blur-sm"
         title={`${rival.name} Influence: ${(rivalPresence.influenceLevel * 100).toFixed(0)}%`}
-      />
+      >
+        <RivalIconComponent className="w-3 h-3" style={{ color: rival.color }} />
+      </div>
     );
   };
 
@@ -105,7 +112,7 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
         <p className="font-bold text-base mb-1.5 text-primary">{subRegion.name}</p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-1">
           <span className="font-medium text-muted-foreground">Player Adoption:</span><span className="text-right font-semibold">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
-          {rival && subRegion.rivalPresence && (
+          {rival && subRegion.rivalPresence && subRegion.rivalPresence.influenceLevel > 0.005 && (
             <>
               <span className="font-medium" style={{color: rival.color || 'inherit'}}>{rival.name}:</span>
               <span className="text-right font-semibold" style={{color: rival.color || 'inherit'}}>{(subRegion.rivalPresence.influenceLevel * 100).toFixed(0)}%</span>
@@ -126,7 +133,7 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
         <p className="font-bold text-base mb-1.5 text-primary">{country.name}</p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-1">
           <span className="font-medium text-muted-foreground">Player Adoption:</span><span className="text-right font-semibold">{(country.adoptionLevel * 100).toFixed(0)}%</span>
-           {rival && country.rivalPresence && !country.subRegions?.length && ( // Show for country only if no subregions
+           {rival && country.rivalPresence && !country.subRegions?.length && country.rivalPresence.influenceLevel > 0.005 && (
             <>
               <span className="font-medium" style={{color: rival.color || 'inherit'}}>{rival.name}:</span>
               <span className="text-right font-semibold" style={{color: rival.color || 'inherit'}}>{(country.rivalPresence.influenceLevel * 100).toFixed(0)}%</span>
@@ -154,7 +161,7 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
           {zoomedCountry ? `${zoomedCountry.name} - Territories` : 'Celestial Sphere of Influence'}
         </CardTitle>
         {zoomedCountry && (
-          <Button variant="outline" size="sm" onClick={handleZoomOut} className="border-accent text-accent-foreground hover:bg-accent hover:text-accent-foreground">
+          <Button variant="outline" size="sm" onClick={handleZoomOut} className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
             <ChevronLeft className="mr-1 h-4 w-4" /> Sphere View
           </Button>
         )}
@@ -164,22 +171,24 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
         zoomedCountry ? "opacity-30" : "opacity-100"
       )}>
         <TooltipProvider delayDuration={150}>
-          {!zoomedCountry && countries.map((country) => (
-            countryPositions[country.id] && (
+          {!zoomedCountry && countries.map((country) => {
+            if (!countryPositions[country.id]) return null;
+            const styling = getRegionStyling(country.adoptionLevel, selectedCountryId === country.id, country.rivalPresence);
+            return (
               <Tooltip key={country.id}>
                 <TooltipTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
                       `absolute p-0 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 transition-all duration-300 hover:scale-105`,
-                      getRegionColor(country.adoptionLevel, selectedCountryId === country.id, country.rivalPresence?.influenceLevel),
+                      styling.bgClass, styling.borderClass, styling.textClass, styling.shadowClass,
                       'rounded-xl w-32 h-20 flex flex-col justify-center items-center'
                     )}
                     style={{ top: countryPositions[country.id].top, left: countryPositions[country.id].left }}
                     onClick={() => handleCountryClick(country)}
                     aria-label={`Select ${country.name}`}
                   >
-                    {renderRivalIndicator(country.rivalPresence)}
+                    {renderRivalIcon(country.rivalPresence)}
                     <span className="text-sm font-bold block truncate w-full px-1 text-center">{country.name}</span>
                     <span className="text-xs font-medium opacity-90 mt-0.5">{(country.adoptionLevel * 100).toFixed(0)}% Influence</span>
                   </Button>
@@ -188,45 +197,48 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
                   {renderCountryTooltipContent(country)}
                 </TooltipContent>
               </Tooltip>
-            )
-          ))}
+            );
+          })}
         </TooltipProvider>
 
         {showInfluenceBubble && !zoomedCountry && (
           <Button
             variant="default"
             size="icon"
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full w-20 h-20 shadow-2xl animate-pulse bg-accent hover:bg-accent/90 text-accent-foreground"
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full w-24 h-24 shadow-2xl animate-pulse bg-accent hover:bg-accent/90 text-accent-foreground" // Larger bubble
             onClick={handleCollect}
             aria-label="Collect Influence Points"
           >
-            <Zap className="w-10 h-10" />
+            <Zap className="w-12 h-12" />
           </Button>
         )}
       </CardContent>
 
       {zoomedCountry && (
-        <div className="absolute inset-0 p-4 pt-[70px] bg-background/30 backdrop-blur-md overflow-hidden flex justify-center items-center">
+        <div className="absolute inset-0 p-4 pt-[70px] bg-background/50 backdrop-blur-md overflow-hidden flex justify-center items-center">
           <div className="relative w-full h-full max-w-3xl max-h-2xl">
             <TooltipProvider delayDuration={150}>
               {zoomedCountry.subRegions?.map((subRegion, index) => {
                 const layoutConfig = SUB_REGION_LAYOUT_CONFIG[zoomedCountry.id];
-                let positionStyle = { top: '50%', left: '50%' };
+                let positionStyle = { top: '50%', left: '50%' }; // Default fallback
                 if (layoutConfig && layoutConfig.offsets[index]) {
                   const scaleFactor = 1.8;
                   positionStyle = {
                     top: `${50 + parseFloat(layoutConfig.offsets[index].top) * scaleFactor}%`,
                     left: `${50 + parseFloat(layoutConfig.offsets[index].left) * scaleFactor}%`,
                   };
-                } else {
+                } else { // Fallback circular layout if no specific config
                   const angle = (index / (zoomedCountry.subRegions?.length || 1)) * 2 * Math.PI;
-                  const radius = 25 + (index % 2 === 0 ? 0 : 5);
+                  const radiusBase = 25; // Base radius in percentage
+                  const radiusVariation = (index % 3) * 4; // Vary radius to avoid perfect circle: 0, 4, 8
+                  const radius = radiusBase + radiusVariation;
                   positionStyle = {
                     top: `${50 + radius * Math.sin(angle)}%`,
                     left: `${50 + radius * Math.cos(angle)}%`,
                   };
                 }
-
+                
+                const styling = getRegionStyling(subRegion.adoptionLevel, false, subRegion.rivalPresence);
                 return (
                   <Tooltip key={subRegion.id}>
                     <TooltipTrigger asChild>
@@ -234,14 +246,13 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
                         variant="outline"
                         className={cn(
                           `absolute p-0 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 shadow-lg transition-all duration-300 hover:scale-110`,
-                          getSubRegionColor(subRegion.adoptionLevel, subRegion.rivalPresence?.influenceLevel),
-                          'text-foreground border-accent',
+                          styling.bgClass, styling.borderClass, styling.textClass, styling.shadowClass,
                           'rounded-lg w-28 h-[70px] flex flex-col justify-center items-center'
                         )}
                         style={positionStyle}
                         aria-label={`View ${subRegion.name}`}
                       >
-                        {renderRivalIndicator(subRegion.rivalPresence)}
+                        {renderRivalIcon(subRegion.rivalPresence)}
                         <span className="text-xs font-semibold block truncate w-full px-1 text-center">{subRegion.name}</span>
                         <span className="text-[10px] font-medium opacity-90 mt-0.5">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
                       </Button>
