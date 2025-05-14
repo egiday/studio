@@ -50,7 +50,7 @@ export function EvolutionCard({
     <Card className={cn(
       "shadow-md flex flex-col justify-between transition-opacity", 
       item.isEvolved ? "bg-green-50 dark:bg-green-900/30 border-green-500" : 
-      !canEvolveOverall ? "opacity-70" : ""
+      !canEvolveOverall && !item.isEvolved ? "opacity-70 bg-muted/30" : "bg-card" // Added bg-card for default
     )}>
       <CardHeader>
         <CardTitle className="text-base flex items-center">
@@ -60,13 +60,29 @@ export function EvolutionCard({
         <CardDescription className="text-xs h-10 overflow-y-auto">{item.description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <Badge variant={item.isEvolved ? "default" : "secondary"} className={item.isEvolved ? "bg-green-600 text-white" : ""}>
+        <Badge variant={item.isEvolved ? "default" : "secondary"} className={cn(
+          item.isEvolved ? "bg-green-600 text-white" : "",
+          "mb-2" // Added margin bottom for spacing
+        )}>
           <Coins className="mr-1 h-3 w-3" /> {item.cost} IP
         </Badge>
         {allPrerequisiteNames.length > 0 && (
-          <p className="text-xs mt-2 text-muted-foreground">
-            Requires: {allPrerequisiteNames.join(', ')}
-          </p>
+          <div className="text-xs mt-1 text-muted-foreground space-y-0.5">
+            <p className="font-medium">Requires:</p>
+            <ul className="list-disc list-inside pl-1">
+              {allPrerequisiteNames.map(prereqName => (
+                <li key={prereqName} className={cn(
+                  item.prerequisites?.some(pId => {
+                    const prereqItem = EVOLUTION_ITEMS.find(i => i.id === pId); // Assuming EVOLUTION_ITEMS is accessible or passed
+                    return prereqItem?.name === prereqName && !item.isEvolved && !unmetPrerequisiteNames.includes(prereqName) && prerequisitesMet;
+                  }) ? "text-green-600 dark:text-green-400" : // Met prerequisite
+                  unmetPrerequisiteNames.includes(prereqName) ? "text-destructive" : "" // Unmet prerequisite
+                )}>
+                  {prereqName}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </CardContent>
       <CardFooter>
@@ -75,11 +91,11 @@ export function EvolutionCard({
             <TooltipTrigger asChild>
               <Button
                 onClick={() => onEvolve(item.id)}
-                disabled={!canEvolveOverall}
+                disabled={!canEvolveOverall || item.isEvolved} // Ensure button is disabled if already evolved
                 className={cn("w-full text-sm", 
-                  item.isEvolved ? "bg-green-600 hover:bg-green-700 text-white" : 
+                  item.isEvolved ? "bg-green-600 hover:bg-green-700 text-white cursor-default" : // Styling for evolved button
                   !prerequisitesMet ? "bg-muted hover:bg-muted text-muted-foreground" :
-                  !isAffordable ? "bg-amber-500 hover:bg-amber-600 text-white" : 
+                  !isAffordable ? "bg-amber-500 hover:bg-amber-600 text-amber-foreground" : // Ensure text color is good on amber
                   "bg-accent hover:bg-accent/90 text-accent-foreground"
                 )}
                 aria-describedby={tooltipMessage ? `tooltip-${item.id}` : undefined}
@@ -88,7 +104,7 @@ export function EvolutionCard({
                 {buttonText}
               </Button>
             </TooltipTrigger>
-            {tooltipMessage && (
+            {tooltipMessage && !item.isEvolved && ( // Only show tooltip if not evolved
               <TooltipContent id={`tooltip-${item.id}`}>
                 <p>{tooltipMessage}</p>
               </TooltipContent>
@@ -99,3 +115,11 @@ export function EvolutionCard({
     </Card>
   );
 }
+
+// Minimal mock for EVOLUTION_ITEMS to satisfy TypeScript in this isolated context
+// In a real scenario, this data would come from props or a shared context/store.
+const EVOLUTION_ITEMS: {id: string, name: string}[] = [
+    {id: "expr_social_media", name: "Social Media Presence"},
+    {id: "expr_apps", name: "Dedicated App"},
+    {id: "expr_influencers", name: "Influencer Network"}
+];
