@@ -111,7 +111,7 @@ export function WorldMap({ countries, onCountrySelect, onCollectInfluence, selec
       <CardContent className="flex-grow relative overflow-hidden p-0">
         <TooltipProvider delayDuration={100}>
           <Image
-            src="https://placehold.co/1200x800.png"
+            src="https://placehold.co/1200x800/A9CCE3/2E4053.png?text=Political+World+Map"
             alt="World Map"
             layout="fill"
             objectFit="cover"
