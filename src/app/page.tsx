@@ -94,13 +94,36 @@ export default function GamePage() {
     let newRecentEventsSummary = `Day ${currentTurn + 1}: The ${currentMovementName} continues to grow. ${newPoints} IP generated.`;
 
     const currentGlobalAdoptionForSpread = countries.reduce((sum, c) => sum + c.adoptionLevel, 0) / (countries.length || 1);
+    const hasResistanceManagement = evolvedItemIds.has('adapt_resistance_mgmt');
 
     setCountries(prevCountries => 
       prevCountries.map(country => {
         let newAdoptionLevel = country.adoptionLevel;
+        let newResistanceLevel = country.resistanceLevel;
+
+        // Resistance Management Trait: Passive decrease
+        if (hasResistanceManagement && newAdoptionLevel > 0 && newResistanceLevel > 0.05) {
+            newResistanceLevel = Math.max(0.05, newResistanceLevel - 0.01); // Decrease but not below a minimum
+        }
+
+        // Resistance Fights Back
+        if (newAdoptionLevel > 0.3 && newAdoptionLevel < 0.9) {
+            let resistanceIncreaseFactor = (0.005 * (1 - country.culturalOpenness)) * (newAdoptionLevel - 0.2);
+            if (hasResistanceManagement) {
+                resistanceIncreaseFactor *= 0.3; // Resistance Management reduces this increase
+            }
+            if (Math.random() < 0.3) { // Chance for resistance to increase
+                const previousResistance = newResistanceLevel;
+                newResistanceLevel = Math.min(0.9, newResistanceLevel + resistanceIncreaseFactor);
+                if (newResistanceLevel > previousResistance + 0.01) {
+                     newRecentEventsSummary += ` ${country.name} shows increased opposition to ${currentMovementName}.`;
+                }
+            }
+        }
+
 
         if (country.adoptionLevel >= 1) { 
-          return { ...country, adoptionLevel: 1 };
+          return { ...country, adoptionLevel: 1, resistanceLevel: Math.max(0.01, newResistanceLevel - 0.05) }; // Culture fully adopted, resistance slowly fades
         }
 
         const internetFactor = country.internetPenetration * 0.02;
@@ -116,8 +139,11 @@ export default function GamePage() {
           if (country.id === selectedStartCountryId) {
             spreadIncrease *= 1.5; 
           } else {
-            spreadIncrease *= 0.7; // Non-starting countries grow internally a bit slower
+            spreadIncrease *= 0.7; 
           }
+          // Resistance slows growth
+          spreadIncrease *= (1 - newResistanceLevel * 0.75); 
+
         } else {
           const baseChanceToStart = 0.005; 
           const globalInfluenceFactor = currentGlobalAdoptionForSpread * 0.1;
@@ -128,10 +154,10 @@ export default function GamePage() {
                        globalInfluenceFactor + 
                        (evolvedTraitsSpreadBonus / 2);
           
-          chance *= (1 - country.resistanceLevel * 0.5); // Resistance reduces chance
+          chance *= (1 - newResistanceLevel * 0.9); // Higher resistance makes it much harder to start
 
           if (Math.random() < chance) {
-            spreadIncrease = 0.005 + (opennessFactor / 4); // Initial small adoption
+            spreadIncrease = 0.005 + (opennessFactor / 4); 
             if (spreadIncrease > 0) {
                  newRecentEventsSummary += ` Whispers of the ${currentMovementName} reach ${country.name}.`;
             }
@@ -141,13 +167,16 @@ export default function GamePage() {
         newAdoptionLevel = Math.min(1, country.adoptionLevel + spreadIncrease);
         newAdoptionLevel = Math.max(0, newAdoptionLevel);
 
-        // Adjusted condition to avoid duplicate messaging for initial spread.
-        if (spreadIncrease > 0 && country.adoptionLevel > 0 && newAdoptionLevel > country.adoptionLevel && 
+
+        if (spreadIncrease > 0 && country.adoptionLevel === 0 && newAdoptionLevel > 0 && 
+            newAdoptionLevel > 0.01 && Math.random() < 0.5) {
+           // Handled by the "Whispers reach" message.
+        } else if (spreadIncrease > 0 && country.adoptionLevel > 0 && newAdoptionLevel > country.adoptionLevel && 
             newAdoptionLevel > 0.1 && country.adoptionLevel <= 0.1 && Math.random() < 0.3) {
            newRecentEventsSummary += ` ${country.name} shows growing interest in the ${currentMovementName}.`;
         }
         
-        return { ...country, adoptionLevel: newAdoptionLevel };
+        return { ...country, adoptionLevel: newAdoptionLevel, resistanceLevel: newResistanceLevel };
       })
     );
     setRecentEvents(newRecentEventsSummary);

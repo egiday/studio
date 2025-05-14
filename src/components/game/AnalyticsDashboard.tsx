@@ -4,7 +4,7 @@
 import type { Country, EvolutionItem } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Users, TrendingUp, Zap, Lightbulb, Info, CalendarDays } from 'lucide-react';
+import { Users, TrendingUp, Zap, Lightbulb, Info, CalendarDays, ShieldAlert } from 'lucide-react';
 import React from 'react';
 
 interface AnalyticsDashboardProps {
@@ -27,6 +27,10 @@ export function AnalyticsDashboard({
   const topCountries = [...countries]
     .sort((a, b) => b.adoptionLevel - a.adoptionLevel)
     .slice(0, 3);
+
+  const highestResistanceCountry = countries.length > 0 
+    ? countries.reduce((max, country) => country.resistanceLevel > max.resistanceLevel ? country : max, countries[0])
+    : null;
 
   const numEvolvedTraits = evolvedItemIds.size;
   const totalPossibleTraits = evolutionItems.length;
@@ -62,6 +66,18 @@ export function AnalyticsDashboard({
             {topCountries.length === 0 && <p className="text-xs text-muted-foreground">No countries influenced yet.</p>}
           </ul>
         </div>
+
+        {highestResistanceCountry && (
+          <div>
+            <h4 className="text-sm font-medium mb-2 text-muted-foreground flex items-center">
+              <ShieldAlert className="mr-2 h-4 w-4 text-destructive" /> Highest Resistance
+            </h4>
+            <div className="flex justify-between items-center p-1 bg-muted/50 rounded-sm text-xs">
+              <span>{highestResistanceCountry.name}</span>
+              <span className="font-medium text-destructive">{(highestResistanceCountry.resistanceLevel * 100).toFixed(1)}%</span>
+            </div>
+          </div>
+        )}
         
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="p-2 bg-muted/50 rounded-md">
