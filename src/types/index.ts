@@ -122,11 +122,13 @@ export interface GlobalEvent {
   chosenOptionId?: string; // ID of the chosen option, if applicable
 }
 
-// --- Diplomacy System Types (Future) ---
+// --- Diplomacy System Types ---
 export type DiplomaticActionType = 
-  | 'OfferAlliance' 
-  | 'BreakAlliance' 
-  | 'DeclareHostility' 
-  | 'NegotiatePeace' 
-  | 'OfferTradeDeal'
-  | 'DemandTerritory'; // Example actions
+  | 'ImproveRelations'     // Hostile -> Neutral, Neutral -> Allied
+  | 'DamageRelations'      // Allied -> Neutral, Neutral -> Hostile
+  | 'DeclareWar'           // Any -> Hostile (more severe)
+  | 'OfferPeace'           // Hostile -> Neutral (requires acceptance)
+  | 'FormAlliance'         // Neutral -> Allied (requires acceptance)
+  | 'BreakAlliance';       // Allied -> Neutral
+
+// We'll use DiplomaticStance for player actions for now, action types are for future AI.

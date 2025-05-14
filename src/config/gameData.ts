@@ -1,6 +1,6 @@
 
 import type { CulturalMovement, EvolutionItem, EvolutionCategory, Country, SubRegion, GlobalEvent, RivalMovement } from '@/types';
-import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film, Award, Megaphone, TrendingUp, Bot, Pyramid } from 'lucide-react';
+import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film, Award, Megaphone, TrendingUp, Bot, Pyramid, Handshake } from 'lucide-react'; // Added Handshake
 
 export const CULTURAL_MOVEMENTS: CulturalMovement[] = [
   { id: 'digital_nexus', name: 'Digital Nexus', description: 'Rapidly connects minds through information networks.', icon: Cpu },
@@ -130,87 +130,87 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   },
 ];
 
-// Fictionalized names
 const auroriaPrimeSubRegions: SubRegion[] = [
-  { id: 'ap_capital', name: 'Lumin City', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.92, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.88, mediaFreedom: 0.82, rivalPresence: null },
-  { id: 'ap_sunstone', name: 'Solara Plains', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.85, culturalOpenness: 0.65, internetPenetration: 0.88, educationLevel: 0.82, mediaFreedom: 0.78, rivalPresence: null },
-  { id: 'ap_heartlands', name: 'Veridia Commons', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.88, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.80, rivalPresence: null },
-  { id: 'ap_azure', name: 'Azure Coast', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.95, culturalOpenness: 0.80, internetPenetration: 0.93, educationLevel: 0.90, mediaFreedom: 0.85, rivalPresence: null },
+  { id: 'ap_lumin', name: 'Lumin City', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.92, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.88, mediaFreedom: 0.82, rivalPresence: null },
+  { id: 'ap_solara', name: 'Solara Prairies', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.85, culturalOpenness: 0.65, internetPenetration: 0.88, educationLevel: 0.82, mediaFreedom: 0.78, rivalPresence: null },
+  { id: 'ap_veridia', name: 'Veridia Commons', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.88, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.80, rivalPresence: null },
+  { id: 'ap_azure', name: 'Azure Coastlands', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.95, culturalOpenness: 0.80, internetPenetration: 0.93, educationLevel: 0.90, mediaFreedom: 0.85, rivalPresence: null },
 ];
 
 const umbraSyndicateSubRegions: SubRegion[] = [
   { id: 'us_shadowfell', name: 'Shadowfell Citadel', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.85, culturalOpenness: 0.45, internetPenetration: 0.75, educationLevel: 0.78, mediaFreedom: 0.15, rivalPresence: null },
-  { id: 'us_whisperwind', name: 'Whisperwind Wastes', adoptionLevel: 0, resistanceLevel: 0.35, economicDevelopment: 0.60, culturalOpenness: 0.30, internetPenetration: 0.45, educationLevel: 0.60, mediaFreedom: 0.10, rivalPresence: null },
+  { id: 'us_whisperwind', name: 'Whisperwind Expanse', adoptionLevel: 0, resistanceLevel: 0.35, economicDevelopment: 0.60, culturalOpenness: 0.30, internetPenetration: 0.45, educationLevel: 0.60, mediaFreedom: 0.10, rivalPresence: null },
   { id: 'us_ironclad', name: 'Ironclad Marches', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.70, culturalOpenness: 0.35, internetPenetration: 0.65, educationLevel: 0.70, mediaFreedom: 0.12, rivalPresence: null },
-  { id: 'us_gloaming', name: 'Gloaming Isles', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.78, culturalOpenness: 0.40, internetPenetration: 0.70, educationLevel: 0.72, mediaFreedom: 0.14, rivalPresence: null },
+  { id: 'us_gloaming', name: 'Gloaming Archipelago', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.78, culturalOpenness: 0.40, internetPenetration: 0.70, educationLevel: 0.72, mediaFreedom: 0.14, rivalPresence: null },
 ];
 
 const gaianConfederacySubRegions: SubRegion[] = [
-  { id: 'gc_riverdelta', name: 'Riverbend Province', adoptionLevel: 0, resistanceLevel: 0.22, economicDevelopment: 0.58, culturalOpenness: 0.62, internetPenetration: 0.42, educationLevel: 0.62, mediaFreedom: 0.52, rivalPresence: null },
-  { id: 'gc_techclaves', name: 'Technia Enclaves', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.65, culturalOpenness: 0.68, internetPenetration: 0.48, educationLevel: 0.65, mediaFreedom: 0.55, rivalPresence: null },
-  { id: 'gc_spiritpeaks', name: 'Spirit Peak Territory', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.55, culturalOpenness: 0.58, internetPenetration: 0.38, educationLevel: 0.58, mediaFreedom: 0.48, rivalPresence: null },
+  { id: 'gc_riverbend', name: 'Riverbend Province', adoptionLevel: 0, resistanceLevel: 0.22, economicDevelopment: 0.58, culturalOpenness: 0.62, internetPenetration: 0.42, educationLevel: 0.62, mediaFreedom: 0.52, rivalPresence: null },
+  { id: 'gc_technia', name: 'Technia Enclaves', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.65, culturalOpenness: 0.68, internetPenetration: 0.48, educationLevel: 0.65, mediaFreedom: 0.55, rivalPresence: null },
+  { id: 'gc_spiritpeak', name: 'Spirit Peak Territory', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.55, culturalOpenness: 0.58, internetPenetration: 0.38, educationLevel: 0.58, mediaFreedom: 0.48, rivalPresence: null },
   { id: 'gc_tradewinds', name: 'Tradewinds Coast', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.62, culturalOpenness: 0.65, internetPenetration: 0.45, educationLevel: 0.63, mediaFreedom: 0.53, rivalPresence: null },
 ];
 
 const solarisUnionSubRegions: SubRegion[] = [
-  { id: 'su_megalopolis', name: 'Nova City', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.70, culturalOpenness: 0.82, internetPenetration: 0.75, educationLevel: 0.72, mediaFreedom: 0.62, rivalPresence: null },
-  { id: 'su_verdantcoast', name: 'Emerald Expanse', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.55, culturalOpenness: 0.75, internetPenetration: 0.60, educationLevel: 0.65, mediaFreedom: 0.58, rivalPresence: null },
-  { id: 'su_emeraldheart', name: 'Veridian Heartland', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.45, culturalOpenness: 0.70, internetPenetration: 0.50, educationLevel: 0.60, mediaFreedom: 0.55, rivalPresence: null },
-  { id: 'su_aurorafields', name: 'Aurora Fields', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.65, culturalOpenness: 0.78, internetPenetration: 0.68, educationLevel: 0.70, mediaFreedom: 0.60, rivalPresence: null },
+  { id: 'su_novacity', name: 'Nova City Plexus', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.70, culturalOpenness: 0.82, internetPenetration: 0.75, educationLevel: 0.72, mediaFreedom: 0.62, rivalPresence: null },
+  { id: 'su_emerald', name: 'Emerald Expanse', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.55, culturalOpenness: 0.75, internetPenetration: 0.60, educationLevel: 0.65, mediaFreedom: 0.58, rivalPresence: null },
+  { id: 'su_veridian', name: 'Veridian Heartland', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.45, culturalOpenness: 0.70, internetPenetration: 0.50, educationLevel: 0.60, mediaFreedom: 0.55, rivalPresence: null },
+  { id: 'su_aurora', name: 'Aurora Fields Republic', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.65, culturalOpenness: 0.78, internetPenetration: 0.68, educationLevel: 0.70, mediaFreedom: 0.60, rivalPresence: null },
 ];
 
 const aethelgardDominionSubRegions: SubRegion[] = [
-  { id: 'ad_deltacity', name: 'Delta Conflux', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.50, culturalOpenness: 0.55, internetPenetration: 0.60, educationLevel: 0.55, mediaFreedom: 0.42, rivalPresence: null },
+  { id: 'ad_deltac', name: 'Delta Conflux', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.50, culturalOpenness: 0.55, internetPenetration: 0.60, educationLevel: 0.55, mediaFreedom: 0.42, rivalPresence: null },
   { id: 'ad_sandsea', name: 'The Great Sandsea', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.30, culturalOpenness: 0.40, internetPenetration: 0.40, educationLevel: 0.45, mediaFreedom: 0.35, rivalPresence: null },
-  { id: 'ad_riverbend', name: 'Serpentine Basin', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.35, culturalOpenness: 0.48, internetPenetration: 0.45, educationLevel: 0.50, mediaFreedom: 0.38, rivalPresence: null },
-  { id: 'ad_highlands', name: 'Skyreach Peaks', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.32, culturalOpenness: 0.45, internetPenetration: 0.42, educationLevel: 0.48, mediaFreedom: 0.37, rivalPresence: null },
+  { id: 'ad_serpentine', name: 'Serpentine Basin', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.35, culturalOpenness: 0.48, internetPenetration: 0.45, educationLevel: 0.50, mediaFreedom: 0.38, rivalPresence: null },
+  { id: 'ad_skyreach', name: 'Skyreach Peaks', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.32, culturalOpenness: 0.45, internetPenetration: 0.42, educationLevel: 0.48, mediaFreedom: 0.37, rivalPresence: null },
 ];
 
 const fortressStatesSubRegions: SubRegion[] = [
   { id: 'fs_rhineforge', name: 'Rhineforge Citadel', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.88, culturalOpenness: 0.78, internetPenetration: 0.94, educationLevel: 0.90, mediaFreedom: 0.92, rivalPresence: null },
-  { id: 'fs_spreecapitol', name: 'Spree Capitol', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.80, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.88, rivalPresence: null },
+  { id: 'fs_spreecapitol', name: 'Spree Capitol Region', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.80, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.88, rivalPresence: null },
   { id: 'fs_alpenpeaks', name: 'Alpen Peaks Domain', adoptionLevel: 0, resistanceLevel: 0.09, economicDevelopment: 0.90, culturalOpenness: 0.76, internetPenetration: 0.93, educationLevel: 0.89, mediaFreedom: 0.91, rivalPresence: null },
-  { id: 'fs_hanseatic', name: 'Hanseatic Ports', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.85, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.87, mediaFreedom: 0.90, rivalPresence: null },
+  { id: 'fs_hanseatic', name: 'Hanseatic League Ports', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.85, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.87, mediaFreedom: 0.90, rivalPresence: null },
 ];
+
 
 export const INITIAL_COUNTRIES: Country[] = [
   {
-    id: 'auroria_prime', name: 'Republic of Auroria', // Fictionalized
+    id: 'auroria_prime', name: 'Republic of Lumina',
     internetPenetration: 0.9, educationLevel: 0.85, economicDevelopment: 0.9,
     culturalOpenness: 0.7, mediaFreedom: 0.8,
     adoptionLevel: 0, resistanceLevel: 0.1, rivalPresence: null,
     subRegions: auroriaPrimeSubRegions,
   },
   {
-    id: 'umbra_syndicate', name: 'Nocturne Syndicate', // Fictionalized
+    id: 'umbra_syndicate', name: 'Nocturne Hegemony',
     internetPenetration: 0.6, educationLevel: 0.7, economicDevelopment: 0.75,
     culturalOpenness: 0.4, mediaFreedom: 0.2,
     adoptionLevel: 0, resistanceLevel: 0.3, rivalPresence: null,
     subRegions: umbraSyndicateSubRegions,
   },
   {
-    id: 'gaian_confederacy', name: 'Veridian Confederacy', // Fictionalized
+    id: 'gaian_confederacy', name: 'Veridian Combine',
     internetPenetration: 0.4, educationLevel: 0.6, economicDevelopment: 0.6,
     culturalOpenness: 0.6, mediaFreedom: 0.5,
     adoptionLevel: 0, resistanceLevel: 0.2, rivalPresence: null,
     subRegions: gaianConfederacySubRegions,
   },
   {
-    id: 'solaris_union', name: 'Helios Union', // Fictionalized
+    id: 'solaris_union', name: 'Helios Concord',
     internetPenetration: 0.7, educationLevel: 0.7, economicDevelopment: 0.65,
     culturalOpenness: 0.8, mediaFreedom: 0.6,
     adoptionLevel: 0, resistanceLevel: 0.15, rivalPresence: null,
     subRegions: solarisUnionSubRegions,
   },
   {
-    id: 'aethelgard_dominion', name: 'Aethel Dominion', // Fictionalized
+    id: 'aethelgard_dominion', name: 'Aethel Imperium',
     internetPenetration: 0.5, educationLevel: 0.5, economicDevelopment: 0.4,
     culturalOpenness: 0.5, mediaFreedom: 0.4,
     adoptionLevel: 0, resistanceLevel: 0.25, rivalPresence: null,
     subRegions: aethelgardDominionSubRegions,
   },
   {
-    id: 'fortress_states', name: 'Bastion States', // Fictionalized
+    id: 'fortress_states', name: 'Bastion Alliance',
     internetPenetration: 0.92, educationLevel: 0.88, economicDevelopment: 0.85,
     culturalOpenness: 0.75, mediaFreedom: 0.9,
     adoptionLevel: 0, resistanceLevel: 0.1, rivalPresence: null,
@@ -229,7 +229,6 @@ export const countryPositions: Record<string, { top: string; left: string }> = {
   fortress_states: { top: '25%', left: '50%' },
 };
 
-// Adjusted for more consistent spacing and to fit the abstract nature
 export const subRegionPositions: Record<string, { offsets: {top: string; left: string}[] }> = {
   auroria_prime: { offsets: [ { top: '-12%', left: '-15%' }, { top: '12%', left: '-13%' }, { top: '-10%', left: '15%' }, { top: '10%', left: '17%' } ] },
   umbra_syndicate: { offsets: [ { top: '-11%', left: '-12%' }, { top: '11%', left: '-14%' }, { top: '-2%', left: '13%' }, { top: '12%', left: '11%' } ] },
@@ -238,7 +237,6 @@ export const subRegionPositions: Record<string, { offsets: {top: string; left: s
   aethelgard_dominion: { offsets: [ { top: '-10%', left: '-11%' }, { top: '10%', left: '-3%' }, { top: '-9%', left: '13%' }, { top: '11%', left: '12%' } ] },
   fortress_states: { offsets: [ { top: '-11%', left: '-10%' }, { top: '11%', left: '-2%' }, { top: '-1%', left: '13%' }, { top: '-10%', left: '14%'} ] },
 };
-
 
 export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
   {
@@ -254,9 +252,9 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     hasBeenTriggered: false,
   },
   {
-    id: 'economic_crisis_umbra', // Note: Country ID 'umbra_syndicate' corresponds to "Nocturne Syndicate"
-    name: 'Nocturnian Economic Downturn',
-    description: 'The Nocturne Syndicate faces an unexpected economic downturn, leading to social unrest and a re-evaluation of priorities. How do you leverage this?',
+    id: 'economic_crisis_umbra', 
+    name: 'Nocturne Economic Downturn',
+    description: 'The Nocturne Hegemony faces an unexpected economic downturn, leading to social unrest and a re-evaluation of priorities. How do you leverage this?',
     turnStart: 6,
     duration: 4,
     effects: [], 
@@ -306,9 +304,9 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     hasBeenTriggered: false,
   },
   {
-    id: 'cultural_nexus_bastion', // Note: Country ID 'fortress_states' corresponds to "Bastion States"
+    id: 'cultural_nexus_bastion', 
     name: 'Bastion Cultural Nexus',
-    description: 'The Bastion States host a global cultural festival, increasing its openness to new ideas and expressions.',
+    description: 'The Bastion Alliance hosts a global cultural festival, increasing its openness to new ideas and expressions.',
     turnStart: 9,
     duration: 3,
     effects: [
@@ -325,7 +323,7 @@ export const RIVAL_MOVEMENTS: RivalMovement[] = [
     name: 'Order of the Cog',
     icon: Bot, 
     color: '#718096', // Slate Gray
-    startingCountryId: 'umbra_syndicate', // Nocturne Syndicate
+    startingCountryId: 'umbra_syndicate', // Nocturne Hegemony
     aggressiveness: 0.6, 
     personality: 'CautiousConsolidator',
     focus: 'resistance', 
@@ -336,10 +334,11 @@ export const RIVAL_MOVEMENTS: RivalMovement[] = [
     name: 'Siren Song Syndicate',
     icon: Pyramid, 
     color: '#b794f4', // Purple
-    startingCountryId: 'solaris_union', // Helios Union
+    startingCountryId: 'solaris_union', // Helios Concord
     aggressiveness: 0.75, 
     personality: 'AggressiveExpansionist',
     focus: 'spread', 
     playerStance: 'Hostile',
   },
 ];
+
