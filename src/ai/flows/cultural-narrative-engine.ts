@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates dynamic news headlines reflecting global reactions to the player's cultural movement.
@@ -30,15 +31,23 @@ const prompt = ai.definePrompt({
   name: 'dynamicNewsFeedPrompt',
   input: {schema: DynamicNewsFeedInputSchema},
   output: {schema: DynamicNewsFeedOutputSchema},
-  prompt: `You are a news headline generator, creating headlines that reflect the global reaction to a cultural movement.
+  prompt: `You are a master news editor for a dynamic global news agency, specializing in captivating headlines about emerging cultural phenomena. Your task is to generate 5 distinct news headlines that reflect the current global sentiment and impact of the "{{{culturalMovement}}}" movement.
 
-  Cultural Movement: {{{culturalMovement}}}
-  Global Adoption Rate: {{{globalAdoptionRate}}}
-  Recent Events: {{{recentEvents}}}
+Consider the following data points:
+- Current Global Adoption Rate: {{globalAdoptionRate}} (0.0 means no adoption, 1.0 means universal adoption).
+- Key Recent Developments: "{{{recentEvents}}}"
 
-  Generate 5 news headlines that accurately reflect the current state of the cultural movement. Make them attention-grabbing and relevant.
+Craft headlines that are:
+- Varied in tone: some positive, some neutral, some concerned or skeptical, depending on the adoption rate and events.
+- Speculative or analytical: hinting at future trends or societal impacts.
+- Attention-grabbing and concise.
+- Reflective of the nuances of the cultural movement's progress. For example:
+    - If adoption is very low (e.g., < 0.1), headlines might focus on niche appeal, obscurity, or early curiosity.
+    - If adoption is moderate (e.g., 0.1 - 0.4), headlines might discuss growing trends, debates, or initial societal impact.
+    - If adoption is high (e.g., > 0.4), headlines might cover mainstream integration, significant societal shifts, potential controversies, or long-term consequences.
+- The recent events should strongly influence at least one or two headlines.
 
-  Output the headlines as a JSON array of strings.`,
+Output the headlines as a JSON array of strings, with each string being a headline.`,
 });
 
 const generateDynamicNewsFeedFlow = ai.defineFlow(
