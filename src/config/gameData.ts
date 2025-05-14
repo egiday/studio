@@ -21,17 +21,17 @@ export const EVOLUTION_CATEGORIES: EvolutionCategory[] = [
 
 export const EVOLUTION_ITEMS: EvolutionItem[] = [
   // Expression Methods
-  { id: 'expr_social_media', name: 'Digital Echo Chambers', description: 'Establishes a basic online presence, allowing for wider reach and faster initial spread in digitally connected regions. Unlocks sharing capabilities.', cost: 10, icon: MessageSquare, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_apps', name: 'Resonance Engine App', description: 'Develops a mobile application for your movement, fostering a dedicated community and enabling targeted content delivery. Boosts engagement in regions with high smartphone penetration.', cost: 20, icon: Zap, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media'] },
-  { id: 'expr_gatherings', name: 'Unity Gatherings', description: 'Organizes local meetups and events, strengthening community bonds and increasing adoption in areas with strong local networks. Effective in both urban and rural settings.', cost: 15, icon: UsersRound, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_media_broadcast', name: 'Aetheric Broadcasts', description: 'Gains presence on traditional media like TV & Radio. Significantly increases awareness in regions with high traditional media consumption, bypassing digital divides.', cost: 30, icon: Tv, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_word_of_mouth', name: 'Whisper Network', description: 'Encourages and empowers individuals to share the movement through personal testimonials and conversations. Provides a slow but steady and resilient form of spread.', cost: 5, icon: Hand, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_influencers', name: 'Beacon Network', description: 'Collaborates with online personalities and thought leaders to promote the movement. Highly effective for reaching specific demographics and accelerating online adoption.', cost: 25, icon: Rss, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media']},
+  { id: 'expr_social_media', name: 'Digital Echo Chambers', description: 'Establishes a basic online presence, allowing for wider reach and faster initial spread in digitally connected regions. Unlocks sharing capabilities.', cost: 25, icon: MessageSquare, category: 'expression_methods', isEvolved: false }, // Cost increased
+  { id: 'expr_apps', name: 'Resonance Engine App', description: 'Develops a mobile application for your movement, fostering a dedicated community and enabling targeted content delivery. Boosts engagement in regions with high smartphone penetration.', cost: 50, icon: Zap, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media'] }, // Cost increased
+  { id: 'expr_gatherings', name: 'Unity Gatherings', description: 'Organizes local meetups and events, strengthening community bonds and increasing adoption in areas with strong local networks. Effective in both urban and rural settings.', cost: 40, icon: UsersRound, category: 'expression_methods', isEvolved: false }, // Cost increased
+  { id: 'expr_media_broadcast', name: 'Aetheric Broadcasts', description: 'Gains presence on traditional media like TV & Radio. Significantly increases awareness in regions with high traditional media consumption, bypassing digital divides.', cost: 75, icon: Tv, category: 'expression_methods', isEvolved: false }, // Cost increased
+  { id: 'expr_word_of_mouth', name: 'Whisper Network', description: 'Encourages and empowers individuals to share the movement through personal testimonials and conversations. Provides a slow but steady and resilient form of spread.', cost: 20, icon: Hand, category: 'expression_methods', isEvolved: false }, // Cost increased
+  { id: 'expr_influencers', name: 'Beacon Network', description: 'Collaborates with online personalities and thought leaders to promote the movement. Highly effective for reaching specific demographics and accelerating online adoption.', cost: 60, icon: Rss, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media']}, // Cost increased
   {
     id: 'expr_viral_studio',
     name: 'Ephemeral Arts Studio',
     description: 'Creates a dedicated team and infrastructure for producing high-quality, engaging, and shareable content tailored for digital platforms. Significantly boosts online spread rate and engagement metrics.',
-    cost: 40,
+    cost: 100, // Cost increased
     icon: Film,
     category: 'expression_methods',
     isEvolved: false,
@@ -43,7 +43,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'expr_grassroots_kits',
     name: 'Sprout Kits',
     description: 'Provides toolkits, funding, and training for local leaders to independently organize events and promote the movement, enhancing local adoption and authenticity.',
-    cost: 25,
+    cost: 65, // Cost increased
     icon: Megaphone,
     category: 'expression_methods',
     isEvolved: false,
@@ -53,7 +53,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'expr_global_syndication',
     name: 'Global Harmony Network',
     description: 'Establishes partnerships to distribute cultural content through international media networks, creating a persistent global presence.',
-    cost: 50,
+    cost: 120, // Cost increased
     icon: TrendingUp,
     category: 'expression_methods',
     isEvolved: false,
@@ -63,17 +63,17 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   },
 
   // Cultural Elements
-  { id: 'elem_aesthetic_style', name: 'Signature Aesthetics', description: 'Defines a unique and recognizable aesthetic for the movement, including logos, color palettes, and design language. Increases appeal and memorability.', cost: 10, icon: Palette, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_rituals', name: 'Harmonic Rituals', description: 'Establishes shared practices, ceremonies, or regular events that reinforce the movement\'s values and build community cohesion. Deepens engagement among adherents.', cost: 15, icon: Sparkles, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_value_system', name: 'Guiding Principles Codex', description: 'Articulates a clear set of guiding principles, beliefs, and goals for the movement. Provides intellectual and moral grounding, attracting those who align with its philosophy.', cost: 20, icon: BrainCog, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_language', name: 'Unity Lexicon', description: 'Develops specialized vocabulary, slang, or terminology unique to the movement. Fosters a sense of in-group identity and shared understanding among followers.', cost: 15, icon: Speech, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_concepts', name: 'Core Axioms & Teachings', description: 'Introduces novel ideas, theories, or interpretations that form the intellectual core of the movement. Essential for movements focused on philosophy, science, or education.', cost: 25, icon: Lightbulb, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_aesthetic_style', name: 'Signature Aesthetics', description: 'Defines a unique and recognizable aesthetic for the movement, including logos, color palettes, and design language. Increases appeal and memorability.', cost: 25, icon: Palette, category: 'cultural_elements', isEvolved: false }, // Cost increased
+  { id: 'elem_rituals', name: 'Harmonic Rituals', description: 'Establishes shared practices, ceremonies, or regular events that reinforce the movement\'s values and build community cohesion. Deepens engagement among adherents.', cost: 40, icon: Sparkles, category: 'cultural_elements', isEvolved: false }, // Cost increased
+  { id: 'elem_value_system', name: 'Guiding Principles Codex', description: 'Articulates a clear set of guiding principles, beliefs, and goals for the movement. Provides intellectual and moral grounding, attracting those who align with its philosophy.', cost: 55, icon: BrainCog, category: 'cultural_elements', isEvolved: false }, // Cost increased
+  { id: 'elem_language', name: 'Unity Lexicon', description: 'Develops specialized vocabulary, slang, or terminology unique to the movement. Fosters a sense of in-group identity and shared understanding among followers.', cost: 40, icon: Speech, category: 'cultural_elements', isEvolved: false }, // Cost increased
+  { id: 'elem_concepts', name: 'Core Axioms & Teachings', description: 'Introduces novel ideas, theories, or interpretations that form the intellectual core of the movement. Essential for movements focused on philosophy, science, or education.', cost: 60, icon: Lightbulb, category: 'cultural_elements', isEvolved: false }, // Cost increased
   {
     id: 'elem_mythology_lore',
     name: 'Epoch Weaving',
     description: 'Develops a rich tapestry of stories, myths, historical narratives, and symbolic figures that deepen the cultural narrative and emotional connection for adherents.',
-    cost: 30,
-    icon: BrainCog, 
+    cost: 75, // Cost increased
+    icon: BrainCog,
     category: 'cultural_elements',
     isEvolved: false,
     prerequisites: ['elem_value_system', 'elem_concepts']
@@ -82,7 +82,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'elem_interactive_education',
     name: 'Insight Engine Platform',
     description: 'Creates an online platform with courses, simulations, and interactive content about the movement\'s core tenets, boosting retention and deeper understanding among adherents.',
-    cost: 35,
+    cost: 85, // Cost increased
     icon: School,
     category: 'cultural_elements',
     isEvolved: false,
@@ -90,16 +90,16 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   },
 
   // Adaptability
-  { id: 'adapt_integration', name: 'Cultural Symbiosis', description: 'Develops methods to blend the movement with existing local customs, traditions, and values. Reduces cultural friction and resistance in diverse regions.', cost: 20, icon: Merge, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_resource_eff', name: 'Sustainable Participation', description: 'Optimizes the resources needed for individuals to adopt and participate in the movement, making it more accessible in economically diverse regions. Lowers perceived cost of adoption.', cost: 15, icon: DollarSign, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_resistance_mgmt', name: 'Discord Dampening', description: 'Implements strategies to understand, address, and counter opposing viewpoints and organized resistance. Reduces the growth of resistance and mitigates its negative impact.', cost: 25, icon: ShieldAlert, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_urban', name: 'Metropole Weaving', description: 'Tailors the movement\'s messaging and activities to thrive in densely populated urban environments. Leverages city infrastructure and networks for faster spread.', cost: 10, icon: Building2, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_rural', name: 'Wilds Adaptation', description: 'Adapts the movement to effectively spread and take root in less densely populated rural areas and remote communities. Addresses unique challenges of rural outreach.', cost: 10, icon: Trees, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_integration', name: 'Cultural Symbiosis', description: 'Develops methods to blend the movement with existing local customs, traditions, and values. Reduces cultural friction and resistance in diverse regions.', cost: 50, icon: Merge, category: 'adaptability', isEvolved: false }, // Cost increased
+  { id: 'adapt_resource_eff', name: 'Sustainable Participation', description: 'Optimizes the resources needed for individuals to adopt and participate in the movement, making it more accessible in economically diverse regions. Lowers perceived cost of adoption.', cost: 40, icon: DollarSign, category: 'adaptability', isEvolved: false }, // Cost increased
+  { id: 'adapt_resistance_mgmt', name: 'Discord Dampening', description: 'Implements strategies to understand, address, and counter opposing viewpoints and organized resistance. Reduces the growth of resistance and mitigates its negative impact.', cost: 70, icon: ShieldAlert, category: 'adaptability', isEvolved: false }, // Cost increased
+  { id: 'adapt_urban', name: 'Metropole Weaving', description: 'Tailors the movement\'s messaging and activities to thrive in densely populated urban environments. Leverages city infrastructure and networks for faster spread.', cost: 30, icon: Building2, category: 'adaptability', isEvolved: false }, // Cost increased
+  { id: 'adapt_rural', name: 'Wilds Adaptation', description: 'Adapts the movement to effectively spread and take root in less densely populated rural areas and remote communities. Addresses unique challenges of rural outreach.', cost: 30, icon: Trees, category: 'adaptability', isEvolved: false }, // Cost increased
   {
     id: 'adapt_demographic_appeal',
     name: 'Universal Tapestry',
     description: 'Refines the movement to resonate with a wider range of age groups, social classes, and cultural backgrounds. Increases overall potential adoption rate and reduces demographic-specific resistance.',
-    cost: 30,
+    cost: 80, // Cost increased
     icon: UserCheck,
     category: 'adaptability',
     isEvolved: false,
@@ -110,7 +110,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'adapt_ai_localization',
     name: 'Adaptive Locus AI',
     description: 'Utilizes advanced AI to rapidly translate and culturally adapt content for diverse languages and regional nuances, dramatically increasing integration speed and relevance.',
-    cost: 45,
+    cost: 110, // Cost increased
     icon: GitFork,
     category: 'adaptability',
     isEvolved: false,
@@ -122,7 +122,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'adapt_crisis_protocol',
     name: 'Resilience Protocol',
     description: 'Establishes protocols, resources, and communication channels to swiftly adapt messaging and support adherents during global crises, maintaining loyalty and preventing spread decline.',
-    cost: 30,
+    cost: 75, // Cost increased
     icon: Siren,
     category: 'adaptability',
     isEvolved: false,
@@ -223,9 +223,9 @@ export const STARTING_INFLUENCE_POINTS = 50;
 export const countryPositions: Record<string, { top: string; left: string }> = {
   auroria_prime: { top: '30%', left: '20%' },
   umbra_syndicate: { top: '35%', left: '75%' },
-  gaian_confederacy: { top: '55%', left: '60%' }, 
+  gaian_confederacy: { top: '55%', left: '60%' },
   solaris_union: { top: '70%', left: '30%' },
-  aethelgard_dominion: { top: '50%', left: '40%' }, 
+  aethelgard_dominion: { top: '50%', left: '40%' },
   fortress_states: { top: '25%', left: '50%' },
 };
 
@@ -252,12 +252,12 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     hasBeenTriggered: false,
   },
   {
-    id: 'economic_crisis_umbra', 
+    id: 'economic_crisis_umbra',
     name: 'Nocturne Economic Downturn',
     description: 'The Nocturne Hegemony faces an unexpected economic downturn, leading to social unrest and a re-evaluation of priorities. How do you leverage this?',
     turnStart: 6,
     duration: 4,
-    effects: [], 
+    effects: [],
     options: [
       {
         id: 'crisis_invest_umbra',
@@ -266,7 +266,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
         effects: [
           { targetType: 'country', countryId: 'umbra_syndicate', property: 'resistanceLevel', value: -0.03, isMultiplier: false },
           { targetType: 'country', countryId: 'umbra_syndicate', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true },
-          { targetType: 'global', property: 'ipBonus', value: -20, isMultiplier: false }, 
+          { targetType: 'global', property: 'ipBonus', value: -20, isMultiplier: false },
         ],
       },
       {
@@ -285,10 +285,10 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     name: 'Global Harmony Laureate',
     description: 'Your cultural movement is recognized with a prestigious Global Harmony Prize, boosting its legitimacy and granting IP.',
     turnStart: 10,
-    duration: 1, 
+    duration: 1,
     effects: [
       { targetType: 'global', property: 'ipBonus', value: 50, isMultiplier: false },
-      { targetType: 'global', property: 'resistanceLevel', value: -0.02, isMultiplier: false } 
+      { targetType: 'global', property: 'resistanceLevel', value: -0.02, isMultiplier: false }
     ],
     hasBeenTriggered: false,
   },
@@ -304,7 +304,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     hasBeenTriggered: false,
   },
   {
-    id: 'cultural_nexus_bastion', 
+    id: 'cultural_nexus_bastion',
     name: 'Bastion Cultural Nexus',
     description: 'The Bastion Alliance hosts a global cultural festival, increasing its openness to new ideas and expressions.',
     turnStart: 9,
@@ -321,24 +321,23 @@ export const RIVAL_MOVEMENTS: RivalMovement[] = [
   {
     id: 'order_of_the_cog',
     name: 'Order of the Cog',
-    icon: Bot, 
+    icon: Bot,
     color: '#718096', // Slate Gray
     startingCountryId: 'umbra_syndicate', // Nocturne Hegemony
-    aggressiveness: 0.6, 
+    aggressiveness: 0.6,
     personality: 'CautiousConsolidator',
-    focus: 'resistance', 
+    focus: 'resistance',
     playerStance: 'Hostile',
   },
   {
     id: 'siren_song_syndicate',
     name: 'Siren Song Syndicate',
-    icon: Pyramid, 
+    icon: Pyramid,
     color: '#b794f4', // Purple
     startingCountryId: 'solaris_union', // Helios Concord
-    aggressiveness: 0.75, 
+    aggressiveness: 0.75,
     personality: 'AggressiveExpansionist',
-    focus: 'spread', 
+    focus: 'spread',
     playerStance: 'Hostile',
   },
 ];
-

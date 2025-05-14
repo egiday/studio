@@ -11,12 +11,11 @@ import { Badge } from '@/components/ui/badge';
 interface DiplomacyPanelProps {
   rivalMovements: RivalMovement[];
   onDiplomaticAction: (rivalId: string, newStance: DiplomaticStance) => void;
-  influencePoints: number; // To check for costs later
+  influencePoints: number; 
+  diplomacyCost: number;
 }
 
-const STANCE_CHANGE_COST = 10; // Example cost
-
-export function DiplomacyPanel({ rivalMovements, onDiplomaticAction, influencePoints }: DiplomacyPanelProps) {
+export function DiplomacyPanel({ rivalMovements, onDiplomaticAction, influencePoints, diplomacyCost }: DiplomacyPanelProps) {
   const getStanceBadgeVariant = (stance: DiplomaticStance): "default" | "secondary" | "destructive" => {
     switch (stance) {
       case 'Allied': return 'default'; // Primary/Greenish
@@ -70,8 +69,8 @@ export function DiplomacyPanel({ rivalMovements, onDiplomaticAction, influencePo
                   size="sm"
                   variant="outline"
                   onClick={() => onDiplomaticAction(rival.id, 'Neutral')}
-                  disabled={influencePoints < STANCE_CHANGE_COST}
-                  title={`Cost: ${STANCE_CHANGE_COST} IP`}
+                  disabled={influencePoints < diplomacyCost}
+                  title={`Cost: ${diplomacyCost} IP`}
                 >
                   <Shield className="mr-2 h-4 w-4" /> Attempt Truce
                 </Button>
@@ -83,8 +82,8 @@ export function DiplomacyPanel({ rivalMovements, onDiplomaticAction, influencePo
                     variant="outline"
                     className="border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-400"
                     onClick={() => onDiplomaticAction(rival.id, 'Allied')}
-                    disabled={influencePoints < STANCE_CHANGE_COST}
-                    title={`Cost: ${STANCE_CHANGE_COST} IP`}
+                    disabled={influencePoints < diplomacyCost}
+                    title={`Cost: ${diplomacyCost} IP`}
                   >
                     <Handshake className="mr-2 h-4 w-4" /> Propose Alliance
                   </Button>
@@ -93,8 +92,8 @@ export function DiplomacyPanel({ rivalMovements, onDiplomaticAction, influencePo
                     variant="outline"
                      className="border-red-500 text-red-500 hover:bg-red-500/10 hover:text-red-400"
                     onClick={() => onDiplomaticAction(rival.id, 'Hostile')}
-                    disabled={influencePoints < STANCE_CHANGE_COST}
-                    title={`Cost: ${STANCE_CHANGE_COST} IP`}
+                    disabled={influencePoints < diplomacyCost}
+                    title={`Cost: ${diplomacyCost} IP`}
                   >
                     <Swords className="mr-2 h-4 w-4" /> Adopt Hostile Stance
                   </Button>
@@ -106,17 +105,17 @@ export function DiplomacyPanel({ rivalMovements, onDiplomaticAction, influencePo
                   variant="outline"
                   className="border-orange-500 text-orange-500 hover:bg-orange-500/10 hover:text-orange-400"
                   onClick={() => onDiplomaticAction(rival.id, 'Neutral')}
-                  disabled={influencePoints < STANCE_CHANGE_COST}
-                  title={`Cost: ${STANCE_CHANGE_COST} IP`}
+                  disabled={influencePoints < diplomacyCost}
+                  title={`Cost: ${diplomacyCost} IP`}
                 >
                   <Shield className="mr-2 h-4 w-4" /> Dissolve Alliance
                 </Button>
               )}
             </div>
-            {influencePoints < STANCE_CHANGE_COST && rival.playerStance !== 'Allied' && (
+            {influencePoints < diplomacyCost && rival.playerStance !== 'Allied' && (
                  <p className="text-xs text-destructive text-center">Not enough IP to change stance.</p>
             )}
-             {influencePoints < STANCE_CHANGE_COST && rival.playerStance === 'Allied' && (
+             {influencePoints < diplomacyCost && rival.playerStance === 'Allied' && (
                  <p className="text-xs text-destructive text-center">Not enough IP to dissolve alliance.</p>
             )}
           </div>

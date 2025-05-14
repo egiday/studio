@@ -12,7 +12,7 @@ import { GlobalEventsDisplay } from '@/components/game/GlobalEventsDisplay';
 import { InteractiveEventModal } from '@/components/game/InteractiveEventModal';
 import { DiplomacyPanel } from '@/components/game/DiplomacyPanel';
 import { CULTURAL_MOVEMENTS, EVOLUTION_CATEGORIES, EVOLUTION_ITEMS, INITIAL_COUNTRIES, STARTING_INFLUENCE_POINTS, POTENTIAL_GLOBAL_EVENTS, RIVAL_MOVEMENTS } from '@/config/gameData';
-import type { Country, SubRegion, EvolutionItem, GlobalEvent, GlobalEventEffectProperty, GlobalEventOption, RivalMovement, RivalPresence, DiplomaticStance } from '@/types';
+import type { Country, SubRegion, EvolutionItem, GlobalEvent, GlobalEventEffectProperty, GlobalEventOption, RivalMovement, DiplomaticStance } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,12 +20,12 @@ import { Lightbulb, AlertCircle, Newspaper, Info as InfoIcon, Handshake, Trophy,
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 
-const BASE_IP_PER_TURN = 2;
+const BASE_IP_PER_TURN = 1; // Reduced from 2
 const ADOPTION_IP_MULTIPLIER = 5;
 const RIVAL_SPREAD_PENALTY = 0.15;
 const RIVAL_COUNTER_RESISTANCE_CHANCE = 0.15;
 const RIVAL_COUNTER_RESISTANCE_AMOUNT = 0.03;
-const DIPLOMACY_STANCE_CHANGE_COST = 10;
+const DIPLOMACY_STANCE_CHANGE_COST = 25; // Increased from 10
 
 // Win/Loss Condition Thresholds
 const WIN_PLAYER_GLOBAL_ADOPTION = 0.70;
@@ -530,14 +530,14 @@ export default function GamePage() {
             if (rival.personality === 'AggressiveExpansionist') {
               if (srRivalPresence) {
                 if (Math.random() < (0.35 + rival.aggressiveness * 0.35) && srRivalPresence.influenceLevel < 0.95) {
-                  const increase = baseGain * resistanceFactor * (1 - playerPresencePenalty);
+                  const increase = baseGain * resistanceFactor * (1 - playerPresencePenalty * 0.7); // Buffed
                   modSr.rivalPresence = { ...srRivalPresence, influenceLevel: Math.min(0.95, srRivalPresence.influenceLevel + increase) };
                   if (increase > 0.001) newRecentEventsSummary += ` ${rival.name} intensifies efforts in ${sr.name}, ${country.name}.`;
                 }
               } else {
                 const neighborInfluenced = modCountry.subRegions?.some(s => s.rivalPresence?.rivalId === rival.id && s.rivalPresence.influenceLevel > (0.04 + (1-rival.aggressiveness)*0.1) );
                 if (neighborInfluenced && Math.random() < (0.025 + rival.aggressiveness * 0.20)) {
-                  const initialInfluence = (0.015 + Math.random() * 0.035) * resistanceFactor * (1 - playerPresencePenalty);
+                  const initialInfluence = (0.02 + Math.random() * 0.04) * resistanceFactor * (1 - playerPresencePenalty * 0.9); // Buffed
                   if(initialInfluence > 0) {
                     modSr.rivalPresence = { rivalId: rival.id, influenceLevel: Math.max(0.005, initialInfluence) };
                     newRecentEventsSummary += ` ${rival.name} makes a push into ${sr.name}, ${country.name}.`;
@@ -547,11 +547,11 @@ export default function GamePage() {
             } else if (rival.personality === 'CautiousConsolidator') {
               if (srRivalPresence) {
                 if (Math.random() < (0.65 + rival.aggressiveness * 0.25) && srRivalPresence.influenceLevel < 0.98) {
-                  const increase = baseGain * resistanceFactor * (1 - playerPresencePenalty * 0.4);
+                  const increase = baseGain * resistanceFactor * (1 - playerPresencePenalty * 0.3); // Buffed
                   modSr.rivalPresence = { ...srRivalPresence, influenceLevel: Math.min(0.98, srRivalPresence.influenceLevel + increase) };
                   if (increase > 0.001 && srRivalPresence.influenceLevel < 0.8) newRecentEventsSummary += ` ${rival.name} fortifies its position in ${sr.name}, ${country.name}.`;
                 }
-                if (srRivalPresence.influenceLevel > 0.5 && srPlayerAdoption > 0.05 && Math.random() < (RIVAL_COUNTER_RESISTANCE_CHANCE * rival.aggressiveness) ) {
+                if (srRivalPresence.influenceLevel > 0.5 && srPlayerAdoption > 0.05 && Math.random() < (RIVAL_COUNTER_RESISTANCE_CHANCE * rival.aggressiveness * 0.9) ) { // Buffed chance
                     modSr.resistanceLevel = Math.min(0.95, srPlayerResistance + RIVAL_COUNTER_RESISTANCE_AMOUNT);
                     if (modSr.resistanceLevel > srPlayerResistance + 0.001) {
                          newRecentEventsSummary += ` ${rival.name} stirs dissent against ${currentMovementName} in ${sr.name}, ${country.name}.`;
@@ -584,7 +584,7 @@ export default function GamePage() {
             if (rival.personality === 'AggressiveExpansionist') {
               if (countryRivalPresence) {
                 if (Math.random() < (0.35 + rival.aggressiveness * 0.35) && countryRivalPresence.influenceLevel < 0.95) {
-                  const increase = baseGainCountry * resistanceFactorCountry * (1 - playerPresencePenaltyCountry);
+                  const increase = baseGainCountry * resistanceFactorCountry * (1 - playerPresencePenaltyCountry * 0.7); // Buffed
                   modCountry.rivalPresence = { ...countryRivalPresence, influenceLevel: Math.min(0.95, countryRivalPresence.influenceLevel + increase) };
                    if (increase > 0.001) newRecentEventsSummary += ` ${rival.name} intensifies efforts in ${country.name}.`;
                 }
@@ -594,7 +594,7 @@ export default function GamePage() {
                     c.subRegions?.some(sr => sr.rivalPresence?.rivalId === rival.id && sr.rivalPresence.influenceLevel > (0.18 + (1-rival.aggressiveness)*0.2))
                 );
                 if (sourceCountryStrong && Math.random() < (0.01 + rival.aggressiveness * 0.02)) {
-                    const initialInfluence = (0.015 + Math.random() * 0.035) * resistanceFactorCountry * (1 - playerPresencePenaltyCountry);
+                    const initialInfluence = (0.02 + Math.random() * 0.04) * resistanceFactorCountry * (1 - playerPresencePenaltyCountry * 0.9); // Buffed
                     if(initialInfluence > 0) {
                         modCountry.rivalPresence = { rivalId: rival.id, influenceLevel: Math.max(0.005, initialInfluence) };
                         newRecentEventsSummary += ` ${rival.name} launches an offensive into ${country.name}!`;
@@ -604,11 +604,11 @@ export default function GamePage() {
             } else if (rival.personality === 'CautiousConsolidator') {
               if (countryRivalPresence) {
                  if (Math.random() < (0.65 + rival.aggressiveness * 0.25) && countryRivalPresence.influenceLevel < 0.98) {
-                    const increase = baseGainCountry * resistanceFactorCountry * (1 - playerPresencePenaltyCountry * 0.4);
+                    const increase = baseGainCountry * resistanceFactorCountry * (1 - playerPresencePenaltyCountry * 0.3); // Buffed
                     modCountry.rivalPresence = { ...countryRivalPresence, influenceLevel: Math.min(0.98, countryRivalPresence.influenceLevel + increase) };
                     if (increase > 0.001 && countryRivalPresence.influenceLevel < 0.8) newRecentEventsSummary += ` ${rival.name} fortifies its position in ${country.name}.`;
                 }
-                if (countryRivalPresence.influenceLevel > 0.5 && playerAdoption > 0.05 && Math.random() < (RIVAL_COUNTER_RESISTANCE_CHANCE * rival.aggressiveness) ) {
+                if (countryRivalPresence.influenceLevel > 0.5 && playerAdoption > 0.05 && Math.random() < (RIVAL_COUNTER_RESISTANCE_CHANCE * rival.aggressiveness * 0.9) ) { // Buffed chance
                     modCountry.resistanceLevel = Math.min(0.95, playerResistance + RIVAL_COUNTER_RESISTANCE_AMOUNT);
                      if (modCountry.resistanceLevel > playerResistance + 0.001) {
                          newRecentEventsSummary += ` ${rival.name} stirs dissent against ${currentMovementName} in ${country.name}.`;
@@ -852,6 +852,7 @@ export default function GamePage() {
                       rivalMovements={rivalMovements}
                       onDiplomaticAction={handleDiplomaticAction}
                       influencePoints={influencePoints}
+                      diplomacyCost={DIPLOMACY_STANCE_CHANGE_COST}
                     />
                   </TabsContent>
                 </Tabs>
