@@ -10,7 +10,6 @@ interface ProcessRivalTurnsParams {
   rivalMovementsState: RivalMovement[];
   countriesState: Country[];
   currentMovementName: string; // Player's movement name for logging context
-  initialRivalMovementsData: typeof AllRivalMovementsType; // For initial setup/logging if needed
   allEvolutionItems: typeof AllEvolutionItemsType; // For AI evolution choices
   addRecentEventEntry: (entry: string) => void;
 }
@@ -26,9 +25,11 @@ function applyRivalSpreadToRegion(
   parentCountryForSR: Country | undefined,
   rival: RivalMovement,
   currentMovementName: string, // Player's movement name
-  addRecentEventEntry: (entry: string) => void
-): SubRegion | Country {
+  addRecentEventEntry: (entry: string) => void,
+  newRecentEventsSummary: string // Pass and return summary to avoid direct side-effects in this pure-like function
+): { updatedRegion: SubRegion | Country; eventsSummaryUpdate: string } {
   let modRegion: SubRegion | Country = deepClone(region);
+  let eventsSummaryUpdate = '';
   const parentCountry = isSubRegion ? parentCountryForSR! : modRegion as Country;
   const regionCulturalOpenness = getRegionStat(modRegion, parentCountry, 'culturalOpenness');
   const regionPlayerAdoption = modRegion.adoptionLevel;
@@ -37,15 +38,15 @@ function applyRivalSpreadToRegion(
   let currentRivalInfluence = rivalDataForRegion ? rivalDataForRegion.influenceLevel : 0;
   
   let potentialRivalGain = 0;
-  let actualRivalGainThisTurn = 0; 
   let baseGain = 0;
   let opennessFactor = 1;
   let playerPresencePenaltyFactor = 1;
+  let actualRivalGainThisTurn = 0; // Initialize here
 
   switch (rival.personality) {
     case 'AggressiveExpansionist':
       baseGain = (0.025 + Math.random() * 0.04) * rival.aggressiveness;
-      opennessFactor = (1 - regionCulturalOpenness * 0.35);
+      opennessFactor = (1 - regionCulturalOpenness * 0.35); // Less penalty from openness
       playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.5));
       break;
     case 'CautiousConsolidator':
@@ -59,7 +60,7 @@ function applyRivalSpreadToRegion(
       const totalOtherInfluence = regionPlayerAdoption + modRegion.rivalPresences.filter(rp => rp.rivalId !== rival.id).reduce((s, rp) => s + rp.influenceLevel, 0);
       if (totalOtherInfluence > 0.2 && totalOtherInfluence < 0.8) { 
         baseGain = (0.018 + Math.random() * 0.028) * rival.aggressiveness;
-        opennessFactor = (1 - regionCulturalOpenness * 0.25);
+        opennessFactor = (1 - regionCulturalOpenness * 0.25); // Less penalty from openness
         playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.2));
       }
       break;
@@ -68,7 +69,7 @@ function applyRivalSpreadToRegion(
       const isHomeCountry = parentCountry.id === rival.startingCountryId;
       if (isHomeCountry) {
         baseGain = (0.035 + Math.random() * 0.035) * rival.aggressiveness; 
-        opennessFactor = (1 - regionCulturalOpenness * 0.1);
+        opennessFactor = (1 - regionCulturalOpenness * 0.1); // Minimal penalty from openness in home turf
         playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.1));
       }
       break;
@@ -127,10 +128,10 @@ function applyRivalSpreadToRegion(
 
   if (actualRivalGainThisTurn > 0.001) {
     const prevInfluence = rivalDataForRegion ? rivalDataForRegion.influenceLevel : 0;
-    if (prevInfluence === 0 && currentRivalInfluence > 0) {
-      addRecentEventEntry(` ${rival.name} establishes a presence in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`);
+    if ((!rivalDataForRegion || prevInfluence === 0) && currentRivalInfluence > 0) {
+      eventsSummaryUpdate += ` ${rival.name} establishes a presence in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`;
     } else if (currentRivalInfluence > prevInfluence && currentRivalInfluence > 0.05 && prevInfluence <= 0.05) { 
-      addRecentEventEntry(` ${rival.name} strengthens its influence in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`);
+      eventsSummaryUpdate += ` ${rival.name} strengthens its influence in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`;
     }
   }
 
@@ -141,11 +142,11 @@ function applyRivalSpreadToRegion(
     const resistanceIncrease = GameConstants.RIVAL_COUNTER_RESISTANCE_AMOUNT * (rival.personality === 'IsolationistDefender' ? 2.0 : 1.0);
     modRegion.resistanceLevel = Math.min( (rival.personality === 'IsolationistDefender' ? 0.98 : 0.95), modRegion.resistanceLevel + resistanceIncrease);
     if (modRegion.resistanceLevel > prevResistance + 0.001) {
-      addRecentEventEntry(` ${rival.name} ${rival.personality === 'IsolationistDefender' ? 'fiercely defends' : 'stirs dissent against'} ${currentMovementName} in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`);
+      eventsSummaryUpdate += ` ${rival.name} ${rival.personality === 'IsolationistDefender' ? 'fiercely defends' : 'stirs dissent against'} ${currentMovementName} in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`;
     }
   }
   modRegion.adoptionLevel = Math.max(0, modRegion.adoptionLevel);
-  return modRegion;
+  return { updatedRegion: modRegion, eventsSummaryUpdate };
 }
 
 
@@ -153,18 +154,19 @@ export function processRivalTurns({
   rivalMovementsState,
   countriesState,
   currentMovementName,
-  initialRivalMovementsData, 
   allEvolutionItems,
   addRecentEventEntry,
 }: ProcessRivalTurnsParams): ProcessRivalTurnsResult {
   let countriesAfterRivalTurns: Country[] = deepClone(countriesState);
+  let accumulatedEventSummary = "";
   
   const finalUpdatedRivals = rivalMovementsState.map(originalRival => {
-    // Correctly clone the rival, ensuring evolvedItemIds remains a Set
-    const { evolvedItemIds, ...restOfRival } = originalRival;
+    // Correctly clone the rival, ensuring icon and evolvedItemIds are preserved/reconstructed
+    const { evolvedItemIds, icon, ...serializableRest } = originalRival;
     let currentRival: RivalMovement = {
-      ...deepClone(restOfRival), // Deep clone all serializable properties
-      evolvedItemIds: new Set(evolvedItemIds), // Create a new Set from the original rival's Set
+      ...deepClone(serializableRest), // Deep clone only truly serializable properties
+      icon: icon, // Preserve the original icon function
+      evolvedItemIds: new Set(evolvedItemIds), // Reconstruct Set
     };
 
     // 1. IP Generation for the rival
@@ -182,25 +184,34 @@ export function processRivalTurns({
     const affordableEvolutions = availableEvolutions.filter(item => item.cost <= currentRival.influencePoints);
 
     if (affordableEvolutions.length > 0) {
-        affordableEvolutions.sort((a, b) => a.cost - b.cost);
+        affordableEvolutions.sort((a, b) => a.cost - b.cost); // Sort by cost
+        // Find all evolutions with the minimum cost
         const cheapestCost = affordableEvolutions[0].cost;
         const cheapestOptions = affordableEvolutions.filter(item => item.cost === cheapestCost);
+        // Randomly select one from the cheapest options
         const chosenEvolution = cheapestOptions[Math.floor(Math.random() * cheapestOptions.length)];
         
         currentRival.influencePoints -= chosenEvolution.cost;
         currentRival.evolvedItemIds.add(chosenEvolution.id);
-        addRecentEventEntry(` ${currentRival.name} has evolved: ${chosenEvolution.name}!`);
+        accumulatedEventSummary += ` ${currentRival.name} has evolved: ${chosenEvolution.name}!`;
     }
 
     // 3. Rival Spread Logic (intra-region)
-    // This loop modifies countriesAfterRivalTurns based on the currentRival's actions
     countriesAfterRivalTurns = countriesAfterRivalTurns.map(country => {
-      let modCountryForRival: Country = deepClone(country); // Deep clone for this rival's pass on this country
+      let modCountryForRival: Country = deepClone(country);
+      let countryEventSummary = "";
       if (modCountryForRival.subRegions && modCountryForRival.subRegions.length > 0) {
-        modCountryForRival.subRegions = modCountryForRival.subRegions.map(sr => applyRivalSpreadToRegion(sr, true, modCountryForRival, currentRival, currentMovementName, addRecentEventEntry) as SubRegion);
+        modCountryForRival.subRegions = modCountryForRival.subRegions.map(sr => {
+          const result = applyRivalSpreadToRegion(sr, true, modCountryForRival, currentRival, currentMovementName, addRecentEventEntry, countryEventSummary);
+          countryEventSummary += result.eventsSummaryUpdate;
+          return result.updatedRegion as SubRegion;
+        });
       } else {
-        modCountryForRival = applyRivalSpreadToRegion(modCountryForRival, false, undefined, currentRival, currentMovementName, addRecentEventEntry) as Country;
+        const result = applyRivalSpreadToRegion(modCountryForRival, false, undefined, currentRival, currentMovementName, addRecentEventEntry, countryEventSummary);
+        countryEventSummary += result.eventsSummaryUpdate;
+        modCountryForRival = result.updatedRegion as Country;
       }
+      accumulatedEventSummary += countryEventSummary;
       return modCountryForRival;
     });
 
@@ -209,6 +220,8 @@ export function processRivalTurns({
     let newCountrySpreadChance = 0;
     let newCountryInitialInfluence = 0;
     let spreadAggressivenessFactor = currentRival.aggressiveness;
+    let localEventSummaryForInterCountrySpread = "";
+
 
     switch (currentRival.personality) {
       case 'AggressiveExpansionist': {
@@ -278,26 +291,24 @@ export function processRivalTurns({
       });
 
       if (uninfluencedOrWeaklyInfluencedCountries.length > 0) {
-        // Choose a random target country from the list
         const targetCountryIndex = Math.floor(Math.random() * uninfluencedOrWeaklyInfluencedCountries.length);
         const targetCountryOriginal = uninfluencedOrWeaklyInfluencedCountries[targetCountryIndex];
         
-        // Find this target country in our main working array to modify it
         const countryToModifyIndex = countriesAfterRivalTurns.findIndex(c => c.id === targetCountryOriginal.id);
 
         if (countryToModifyIndex !== -1) {
-            let targetCountryToModify: Country = deepClone(countriesAfterRivalTurns[countryToModifyIndex]); // Clone before modification
+            let targetCountryToModify: Country = deepClone(countriesAfterRivalTurns[countryToModifyIndex]);
             let targetSpreadRegion: SubRegion | Country;
             let isTargetSubRegion = false;
             let subRegionIndexToUpdate = -1;
 
             if (targetCountryToModify.subRegions && targetCountryToModify.subRegions.length > 0) {
                 const randomSubRegionIndex = Math.floor(Math.random() * targetCountryToModify.subRegions.length);
-                targetSpreadRegion = deepClone(targetCountryToModify.subRegions[randomSubRegionIndex]); // Clone subRegion
+                targetSpreadRegion = deepClone(targetCountryToModify.subRegions[randomSubRegionIndex]);
                 isTargetSubRegion = true;
                 subRegionIndexToUpdate = randomSubRegionIndex;
             } else {
-                targetSpreadRegion = targetCountryToModify; // Will be replaced if modified
+                targetSpreadRegion = targetCountryToModify;
             }
 
             let currentRivalInfluenceInTarget = targetSpreadRegion.rivalPresences.find(rp => rp.rivalId === currentRival.id)?.influenceLevel || 0;
@@ -344,22 +355,24 @@ export function processRivalTurns({
               if (isTargetSubRegion && targetCountryToModify.subRegions && subRegionIndexToUpdate !== -1) {
                 targetCountryToModify.subRegions[subRegionIndexToUpdate] = targetSpreadRegion as SubRegion;
               } else {
-                targetCountryToModify = targetSpreadRegion as Country; // Replace the whole country object
+                targetCountryToModify = targetSpreadRegion as Country;
               }
-              // Update the main working array
               countriesAfterRivalTurns[countryToModifyIndex] = targetCountryToModify;
-              addRecentEventEntry(` ${currentRival.name} makes a push into ${targetSpreadRegion.name}${isTargetSubRegion ? ` within the ${targetCountryToModify.name}` : ''}.`);
+              localEventSummaryForInterCountrySpread += ` ${currentRival.name} makes a push into ${targetSpreadRegion.name}${isTargetSubRegion ? ` within the ${targetCountryToModify.name}` : ''}.`;
             }
         }
       }
     }
+    accumulatedEventSummary += localEventSummaryForInterCountrySpread;
     return currentRival; 
   });
+
+  if (accumulatedEventSummary) {
+    addRecentEventEntry(accumulatedEventSummary);
+  }
 
   return {
     updatedCountries: countriesAfterRivalTurns,
     updatedRivalMovements: finalUpdatedRivals,
   };
 }
-
-    
