@@ -41,7 +41,7 @@ export interface RivalMovement {
   name: string;
   icon: LucideIcon;
   color: string;
-  startingCountryId: string;
+  startingCountryId: string; // Thematic: Starting Solar System ID
   aggressiveness: number; // 0-1, general likelihood to act
   personality: AIPersonalityType; // Defines strategic tendencies
   playerStance: DiplomaticStance;
@@ -53,36 +53,38 @@ export interface RivalPresence {
 }
 
 export type ResistanceArchetype =
-  | 'TraditionalistGuardians' // Resists change, strong in low openness areas
-  | 'CounterCulturalRebels'   // Pushes back against established player culture
-  | 'AuthoritarianSuppressors'; // Uses heavy-handed tactics, impacts IP/costs
+  | 'TraditionalistGuardians' // Thematic: 'Stellar Conservators' - Resist change, strong in isolated systems
+  | 'CounterCulturalRebels'   // Thematic: 'Void Anarchists' - Push back against established player culture
+  | 'AuthoritarianSuppressors'; // Thematic: 'Galactic Enforcers' - Use heavy-handed tactics
 
+// Represents a Planet within a Solar System
 export interface SubRegion {
   id: string;
-  name: string;
+  name: string; // Planet Name
   adoptionLevel: number; // 0-1 Player's culture
   resistanceLevel: number; // 0-1 Towards player's culture
   resistanceArchetype?: ResistanceArchetype | null;
-  economicDevelopment: number; // 0-1, relative to country or absolute
-  culturalOpenness: number; // 0-1
-  internetPenetration?: number; // 0-1
-  educationLevel?: number; // 0-1
-  mediaFreedom?: number; // 0-1
+  economicDevelopment: number; // Thematic: Resource Output 0-1
+  culturalOpenness: number; // Thematic: Xeno-Acceptance 0-1
+  internetPenetration?: number; // Thematic: Hypernet Access 0-1
+  educationLevel?: number; // Thematic: Tech Literacy 0-1
+  mediaFreedom?: number; // Thematic: Info-Flow Freedom 0-1
   rivalPresences: RivalPresence[];
 }
 
+// Represents a Solar System
 export interface Country {
   id: string;
-  name: string;
-  internetPenetration: number; // 0-1
-  educationLevel: number; // 0-1
-  economicDevelopment: number; // 0-1 (Can be average of subregions or base if no subregions)
-  culturalOpenness: number; // 0-1 (Can be average of subregions or base if no subregions)
-  mediaFreedom: number; // 0-1 (Can be average of subregions or base if no subregions)
-  adoptionLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist) Player's culture
-  resistanceLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist) Towards player's culture
-  resistanceArchetype?: ResistanceArchetype | null;
-  subRegions?: SubRegion[];
+  name: string; // Solar System Name
+  internetPenetration: number; // Thematic: Avg Hypernet Access 0-1
+  educationLevel: number; // Thematic: Avg Tech Literacy 0-1
+  economicDevelopment: number; // Thematic: Avg Resource Output 0-1
+  culturalOpenness: number; // Thematic: Avg Xeno-Acceptance 0-1
+  mediaFreedom: number; // Thematic: Avg Info-Flow Freedom 0-1
+  adoptionLevel: number; // 0-1, dynamic (overall for system, derived from planets if they exist) Player's culture
+  resistanceLevel: number; // 0-1, dynamic (overall for system, derived from planets if they exist) Towards player's culture
+  resistanceArchetype?: ResistanceArchetype | null; // Overall system resistance archetype if no planets
+  subRegions?: SubRegion[]; // Planets in this system
   rivalPresences: RivalPresence[];
 }
 
@@ -94,39 +96,39 @@ export interface NewsHeadline {
 
 // --- Global Events System Types ---
 export type GlobalEventEffectProperty =
-  | 'culturalOpenness'
-  | 'economicDevelopment'
-  | 'resistanceLevel' // Modifies player's resistance to their own culture
-  | 'adoptionRateModifier' // This would likely be a multiplier for player's culture
-  | 'ipBonus'; // Direct IP gain for player
+  | 'culturalOpenness' // Xeno-Acceptance
+  | 'economicDevelopment' // Resource Output
+  | 'resistanceLevel'
+  | 'adoptionRateModifier'
+  | 'ipBonus';
 
-export type GlobalEventTargetType = 'global' | 'country' | 'subregion';
+export type GlobalEventTargetType = 'global' | 'country' | 'subregion'; // country = system, subregion = planet
 
 export interface GlobalEventEffect {
   targetType: GlobalEventTargetType;
-  countryId?: string; // Required if targetType is 'country' or 'subregion'
-  subRegionId?: string; // Required if targetType is 'subregion'
+  countryId?: string; // System ID
+  subRegionId?: string; // Planet ID
   property: GlobalEventEffectProperty;
-  value: number; // The amount of change or the multiplier
-  isMultiplier?: boolean; // If true, value is a multiplier (e.g., 1.1 for +10%), else additive
-  duration?: number; // How many turns this specific effect lasts, defaults to event duration
+  value: number;
+  isMultiplier?: boolean;
+  duration?: number;
 }
 
 export interface GlobalEventOption {
   id: string;
-  text: string; // Player-facing choice text
-  description: string; // Explains the potential outcome of this choice
-  effects: GlobalEventEffect[]; // Specific effects if this option is chosen
+  text: string;
+  description: string;
+  effects: GlobalEventEffect[];
 }
 
 export interface GlobalEvent {
   id: string;
   name: string;
   description: string;
-  turnStart: number; // Turn the event begins
-  duration: number; // How many turns the event lasts
-  effects: GlobalEventEffect[]; // Base effects if not interactive, or default if no option chosen (not used if options replace)
-  options?: GlobalEventOption[]; // Optional choices for the player
-  hasBeenTriggered: boolean; // To ensure one-off events don't re-trigger
-  chosenOptionId?: string; // ID of the chosen option, if applicable
+  turnStart: number;
+  duration: number;
+  effects: GlobalEventEffect[];
+  options?: GlobalEventOption[];
+  hasBeenTriggered: boolean;
+  chosenOptionId?: string;
 }

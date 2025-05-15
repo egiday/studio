@@ -1,6 +1,6 @@
 
 import type { CulturalMovement, EvolutionItem, EvolutionCategory, Country, SubRegion, GlobalEvent, RivalMovement } from '@/types';
-import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film, Award, Megaphone, TrendingUp, Bot, Pyramid, Handshake, Feather, ShieldCheck, TowerControl } from 'lucide-react';
+import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film, Award, Megaphone, TrendingUp, Bot, Pyramid, Handshake, Feather, ShieldCheck, TowerControl, Rocket, Orbit, SunMedium } from 'lucide-react'; // Added Rocket, Orbit, SunMedium
 
 export const CULTURAL_MOVEMENTS: CulturalMovement[] = [
   { id: 'digital_nexus', name: 'Digital Nexus', description: 'Rapidly connects minds through information networks.', icon: Cpu },
@@ -21,29 +21,29 @@ export const EVOLUTION_CATEGORIES: EvolutionCategory[] = [
 
 export const EVOLUTION_ITEMS: EvolutionItem[] = [
   // Expression Methods
-  { id: 'expr_social_media', name: 'Digital Echo Chambers', description: 'Establishes a basic online presence, allowing for wider reach and faster initial spread in digitally connected regions. Unlocks sharing capabilities.', cost: 35, icon: MessageSquare, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_apps', name: 'Resonance Engine App', description: 'Develops a mobile application for your movement, fostering a dedicated community and enabling targeted content delivery. Boosts engagement in regions with high smartphone penetration.', cost: 70, icon: Zap, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media'] },
-  { id: 'expr_gatherings', name: 'Unity Gatherings', description: 'Organizes local meetups and events, strengthening community bonds and increasing adoption in areas with strong local networks. Effective in both urban and rural settings.', cost: 55, icon: UsersRound, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_media_broadcast', name: 'Aetheric Broadcasts', description: 'Gains presence on traditional media like TV & Radio. Significantly increases awareness in regions with high traditional media consumption, bypassing digital divides.', cost: 100, icon: Tv, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_word_of_mouth', name: 'Whisper Network', description: 'Encourages and empowers individuals to share the movement through personal testimonials and conversations. Provides a slow but steady and resilient form of spread.', cost: 30, icon: Hand, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_influencers', name: 'Beacon Network', description: 'Collaborates with online personalities and thought leaders to promote the movement. Highly effective for reaching specific demographics and accelerating online adoption.', cost: 85, icon: Rss, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media']},
+  { id: 'expr_social_media', name: 'Subspace Network Presence', description: 'Establishes a basic interstellar network presence, allowing for wider reach and faster initial spread in connected systems.', cost: 75, icon: MessageSquare, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_apps', name: 'Resonance Beacon App', description: 'Develops a dedicated application for your movement, fostering a unified community across planets. Boosts engagement in systems with high personal device penetration.', cost: 150, icon: Zap, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media'] },
+  { id: 'expr_gatherings', name: 'Starport Rallies', description: 'Organizes local gatherings at major starports and settlements, strengthening community bonds and increasing adoption. Effective in diverse planetary environments.', cost: 120, icon: UsersRound, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_media_broadcast', name: 'Galactic HoloNet Broadcasts', description: 'Gains presence on established HoloNet channels. Significantly increases awareness across many systems, bypassing local network limitations.', cost: 225, icon: Tv, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_word_of_mouth', name: 'Stellar Courier Network', description: 'Empowers individuals to share the movement through personal FTL comms and travel. Provides a slow but resilient form of spread.', cost: 70, icon: Hand, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_influencers', name: 'Echo Chamber Cultivators', description: 'Collaborates with popular HoloNet personalities and sector-wide thought leaders to promote the movement. Highly effective for reaching specific demographics and accelerating network adoption.', cost: 180, icon: Rss, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media']},
   {
     id: 'expr_viral_studio',
-    name: 'Ephemeral Arts Studio',
-    description: 'Creates a dedicated team and infrastructure for producing high-quality, engaging, and shareable content tailored for digital platforms. Significantly boosts online spread rate and engagement metrics.',
-    cost: 140,
+    name: 'Ephemeral Holo-Art Studio',
+    description: 'Creates a dedicated team for producing high-quality, engaging, and shareable Holo-content tailored for interstellar networks. Significantly boosts spread rate.',
+    cost: 300,
     icon: Film,
     category: 'expression_methods',
     isEvolved: false,
     prerequisites: ['expr_apps', 'expr_influencers'],
-    specialAbilityName: "Cultural Resonance",
-    specialAbilityDescription: "Content produced by the studio is 20% more effective at increasing adoption. Additionally, there's a chance each turn to trigger a 'Trending Topic' mini-event, granting bonus Influence Points."
+    specialAbilityName: "Cultural Resonance Burst",
+    specialAbilityDescription: "Content produced by the studio is 20% more effective at increasing adoption. Additionally, there's a chance each turn to trigger a 'Viral Signal' mini-event, granting bonus Influence Points."
   },
   {
     id: 'expr_grassroots_kits',
-    name: 'Sprout Kits',
-    description: 'Provides toolkits, funding, and training for local leaders to independently organize events and promote the movement, enhancing local adoption and authenticity.',
-    cost: 90,
+    name: 'Colony Seed Kits',
+    description: 'Provides toolkits, funding, and training for local planetary leaders to independently organize events and promote the movement, enhancing local adoption.',
+    cost: 200,
     icon: Megaphone,
     category: 'expression_methods',
     isEvolved: false,
@@ -51,38 +51,38 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   },
   {
     id: 'expr_global_syndication',
-    name: 'Global Harmony Network',
-    description: 'Establishes partnerships to distribute cultural content through international media networks, creating a persistent global presence.',
-    cost: 170,
+    name: 'Universal Signal Network',
+    description: 'Establishes partnerships to distribute cultural content through major interstellar media networks, creating a persistent galactic presence.',
+    cost: 375,
     icon: TrendingUp,
     category: 'expression_methods',
     isEvolved: false,
     prerequisites: ['expr_media_broadcast', 'expr_viral_studio'],
-    specialAbilityName: "Ubiquitous Presence",
-    specialAbilityDescription: "All media-based expressions (Broadcast, Viral Studio) become 15% more effective globally. Reduces cost of future media-related evolutions by 10%."
+    specialAbilityName: "Omnipresent Signal",
+    specialAbilityDescription: "All network-based expressions (HoloNet, Studio) become 15% more effective. Reduces cost of future network-related evolutions by 10%."
   },
 
   // Cultural Elements
-  { id: 'elem_aesthetic_style', name: 'Signature Aesthetics', description: 'Defines a unique and recognizable aesthetic for the movement, including logos, color palettes, and design language. Increases appeal and memorability.', cost: 40, icon: Palette, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_rituals', name: 'Harmonic Rituals', description: 'Establishes shared practices, ceremonies, or regular events that reinforce the movement\'s values and build community cohesion. Deepens engagement among adherents.', cost: 60, icon: Sparkles, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_value_system', name: 'Guiding Principles Codex', description: 'Articulates a clear set of guiding principles, beliefs, and goals for the movement. Provides intellectual and moral grounding, attracting those who align with its philosophy.', cost: 75, icon: BrainCog, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_language', name: 'Unity Lexicon', description: 'Develops specialized vocabulary, slang, or terminology unique to the movement. Fosters a sense of in-group identity and shared understanding among followers.', cost: 50, icon: Speech, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_concepts', name: 'Core Axioms & Teachings', description: 'Introduces novel ideas, theories, or interpretations that form the intellectual core of the movement. Essential for movements focused on philosophy, science, or education.', cost: 80, icon: Lightbulb, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_aesthetic_style', name: 'Signature Stellar Aesthetics', description: 'Defines a unique and recognizable aesthetic for the movement, including symbols, color schemes, and starship designs. Increases appeal and memorability.', cost: 90, icon: Palette, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_rituals', name: 'Celestial Convergence Rituals', description: 'Establishes shared practices or system-wide events that reinforce the movement\'s values and build community cohesion. Deepens engagement among adherents.', cost: 135, icon: Sparkles, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_value_system', name: 'Galactic Principles Codex', description: 'Articulates a clear set of guiding principles for the movement. Provides intellectual and moral grounding.', cost: 165, icon: BrainCog, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_language', name: 'Unifying Star-Tongue', description: 'Develops specialized vocabulary or a simplified common language unique to the movement. Fosters a sense of in-group identity.', cost: 115, icon: Speech, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_concepts', name: 'Core Cosmic Axioms', description: 'Introduces novel ideas or philosophies that form the intellectual core of the movement. Essential for movements focused on thought or science.', cost: 180, icon: Lightbulb, category: 'cultural_elements', isEvolved: false },
   {
     id: 'elem_mythology_lore',
-    name: 'Epoch Weaving',
-    description: 'Develops a rich tapestry of stories, myths, historical narratives, and symbolic figures that deepen the cultural narrative and emotional connection for adherents.',
-    cost: 100,
-    icon: BrainCog, 
+    name: 'Astro-Mythos Weaving',
+    description: 'Develops a rich tapestry of stories, myths, and legendary figures that deepen the cultural narrative and emotional connection for adherents across star systems.',
+    cost: 225,
+    icon: Orbit, // Changed from Planet
     category: 'cultural_elements',
     isEvolved: false,
     prerequisites: ['elem_value_system', 'elem_concepts']
   },
   {
     id: 'elem_interactive_education',
-    name: 'Insight Engine Platform',
-    description: 'Creates an online platform with courses, simulations, and interactive content about the movement\'s core tenets, boosting retention and deeper understanding among adherents.',
-    cost: 120,
+    name: 'Noosphere Simulation Platform',
+    description: 'Creates an interstellar network platform with courses and interactive simulations about the movement\'s core tenets, boosting retention and understanding.',
+    cost: 270,
     icon: School,
     category: 'cultural_elements',
     isEvolved: false,
@@ -90,39 +90,39 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   },
 
   // Adaptability
-  { id: 'adapt_integration', name: 'Cultural Symbiosis', description: 'Develops methods to blend the movement with existing local customs, traditions, and values. Reduces cultural friction and resistance in diverse regions.', cost: 70, icon: Merge, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_resource_eff', name: 'Sustainable Participation', description: 'Optimizes the resources needed for individuals to adopt and participate in the movement, making it more accessible in economically diverse regions. Lowers perceived cost of adoption.', cost: 60, icon: DollarSign, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_resistance_mgmt', name: 'Discord Dampening', description: 'Implements strategies to understand, address, and counter opposing viewpoints and organized resistance. Reduces the growth of resistance and mitigates its negative impact.', cost: 95, icon: ShieldAlert, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_urban', name: 'Metropole Weaving', description: 'Tailors the movement\'s messaging and activities to thrive in densely populated urban environments. Leverages city infrastructure and networks for faster spread.', cost: 45, icon: Building2, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_rural', name: 'Wilds Adaptation', description: 'Adapts the movement to effectively spread and take root in less densely populated rural areas and remote communities. Addresses unique challenges of rural outreach.', cost: 45, icon: Trees, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_integration', name: 'Xeno-Cultural Symbiosis', description: 'Develops methods to blend the movement with existing planetary customs and xeno-cultures. Reduces cultural friction in diverse systems.', cost: 150, icon: Merge, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_resource_eff', name: 'Resource-Lean Propagation', description: 'Optimizes the resources needed for individuals to adopt and participate, making it more accessible in systems with varied resource levels.', cost: 135, icon: DollarSign, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_resistance_mgmt', name: 'Discord Dampening Fields', description: 'Implements strategies to understand, address, and counter opposing viewpoints and organized resistance across systems.', cost: 210, icon: ShieldAlert, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_urban', name: 'Core World Integration', description: 'Tailors the movement\'s messaging to thrive in densely populated core worlds and ecumenopolises. Leverages complex infrastructure for faster spread.', cost: 105, icon: Building2, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_rural', name: 'Outer Rim Adaptation', description: 'Adapts the movement to effectively spread in sparsely populated outer rim planets and remote colonies.', cost: 105, icon: Rocket, category: 'adaptability', isEvolved: false },
   {
     id: 'adapt_demographic_appeal',
-    name: 'Universal Tapestry',
-    description: 'Refines the movement to resonate with a wider range of age groups, social classes, and cultural backgrounds. Increases overall potential adoption rate and reduces demographic-specific resistance.',
-    cost: 110,
+    name: 'Universal Tapestry Weaving',
+    description: 'Refines the movement to resonate with a wider range of species, age groups, and socio-economic strata across the galaxy. Increases overall potential adoption.',
+    cost: 240,
     icon: UserCheck,
     category: 'adaptability',
     isEvolved: false,
-    specialAbilityName: "Universal Harmony",
-    specialAbilityDescription: "Significantly reduces the baseline resistance generation rate in all influenced regions. Unlocks special 'Unity Dialogue' options during certain global events, potentially converting resistant populations peacefully."
+    specialAbilityName: "Galactic Harmony Protocol",
+    specialAbilityDescription: "Significantly reduces baseline resistance generation in all influenced systems. Unlocks special 'Unity Concord' options during certain galactic events."
   },
   {
     id: 'adapt_ai_localization',
-    name: 'Adaptive Locus AI',
-    description: 'Utilizes advanced AI to rapidly translate and culturally adapt content for diverse languages and regional nuances, dramatically increasing integration speed and relevance.',
-    cost: 150,
+    name: 'Adaptive Xenolinguistics AI',
+    description: 'Utilizes advanced AI to rapidly translate and culturally adapt content for diverse alien languages and planetary nuances, dramatically increasing integration speed.',
+    cost: 330,
     icon: GitFork,
     category: 'adaptability',
     isEvolved: false,
     prerequisites: ['adapt_integration', 'expr_apps'],
-    specialAbilityName: "Hyper-Adaptation",
-    specialAbilityDescription: "Reduces cultural resistance penalties arising from regional differences by 50%. Automatically translates basic communications to any region."
+    specialAbilityName: "Hyper-Adaptation Matrix",
+    specialAbilityDescription: "Reduces cultural resistance penalties arising from planetary differences by 50%. Automatically translates basic communications to any known species."
   },
   {
     id: 'adapt_crisis_protocol',
-    name: 'Resilience Protocol',
-    description: 'Establishes protocols, resources, and communication channels to swiftly adapt messaging and support adherents during global crises, maintaining loyalty and preventing spread decline.',
-    cost: 100,
+    name: 'Stellar Resilience Protocol',
+    description: 'Establishes protocols and communication channels to swiftly adapt messaging and support adherents during galactic crises, maintaining loyalty.',
+    cost: 225,
     icon: Siren,
     category: 'adaptability',
     isEvolved: false,
@@ -130,149 +130,152 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   },
 ];
 
-const celestialFederationSubRegions: SubRegion[] = [
-  { id: 'cfl_capital_prime', name: 'Capital Prime', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.92, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.88, mediaFreedom: 0.82, rivalPresences: [] },
-  { id: 'cfl_nova_plains', name: 'Nova Plains', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.85, culturalOpenness: 0.65, internetPenetration: 0.88, educationLevel: 0.82, mediaFreedom: 0.78, rivalPresences: [] },
-  { id: 'cfl_stellar_commons', name: 'Stellar Commons', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.88, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.80, rivalPresences: [] },
-  { id: 'cfl_azure_coast', name: 'Azure Coast', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.95, culturalOpenness: 0.80, internetPenetration: 0.93, educationLevel: 0.90, mediaFreedom: 0.85, rivalPresences: [] },
+// Solar Systems and their Planets
+const solaraPrimeSystemPlanets: SubRegion[] = [
+  { id: 'sp_terra_nova', name: 'Terra Nova', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.92, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.88, mediaFreedom: 0.82, rivalPresences: [] },
+  { id: 'sp_ignis', name: 'Ignis IV', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.85, culturalOpenness: 0.65, internetPenetration: 0.88, educationLevel: 0.82, mediaFreedom: 0.78, rivalPresences: [] },
+  { id: 'sp_aquilon', name: 'Aquilon Belt', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.88, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.80, rivalPresences: [] },
+  { id: 'sp_luxoria', name: 'Luxoria Prime', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.95, culturalOpenness: 0.80, internetPenetration: 0.93, educationLevel: 0.90, mediaFreedom: 0.85, rivalPresences: [] },
 ];
 
-const twilightHegemonySubRegions: SubRegion[] = [
-  { id: 'thn_shadow_citadel', name: 'Shadow Citadel', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.85, culturalOpenness: 0.45, internetPenetration: 0.75, educationLevel: 0.78, mediaFreedom: 0.15, rivalPresences: [] },
-  { id: 'thn_whisperwind_expanse', name: 'Whisperwind Expanse', adoptionLevel: 0, resistanceLevel: 0.35, economicDevelopment: 0.60, culturalOpenness: 0.30, internetPenetration: 0.45, educationLevel: 0.60, mediaFreedom: 0.10, rivalPresences: [] },
-  { id: 'thn_ironclad_marches', name: 'Ironclad Marches', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.70, culturalOpenness: 0.35, internetPenetration: 0.65, educationLevel: 0.70, mediaFreedom: 0.12, rivalPresences: [] },
-  { id: 'thn_gloaming_isles', name: 'Gloaming Isles', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.78, culturalOpenness: 0.40, internetPenetration: 0.70, educationLevel: 0.72, mediaFreedom: 0.14, rivalPresences: [] },
+const kryllNexusPlanets: SubRegion[] = [
+  { id: 'kn_voidfang_citadel', name: 'Voidfang Citadel', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.85, culturalOpenness: 0.45, internetPenetration: 0.75, educationLevel: 0.78, mediaFreedom: 0.15, rivalPresences: [] },
+  { id: 'kn_whisperwind_depths', name: 'Whisperwind Depths', adoptionLevel: 0, resistanceLevel: 0.35, economicDevelopment: 0.60, culturalOpenness: 0.30, internetPenetration: 0.45, educationLevel: 0.60, mediaFreedom: 0.10, rivalPresences: [] },
+  { id: 'kn_ironclad_moons', name: 'Ironclad Moons', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.70, culturalOpenness: 0.35, internetPenetration: 0.65, educationLevel: 0.70, mediaFreedom: 0.12, rivalPresences: [] },
+  { id: 'kn_shadowfen_worlds', name: 'Shadowfen Worlds', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.78, culturalOpenness: 0.40, internetPenetration: 0.70, educationLevel: 0.72, mediaFreedom: 0.14, rivalPresences: [] },
 ];
 
-const veridianCommunesSubRegions: SubRegion[] = [
-  { id: 'vct_riverbend_province', name: 'Riverbend Province', adoptionLevel: 0, resistanceLevel: 0.22, economicDevelopment: 0.58, culturalOpenness: 0.62, internetPenetration: 0.42, educationLevel: 0.62, mediaFreedom: 0.52, rivalPresences: [] },
-  { id: 'vct_technia_enclaves', name: 'Technia Enclaves', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.65, culturalOpenness: 0.68, internetPenetration: 0.48, educationLevel: 0.65, mediaFreedom: 0.55, rivalPresences: [] },
-  { id: 'vct_spirit_peak_territory', name: 'Spirit Peak Territory', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.55, culturalOpenness: 0.58, internetPenetration: 0.38, educationLevel: 0.58, mediaFreedom: 0.48, rivalPresences: [] },
-  { id: 'vct_tradewinds_coast', name: 'Tradewinds Coast', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.62, culturalOpenness: 0.65, internetPenetration: 0.45, educationLevel: 0.63, mediaFreedom: 0.53, rivalPresences: [] },
+const orionisClusterPlanets: SubRegion[] = [
+  { id: 'oc_veridia_prime', name: 'Veridia Prime', adoptionLevel: 0, resistanceLevel: 0.22, economicDevelopment: 0.58, culturalOpenness: 0.62, internetPenetration: 0.42, educationLevel: 0.62, mediaFreedom: 0.52, rivalPresences: [] },
+  { id: 'oc_technos_core', name: 'Technos Core', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.65, culturalOpenness: 0.68, internetPenetration: 0.48, educationLevel: 0.65, mediaFreedom: 0.55, rivalPresences: [] },
+  { id: 'oc_aetheria_wilds', name: 'Aetheria Wilds', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.55, culturalOpenness: 0.58, internetPenetration: 0.38, educationLevel: 0.58, mediaFreedom: 0.48, rivalPresences: [] },
+  { id: 'oc_ember_reach', name: 'Ember Reach', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.62, culturalOpenness: 0.65, internetPenetration: 0.45, educationLevel: 0.63, mediaFreedom: 0.53, rivalPresences: [] },
 ];
 
-const solarisConcordSubRegions: SubRegion[] = [
-  { id: 'sch_nova_plexus', name: 'Nova Plexus', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.70, culturalOpenness: 0.82, internetPenetration: 0.75, educationLevel: 0.72, mediaFreedom: 0.62, rivalPresences: [] },
-  { id: 'sch_emerald_basin', name: 'Emerald Basin', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.55, culturalOpenness: 0.75, internetPenetration: 0.60, educationLevel: 0.65, mediaFreedom: 0.58, rivalPresences: [] },
-  { id: 'sch_heartland_reaches', name: 'Heartland Reaches', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.45, culturalOpenness: 0.70, internetPenetration: 0.50, educationLevel: 0.60, mediaFreedom: 0.55, rivalPresences: [] },
-  { id: 'sch_aurora_lands', name: 'Aurora Lands', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.65, culturalOpenness: 0.78, internetPenetration: 0.68, educationLevel: 0.70, mediaFreedom: 0.60, rivalPresences: [] },
+const cygnusArmPlanets: SubRegion[] = [
+  { id: 'ca_nova_cygni', name: 'Nova Cygni Hub', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.70, culturalOpenness: 0.82, internetPenetration: 0.75, educationLevel: 0.72, mediaFreedom: 0.62, rivalPresences: [] },
+  { id: 'ca_azure_nebula', name: 'Azure Nebula Colonies', adoptionLevel: 0, resistanceLevel: 0.18, economicDevelopment: 0.55, culturalOpenness: 0.75, internetPenetration: 0.60, educationLevel: 0.65, mediaFreedom: 0.58, rivalPresences: [] },
+  { id: 'ca_frontier_worlds', name: 'Frontier Worlds Expanse', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.45, culturalOpenness: 0.70, internetPenetration: 0.50, educationLevel: 0.60, mediaFreedom: 0.55, rivalPresences: [] },
+  { id: 'ca_helios_gate', name: 'Helios Gate Station', adoptionLevel: 0, resistanceLevel: 0.15, economicDevelopment: 0.65, culturalOpenness: 0.78, internetPenetration: 0.68, educationLevel: 0.70, mediaFreedom: 0.60, rivalPresences: [] },
 ];
 
-const aethelgardImperiumSubRegions: SubRegion[] = [
-  { id: 'ai_delta_conflux', name: 'Delta Conflux', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.50, culturalOpenness: 0.55, internetPenetration: 0.60, educationLevel: 0.55, mediaFreedom: 0.42, rivalPresences: [] },
-  { id: 'ai_sandsea_dominion', name: 'Sandsea Dominion', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.30, culturalOpenness: 0.40, internetPenetration: 0.40, educationLevel: 0.45, mediaFreedom: 0.35, rivalPresences: [] },
-  { id: 'ai_serpentine_basin', name: 'Serpentine Basin', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.35, culturalOpenness: 0.48, internetPenetration: 0.45, educationLevel: 0.50, mediaFreedom: 0.38, rivalPresences: [] },
-  { id: 'ai_skyreach_citadels', name: 'Skyreach Citadels', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.32, culturalOpenness: 0.45, internetPenetration: 0.42, educationLevel: 0.48, mediaFreedom: 0.37, rivalPresences: [] },
+const hadesRimPlanets: SubRegion[] = [
+  { id: 'hr_styx_terminus', name: 'Styx Terminus', adoptionLevel: 0, resistanceLevel: 0.20, economicDevelopment: 0.50, culturalOpenness: 0.55, internetPenetration: 0.60, educationLevel: 0.55, mediaFreedom: 0.42, rivalPresences: [] },
+  { id: 'hr_acheron_void', name: 'Acheron Void Outposts', adoptionLevel: 0, resistanceLevel: 0.30, economicDevelopment: 0.30, culturalOpenness: 0.40, internetPenetration: 0.40, educationLevel: 0.45, mediaFreedom: 0.35, rivalPresences: [] },
+  { id: 'hr_lethe_drifts', name: 'Lethe Drifts', adoptionLevel: 0, resistanceLevel: 0.25, economicDevelopment: 0.35, culturalOpenness: 0.48, internetPenetration: 0.45, educationLevel: 0.50, mediaFreedom: 0.38, rivalPresences: [] },
+  { id: 'hr_tartarus_deep', name: 'Tartarus Deep Colonies', adoptionLevel: 0, resistanceLevel: 0.28, economicDevelopment: 0.32, culturalOpenness: 0.45, internetPenetration: 0.42, educationLevel: 0.48, mediaFreedom: 0.37, rivalPresences: [] },
 ];
 
-const adamantineLeagueSubRegions: SubRegion[] = [
-  { id: 'alb_rhineforge_citadel', name: 'Rhineforge Citadel', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.88, culturalOpenness: 0.78, internetPenetration: 0.94, educationLevel: 0.90, mediaFreedom: 0.92, rivalPresences: [] },
-  { id: 'alb_spree_capitol', name: 'Spree Capitol Region', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.80, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.88, rivalPresences: [] },
-  { id: 'alb_alpen_peaks_domain', name: 'Alpen Peaks Domain', adoptionLevel: 0, resistanceLevel: 0.09, economicDevelopment: 0.90, culturalOpenness: 0.76, internetPenetration: 0.93, educationLevel: 0.89, mediaFreedom: 0.91, rivalPresences: [] },
-  { id: 'alb_hanseatic_ports', name: 'Hanseatic Ports', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.85, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.87, mediaFreedom: 0.90, rivalPresences: [] },
+const elysianFieldsPlanets: SubRegion[] = [
+  { id: 'ef_elysium_core', name: 'Elysium Core', adoptionLevel: 0, resistanceLevel: 0.08, economicDevelopment: 0.88, culturalOpenness: 0.78, internetPenetration: 0.94, educationLevel: 0.90, mediaFreedom: 0.92, rivalPresences: [] },
+  { id: 'ef_arcadia_sphere', name: 'Arcadia Sphere', adoptionLevel: 0, resistanceLevel: 0.12, economicDevelopment: 0.80, culturalOpenness: 0.70, internetPenetration: 0.90, educationLevel: 0.85, mediaFreedom: 0.88, rivalPresences: [] },
+  { id: 'ef_olympus_heights', name: 'Olympus Heights', adoptionLevel: 0, resistanceLevel: 0.09, economicDevelopment: 0.90, culturalOpenness: 0.76, internetPenetration: 0.93, educationLevel: 0.89, mediaFreedom: 0.91, rivalPresences: [] },
+  { id: 'ef_celestial_gardens', name: 'Celestial Gardens', adoptionLevel: 0, resistanceLevel: 0.10, economicDevelopment: 0.85, culturalOpenness: 0.75, internetPenetration: 0.92, educationLevel: 0.87, mediaFreedom: 0.90, rivalPresences: [] },
 ];
 
 
-export const INITIAL_COUNTRIES: Country[] = [
+export const INITIAL_COUNTRIES: Country[] = [ // Thematic: Solar Systems
   {
-    id: 'celestial_federation', name: 'Celestial Federation of Lumina',
+    id: 'solara_prime_system', name: 'Solara Prime System',
     internetPenetration: 0.9, educationLevel: 0.85, economicDevelopment: 0.9,
     culturalOpenness: 0.7, mediaFreedom: 0.8,
     adoptionLevel: 0, resistanceLevel: 0.1, rivalPresences: [],
-    subRegions: celestialFederationSubRegions,
+    subRegions: solaraPrimeSystemPlanets, // Planets
   },
   {
-    id: 'twilight_hegemony', name: 'Twilight Hegemony of Nocturne',
+    id: 'kryll_nexus', name: 'Kryll Nexus',
     internetPenetration: 0.6, educationLevel: 0.7, economicDevelopment: 0.75,
     culturalOpenness: 0.4, mediaFreedom: 0.2,
     adoptionLevel: 0, resistanceLevel: 0.3, rivalPresences: [],
-    subRegions: twilightHegemonySubRegions,
+    subRegions: kryllNexusPlanets,
   },
   {
-    id: 'veridian_communes', name: 'Veridian Communes of Terra',
+    id: 'orionis_cluster', name: 'Orionis Cluster',
     internetPenetration: 0.4, educationLevel: 0.6, economicDevelopment: 0.6,
     culturalOpenness: 0.6, mediaFreedom: 0.5,
     adoptionLevel: 0, resistanceLevel: 0.2, rivalPresences: [],
-    subRegions: veridianCommunesSubRegions,
+    subRegions: orionisClusterPlanets,
   },
   {
-    id: 'solaris_concord', name: 'Solaris Concord of Helios',
+    id: 'cygnus_arm_confederation', name: 'Cygnus Arm Confederation',
     internetPenetration: 0.7, educationLevel: 0.7, economicDevelopment: 0.65,
     culturalOpenness: 0.8, mediaFreedom: 0.6,
     adoptionLevel: 0, resistanceLevel: 0.15, rivalPresences: [],
-    subRegions: solarisConcordSubRegions,
+    subRegions: cygnusArmPlanets,
   },
   {
-    id: 'aethelgard_imperium', name: 'Aethelgard Imperium',
+    id: 'hades_rim_dominion', name: 'Hades Rim Dominion',
     internetPenetration: 0.5, educationLevel: 0.5, economicDevelopment: 0.4,
     culturalOpenness: 0.5, mediaFreedom: 0.4,
     adoptionLevel: 0, resistanceLevel: 0.25, rivalPresences: [],
-    subRegions: aethelgardImperiumSubRegions,
+    subRegions: hadesRimPlanets,
   },
   {
-    id: 'adamantine_league', name: 'Adamantine League of Bastion',
+    id: 'elysian_fields_alliance', name: 'Elysian Fields Alliance',
     internetPenetration: 0.92, educationLevel: 0.88, economicDevelopment: 0.85,
     culturalOpenness: 0.75, mediaFreedom: 0.9,
     adoptionLevel: 0, resistanceLevel: 0.1, rivalPresences: [],
-    subRegions: adamantineLeagueSubRegions,
+    subRegions: elysianFieldsPlanets,
   },
 ];
 
 export const STARTING_INFLUENCE_POINTS = 50;
 
-export const countryPositions: Record<string, { top: string; left: string }> = {
-  celestial_federation: { top: '30%', left: '20%' },
-  twilight_hegemony: { top: '35%', left: '75%' },
-  veridian_communes: { top: '55%', left: '60%' },
-  solaris_concord: { top: '70%', left: '30%' },
-  aethelgard_imperium: { top: '50%', left: '40%' },
-  adamantine_league: { top: '25%', left: '50%' },
+// Thematic: systemPositions for Solar Systems
+export const systemPositions: Record<string, { top: string; left: string }> = {
+  solara_prime_system: { top: '30%', left: '20%' },
+  kryll_nexus: { top: '35%', left: '75%' },
+  orionis_cluster: { top: '55%', left: '60%' },
+  cygnus_arm_confederation: { top: '70%', left: '30%' },
+  hades_rim_dominion: { top: '50%', left: '40%' },
+  elysian_fields_alliance: { top: '25%', left: '50%' },
 };
 
-export const subRegionPositions: Record<string, { offsets: {top: string; left: string}[] }> = {
-  celestial_federation: { offsets: [ { top: '-12%', left: '-15%' }, { top: '12%', left: '-13%' }, { top: '-10%', left: '15%' }, { top: '10%', left: '17%' } ] },
-  twilight_hegemony: { offsets: [ { top: '-11%', left: '-12%' }, { top: '11%', left: '-14%' }, { top: '-2%', left: '13%' }, { top: '12%', left: '11%' } ] },
-  veridian_communes: { offsets: [ { top: '-11%', left: '-3%' }, { top: '10%', left: '-12%' }, { top: '10%', left: '12%' }, { top: '14%', left: '2%' } ] },
-  solaris_concord: { offsets: [ { top: '-11%', left: '-10%' }, { top: '10%', left: '-12%' }, { top: '-1%', left: '14%' }, { top: '12%', left: '11%' } ] },
-  aethelgard_imperium: { offsets: [ { top: '-10%', left: '-11%' }, { top: '10%', left: '-3%' }, { top: '-9%', left: '13%' }, { top: '11%', left: '12%' } ] },
-  adamantine_league: { offsets: [ { top: '-11%', left: '-10%' }, { top: '11%', left: '-2%' }, { top: '-1%', left: '13%' }, { top: '-10%', left: '14%'} ] },
+// Thematic: planetPositions for Planets within Solar Systems
+export const planetPositions: Record<string, { offsets: {top: string; left: string}[] }> = {
+  solara_prime_system: { offsets: [ { top: '-12%', left: '-15%' }, { top: '12%', left: '-13%' }, { top: '-10%', left: '15%' }, { top: '10%', left: '17%' } ] },
+  kryll_nexus: { offsets: [ { top: '-11%', left: '-12%' }, { top: '11%', left: '-14%' }, { top: '-2%', left: '13%' }, { top: '12%', left: '11%' } ] },
+  orionis_cluster: { offsets: [ { top: '-11%', left: '-3%' }, { top: '10%', left: '-12%' }, { top: '10%', left: '12%' }, { top: '14%', left: '2%' } ] },
+  cygnus_arm_confederation: { offsets: [ { top: '-11%', left: '-10%' }, { top: '10%', left: '-12%' }, { top: '-1%', left: '14%' }, { top: '12%', left: '11%' } ] },
+  hades_rim_dominion: { offsets: [ { top: '-10%', left: '-11%' }, { top: '10%', left: '-3%' }, { top: '-9%', left: '13%' }, { top: '11%', left: '12%' } ] },
+  elysian_fields_alliance: { offsets: [ { top: '-11%', left: '-10%' }, { top: '11%', left: '-2%' }, { top: '-1%', left: '13%' }, { top: '-10%', left: '14%'} ] },
 };
 
-export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
+export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [ // Thematic: Galactic Events
   {
-    id: 'global_internet_renaissance',
-    name: 'Aetheric Web Expansion',
-    description: 'A wave of new infrastructure and accessibility sweeps the globe, making online communication easier and fostering openness.',
+    id: 'galactic_hypernet_upgrade',
+    name: 'HyperNet Bandwidth Surge',
+    description: 'A galactic infrastructure upgrade dramatically increases HyperNet speed and accessibility, fostering openness.',
     turnStart: 3,
     duration: 5,
     effects: [
-      { targetType: 'global', property: 'culturalOpenness', value: 0.05, isMultiplier: false },
+      { targetType: 'global', property: 'culturalOpenness', value: 0.05, isMultiplier: false }, // Xeno-Acceptance
       { targetType: 'global', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true }
     ],
     hasBeenTriggered: false,
   },
   {
-    id: 'economic_crisis_twilight_hegemony',
-    name: 'Twilight Hegemony Economic Downturn',
-    description: 'The Twilight Hegemony of Nocturne faces an unexpected economic downturn, leading to social unrest and a re-evaluation of priorities. How do you leverage this?',
+    id: 'economic_crisis_kryll_nexus',
+    name: 'Kryll Nexus Resource Crash',
+    description: 'The Kryll Nexus faces an unexpected resource shortage, leading to system-wide unrest. How do you respond?',
     turnStart: 6,
     duration: 4,
-    effects: [], // Effects are determined by player choice
+    effects: [],
     options: [
       {
-        id: 'crisis_invest_hegemony',
-        text: 'Invest in Cultural Outreach (Cost: 20 IP)',
-        description: 'Launch targeted campaigns in Nocturne, hoping to offer solace and new perspectives. Reduces resistance slightly, small adoption boost, but costs IP.',
+        id: 'crisis_invest_kryll',
+        text: 'Deploy Cultural Aid (Cost: 20 IP)',
+        description: 'Launch targeted cultural outreach programs in the Kryll Nexus, offering new perspectives. Reduces resistance, small adoption boost, costs IP.',
         effects: [
-          { targetType: 'country', countryId: 'twilight_hegemony', property: 'resistanceLevel', value: -0.03, isMultiplier: false },
-          { targetType: 'country', countryId: 'twilight_hegemony', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true },
+          { targetType: 'country', countryId: 'kryll_nexus', property: 'resistanceLevel', value: -0.03, isMultiplier: false },
+          { targetType: 'country', countryId: 'kryll_nexus', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true },
           { targetType: 'global', property: 'ipBonus', value: -20, isMultiplier: false },
         ],
       },
       {
-        id: 'crisis_focus_elsewhere_hegemony',
-        text: 'Focus Efforts Elsewhere',
-        description: 'Avoid entanglement in Nocturne\'s crisis and focus your resources on more stable regions. Slight global adoption boost due to focused efforts.',
+        id: 'crisis_focus_elsewhere_kryll',
+        text: 'Focus Efforts on Stable Systems',
+        description: 'Avoid entanglement in the Kryll Nexus crisis and focus resources on more stable systems. Slight galactic adoption boost.',
         effects: [
           { targetType: 'global', property: 'adoptionRateModifier', value: 1.03, isMultiplier: true },
         ],
@@ -281,9 +284,9 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     hasBeenTriggered: false,
   },
   {
-    id: 'international_harmony_prize',
-    name: 'Global Harmony Laureate',
-    description: 'Your cultural movement is recognized with a prestigious Global Harmony Prize, boosting its legitimacy and granting IP.',
+    id: 'galactic_peace_prize',
+    name: 'Galactic Harmony Laureate',
+    description: 'Your cultural movement is recognized with a prestigious Galactic Harmony Prize, boosting its legitimacy and granting IP.',
     turnStart: 10,
     duration: 1,
     effects: [
@@ -293,25 +296,25 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
     hasBeenTriggered: false,
   },
    {
-    id: 'global_tech_symposium',
-    name: 'Global Tech Symposium',
-    description: 'A major technology symposium showcases new digital tools, temporarily boosting digital adoption globally.',
+    id: 'interstellar_tech_expo',
+    name: 'Interstellar Tech Expo',
+    description: 'A major tech expo showcases new FTL communication tools, temporarily boosting digital adoption across the galaxy.',
     turnStart: 4,
     duration: 2,
     effects: [
-      { targetType: 'global', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true },
+      { targetType: 'global', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true }, // Affects HyperNet Access indirectly
     ],
     hasBeenTriggered: false,
   },
   {
-    id: 'cultural_nexus_adamantine',
-    name: 'Adamantine Cultural Nexus',
-    description: 'The Adamantine League of Bastion hosts a global cultural festival, increasing its openness to new ideas and expressions.',
+    id: 'elysian_cultural_festival',
+    name: 'Elysian Grand Festival',
+    description: 'The Elysian Fields Alliance hosts a galaxy-wide cultural festival, increasing its openness to new ideas.',
     turnStart: 9,
     duration: 3,
     effects: [
-      { targetType: 'country', countryId: 'adamantine_league', property: 'culturalOpenness', value: 0.15, isMultiplier: false },
-      { targetType: 'country', countryId: 'adamantine_league', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true },
+      { targetType: 'country', countryId: 'elysian_fields_alliance', property: 'culturalOpenness', value: 0.15, isMultiplier: false }, // Xeno-Acceptance
+      { targetType: 'country', countryId: 'elysian_fields_alliance', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true },
     ],
     hasBeenTriggered: false,
   }
@@ -320,52 +323,54 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
 export const RIVAL_MOVEMENTS: RivalMovement[] = [
   {
     id: 'order_of_the_cog',
-    name: 'Order of the Cog',
+    name: 'Techno-Organic Purity (Cog)',
     icon: Bot,
-    color: '#718096', // Slate Gray
-    startingCountryId: 'twilight_hegemony',
+    color: '#718096',
+    startingCountryId: 'kryll_nexus', // Starting Solar System
     aggressiveness: 0.6,
     personality: 'CautiousConsolidator',
     playerStance: 'Hostile',
   },
   {
     id: 'siren_song_syndicate',
-    name: 'Siren Song Syndicate',
+    name: 'Void Siren Syndicate',
     icon: Pyramid,
-    color: '#b794f4', // Purple
-    startingCountryId: 'solaris_concord',
+    color: '#b794f4',
+    startingCountryId: 'cygnus_arm_confederation',
     aggressiveness: 0.75,
     personality: 'AggressiveExpansionist',
     playerStance: 'Hostile',
   },
   {
     id: 'silent_hand_cabal',
-    name: 'The Silent Hand',
+    name: 'The Shadow Hand Collective',
     icon: Feather,
-    color: '#527a7a', // Muted Teal/Grey
-    startingCountryId: 'aethelgard_imperium', 
+    color: '#527a7a',
+    startingCountryId: 'hades_rim_dominion',
     aggressiveness: 0.55,
     personality: 'OpportunisticInfiltrator',
     playerStance: 'Neutral',
   },
   {
     id: 'aegis_protectorate',
-    name: 'Aegis Mandate',
+    name: 'Solar Aegis Mandate',
     icon: ShieldCheck,
-    color: '#4a69bd', // Strong Blue/Silver
-    startingCountryId: 'adamantine_league',
+    color: '#4a69bd',
+    startingCountryId: 'elysian_fields_alliance',
     aggressiveness: 0.4,
     personality: 'IsolationistDefender',
     playerStance: 'Neutral',
   },
   {
     id: 'chrono_conservators',
-    name: 'Chrono-Conservators',
+    name: 'Stellar Conservators Guild',
     icon: TowerControl,
-    color: '#8B4513', // SaddleBrown/Bronze
-    startingCountryId: 'veridian_communes',
+    color: '#8B4513',
+    startingCountryId: 'orionis_cluster',
     aggressiveness: 0.8,
     personality: 'ZealousPurifier',
     playerStance: 'Hostile',
   },
 ];
+
+    

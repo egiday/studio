@@ -1,49 +1,49 @@
 
 'use client';
 
-import type { CulturalMovement, Country } from '@/types';
+import type { CulturalMovement, Country } from '@/types'; // Country is System
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Coins, Play, Flag, BarChart3, AlertTriangle } from 'lucide-react';
+import { Coins, Play, Flag, BarChart3, AlertTriangle, SunMedium } from 'lucide-react'; // Added SunMedium
 import React from 'react';
 
 interface ControlPanelProps {
   movements: CulturalMovement[];
-  countries: Country[];
+  countries: Country[]; // Thematic: Solar Systems
   selectedMovementId?: string;
-  selectedCountryId?: string;
+  selectedCountryId?: string; // Thematic: selectedSystemId
   influencePoints: number;
   onMovementChange: (movementId: string) => void;
-  onCountryChange: (countryId: string) => void;
+  onCountryChange: (countryId: string) => void; // Thematic: onSystemChange
   onStartGame: () => void;
   currentTurn: number;
   onNextTurn: () => void;
   gameStarted: boolean;
   isEventPending?: boolean;
-  gameOver?: boolean; // New prop
+  gameOver?: boolean;
 }
 
 export function ControlPanel({
   movements,
-  countries,
+  countries: systems, // Renamed for clarity
   selectedMovementId,
-  selectedCountryId,
+  selectedCountryId: selectedSystemId, // Renamed for clarity
   influencePoints,
   onMovementChange,
-  onCountryChange,
+  onCountryChange: onSystemChange, // Renamed for clarity
   onStartGame,
   currentTurn,
   onNextTurn,
   gameStarted,
   isEventPending,
-  gameOver, // Destructure new prop
+  gameOver,
 }: ControlPanelProps) {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle className="flex items-center"><BarChart3 className="mr-2 h-6 w-6 text-primary" />Control Panel</CardTitle>
-        <CardDescription>Setup and manage your cultural revolution.</CardDescription>
+        <CardTitle className="flex items-center"><BarChart3 className="mr-2 h-6 w-6 text-primary" />Mission Control</CardTitle>
+        <CardDescription>Setup and manage your cultural expansion.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {!gameStarted ? (
@@ -67,15 +67,18 @@ export function ControlPanel({
               </Select>
             </div>
             <div>
-              <label htmlFor="starting-country" className="block text-sm font-medium mb-1">Starting Country</label>
-              <Select onValueChange={onCountryChange} value={selectedCountryId}>
-                <SelectTrigger id="starting-country" className="w-full">
-                  <SelectValue placeholder="Select a country" />
+              <label htmlFor="starting-system" className="block text-sm font-medium mb-1">Home System</label>
+              <Select onValueChange={onSystemChange} value={selectedSystemId}>
+                <SelectTrigger id="starting-system" className="w-full">
+                  <SelectValue placeholder="Select home system" />
                 </SelectTrigger>
                 <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country.id} value={country.id}>
-                      {country.name}
+                  {systems.map((system) => ( // Iterate over systems
+                    <SelectItem key={system.id} value={system.id}>
+                       <div className="flex items-center">
+                        <SunMedium className="mr-2 h-4 w-4 text-muted-foreground" />
+                        {system.name}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -84,9 +87,9 @@ export function ControlPanel({
             <Button
               onClick={onStartGame}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-              disabled={!selectedMovementId || !selectedCountryId || gameOver}
+              disabled={!selectedMovementId || !selectedSystemId || gameOver}
             >
-              <Play className="mr-2 h-5 w-5" /> Start Revolution
+              <Play className="mr-2 h-5 w-5" /> Launch Movement
             </Button>
           </>
         ) : (
@@ -94,13 +97,13 @@ export function ControlPanel({
             <Button
               onClick={onNextTurn}
               className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-              disabled={isEventPending || gameOver} // Disable if an event is pending or game is over
+              disabled={isEventPending || gameOver}
             >
-              Next Day (Turn: {currentTurn})
+              Next Cycle (Day: {currentTurn})
             </Button>
             {isEventPending && !gameOver && (
               <p className="text-xs text-destructive text-center flex items-center justify-center">
-                <AlertTriangle className="h-4 w-4 mr-1.5" /> Resolve global event before proceeding.
+                <AlertTriangle className="h-4 w-4 mr-1.5" /> Resolve galactic event before proceeding.
               </p>
             )}
              {gameOver && (
@@ -124,9 +127,9 @@ export function ControlPanel({
             Current Movement: {movements.find(m => m.id === selectedMovementId)?.name}
           </div>
         )}
-        {selectedCountryId && gameStarted && (
+        {selectedSystemId && gameStarted && (
            <div className="text-sm text-muted-foreground">
-            Origin: {countries.find(c => c.id === selectedCountryId)?.name}
+            Home System: {systems.find(s => s.id === selectedSystemId)?.name}
           </div>
         )}
       </CardContent>
