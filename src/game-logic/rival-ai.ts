@@ -45,7 +45,7 @@ function applyRivalSpreadToRegion(
 
   switch (rival.personality) {
     case 'AggressiveExpansionist':
-      baseGain = (0.025 + Math.random() * 0.04) * rival.aggressiveness;
+      baseGain = (0.025 + Math.random() * 0.04) * rival.aggressiveness; // Was 0.022 + Math.random() * 0.038
       opennessFactor = (1 - regionCulturalOpenness * 0.35); // Less penalty from openness
       playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.5));
       break;
@@ -59,8 +59,8 @@ function applyRivalSpreadToRegion(
     case 'OpportunisticInfiltrator': {
       const totalOtherInfluence = regionPlayerAdoption + modRegion.rivalPresences.filter(rp => rp.rivalId !== rival.id).reduce((s, rp) => s + rp.influenceLevel, 0);
       if (totalOtherInfluence > 0.2 && totalOtherInfluence < 0.8) { 
-        baseGain = (0.018 + Math.random() * 0.028) * rival.aggressiveness;
-        opennessFactor = (1 - regionCulturalOpenness * 0.25); // Less penalty from openness
+        baseGain = (0.020 + Math.random() * 0.030) * rival.aggressiveness; // Was 0.018 + Math.random() * 0.028
+        opennessFactor = (1 - regionCulturalOpenness * 0.25); 
         playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.2));
       }
       break;
@@ -68,14 +68,14 @@ function applyRivalSpreadToRegion(
     case 'IsolationistDefender': {
       const isHomeCountry = parentCountry.id === rival.startingCountryId;
       if (isHomeCountry) {
-        baseGain = (0.035 + Math.random() * 0.035) * rival.aggressiveness; 
-        opennessFactor = (1 - regionCulturalOpenness * 0.1); // Minimal penalty from openness in home turf
+        baseGain = (0.035 + Math.random() * 0.035) * rival.aggressiveness; // Was 0.03 + Math.random() * 0.03
+        opennessFactor = (1 - regionCulturalOpenness * 0.1); 
         playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.1));
       }
       break;
     }
     case 'ZealousPurifier':
-      baseGain = (0.03 + Math.random() * 0.042) * rival.aggressiveness; 
+      baseGain = (0.025 + Math.random() * 0.035) * rival.aggressiveness; // NERFED: Was 0.03 + Math.random() * 0.042
       opennessFactor = (1 - regionCulturalOpenness * 0.3);
       playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.2));
       break;
@@ -274,8 +274,8 @@ export function processRivalTurns({
         break;
       case 'ZealousPurifier':
         attemptNewCountrySpread = true;
-        newCountrySpreadChance = 0.01 + spreadAggressivenessFactor * 0.015; 
-        newCountryInitialInfluence = 0.008 + Math.random() * 0.008; 
+        newCountrySpreadChance = 0.008 + spreadAggressivenessFactor * 0.012; // NERFED: Was 0.01 + spreadAggressivenessFactor * 0.015
+        newCountryInitialInfluence = 0.006 + Math.random() * 0.006; // NERFED: Was 0.008 + Math.random() * 0.008
         break;
     }
 
@@ -376,3 +376,4 @@ export function processRivalTurns({
     updatedRivalMovements: finalUpdatedRivals,
   };
 }
+
