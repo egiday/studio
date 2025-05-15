@@ -46,8 +46,8 @@ export function useGameLogic({
     initialRivalMovementsData.map(r => ({
       ...r,
       playerStance: r.playerStance || 'Hostile',
-      influencePoints: r.influencePoints || 20, // Ensure IP is initialized
-      evolvedItemIds: r.evolvedItemIds || new Set(), // Ensure evolvedItemIds is a Set
+      influencePoints: r.influencePoints || 20,
+      evolvedItemIds: new Set(r.evolvedItemIds || []),
     }))
   );
 
@@ -57,10 +57,23 @@ export function useGameLogic({
   const recentEventsRef = useRef("The cultural movement is just beginning.");
   const [recentEventsDisplay, setRecentEventsDisplay] = useState(recentEventsRef.current);
 
+  const [isAutoplayActive, setIsAutoplayActive] = useState(false);
+
   const addRecentEventEntry = useCallback((entry: string) => {
     recentEventsRef.current = `${recentEventsRef.current} ${entry}`;
   }, []);
 
+  const { toast } = useToast();
+  
+  const showToast = useCallback((title: string, description: string, variant?: "default" | "destructive", duration?: number) => {
+    // Ensure toast is called after current render cycle
+    setTimeout(() => {
+        toast({ title, description, variant, duration });
+    }, 0);
+  }, [toast]);
+
+  const currentMovement = allCulturalMovements.find(m => m.id === initialSelectedMovementId);
+  const currentMovementName = currentMovement?.name || "Unnamed Movement";
 
   const [activeGlobalEvents, setActiveGlobalEvents] = useState<GlobalEvent[]>([]);
   const [allPotentialEvents, setAllPotentialEvents] = useState<GlobalEvent[]>(initialPotentialEventsData.map(e => ({ ...e, hasBeenTriggered: false })));
@@ -73,17 +86,6 @@ export function useGameLogic({
   const [gameOverDescription, setGameOverDescription] = useState("");
   const [maxPlayerAdoptionEver, setMaxPlayerAdoptionEver] = useState(0);
   const [ipZeroStreak, setIpZeroStreak] = useState(0);
-
-  const { toast } = useToast();
-  
-  const showToast = useCallback((title: string, description: string, variant?: "default" | "destructive", duration?: number) => {
-    setTimeout(() => {
-        toast({ title, description, variant, duration });
-    }, 0);
-  }, [toast]);
-
-  const currentMovement = allCulturalMovements.find(m => m.id === initialSelectedMovementId);
-  const currentMovementName = currentMovement?.name || "Unnamed Movement";
 
 
   const startGame = useCallback(() => {
@@ -101,6 +103,7 @@ export function useGameLogic({
       setAllPotentialEvents(initialPotentialEventsData.map(e => ({ ...e, hasBeenTriggered: false })));
       setPendingInteractiveEvent(null);
       setIsEventModalOpen(false);
+      setIsAutoplayActive(false); // Ensure autoplay is off at game start
 
       let initialEventsSummary = "";
 
@@ -141,7 +144,7 @@ export function useGameLogic({
         ...r, 
         playerStance: r.playerStance || 'Hostile',
         influencePoints: r.influencePoints || 20,
-        evolvedItemIds: new Set(r.evolvedItemIds || []), // Ensure it's a Set
+        evolvedItemIds: new Set(r.evolvedItemIds || []),
       }));
 
       currentRivalMovementsConfig.forEach(rival => {
@@ -175,9 +178,9 @@ export function useGameLogic({
       setRivalMovements(currentRivalMovementsConfig);
 
       const movement = allCulturalMovements.find(m => m.id === initialSelectedMovementId)?.name;
-      const countryName = initialCountriesData.find(c => c.id === initialSelectedStartCountryId)?.name;
-      showToast("Revolution Started!", `The ${movement} movement has begun in ${countryName}.`);
-      recentEventsRef.current = initialEventsSummary || `The ${movement} movement has begun in ${countryName}. Initial adoption is low.`;
+      const systemName = initialCountriesData.find(c => c.id === initialSelectedStartCountryId)?.name;
+      showToast("Revolution Launched!", `The ${movement} movement has begun its journey from the ${systemName}.`);
+      recentEventsRef.current = initialEventsSummary || `The ${movement} movement has begun in ${systemName}. Initial adoption is low.`;
       setRecentEventsDisplay(recentEventsRef.current);
     }
   }, [initialSelectedMovementId, initialSelectedStartCountryId, initialCountriesData, initialRivalMovementsData, initialPotentialEventsData, startingInfluencePoints, allCulturalMovements, currentMovementName, showToast, addRecentEventEntry]);
@@ -189,7 +192,7 @@ export function useGameLogic({
       if (canEvolve) {
         setInfluencePoints(prev => prev - item.cost);
         setEvolvedItemIds(prev => new Set(prev).add(itemId));
-        showToast("Evolution Unlocked!", `${item.name} has been evolved.`);
+        showToast("Evolution Unlocked!", `${item.name} has been acquired.`);
         addRecentEventEntry(`${item.name} was adopted, strengthening the ${currentMovementName}.`);
       } else {
         showToast("Evolution Failed", `Prerequisites for ${item.name} not met.`, "destructive");
@@ -201,7 +204,7 @@ export function useGameLogic({
 
   const collectInfluencePoints = useCallback((points: number) => {
     setInfluencePoints(prev => prev + points);
-    showToast("Influence Gained!", `Collected ${points} Influence Points.`);
+    showToast("Cosmic Energy Harvested!", `Collected ${points} Influence Points.`);
   }, [showToast]);
 
 
@@ -234,7 +237,7 @@ export function useGameLogic({
 
     const eventMessage = `EVENT: ${eventWithNoChoice.name} - You chose: "${chosenOption.text}". ${chosenOption.description}`;
     addRecentEventEntry(eventMessage);
-    setTimeout(()=> showToast(`Event Choice: ${eventWithNoChoice.name}`, `You selected: ${chosenOption.text}. ${ipFromChoice !== 0 ? `IP change: ${ipFromChoice}.` : ''}`),0);
+    showToast(`Galactic Event Choice: ${eventWithNoChoice.name}`, `You selected: ${chosenOption.text}. ${ipFromChoice !== 0 ? `IP change: ${ipFromChoice}.` : ''}`);
 
     setPendingInteractiveEvent(null);
     setIsEventModalOpen(false);
@@ -242,7 +245,7 @@ export function useGameLogic({
 
   const processNextTurn = useCallback(() => {
     if (pendingInteractiveEvent) {
-      showToast("Action Required", "Please respond to the active global event.", "destructive");
+      showToast("Action Required", "Please respond to the active galactic event.", "destructive");
       setIsEventModalOpen(true);
       return;
     }
@@ -251,7 +254,7 @@ export function useGameLogic({
     const nextTurn = currentTurn + 1;
     setCurrentTurn(nextTurn);
 
-    recentEventsRef.current = `Day ${nextTurn}: The ${currentMovementName} continues its journey.`;
+    recentEventsRef.current = `Day ${nextTurn}: The ${currentMovementName} continues its cosmic journey.`;
     let ipFromNonInteractiveEventsThisTurn = 0;
     let newPendingInteractiveEvent: GlobalEvent | null = null;
 
@@ -266,13 +269,13 @@ export function useGameLogic({
           if (eventToProcess.options && eventToProcess.options.length > 0) {
             newPendingInteractiveEvent = eventToProcess; 
             addRecentEventEntry(` ATTENTION: ${eventToProcess.name} requires your decision! ${eventToProcess.description}`);
-            setTimeout(() => showToast("Interactive Event!", `${eventToProcess.name} needs your input.`),0);
+            showToast("Interactive Galactic Event!", `${eventToProcess.name} needs your input.`);
           } else {
             if (eventToProcess.duration > 0) { 
                newlyTriggeredNonInteractiveEventsForThisTurn.push(eventToProcess);
             }
             addRecentEventEntry(` NEWS: ${eventToProcess.name} has begun! ${eventToProcess.description}`);
-            setTimeout(() => showToast("Global Event!", `${eventToProcess.name} has started.`),0);
+            showToast("Galactic Event!", `${eventToProcess.name} has started.`);
             eventToProcess.effects.forEach(effect => {
               if (effect.property === 'ipBonus' && effect.targetType === 'global') {
                 ipFromNonInteractiveEventsThisTurn += effect.value;
@@ -295,13 +298,11 @@ export function useGameLogic({
     currentActiveGlobalEventsList = [...currentActiveGlobalEventsList, ...newlyTriggeredNonInteractiveEventsForThisTurn];
     const nonExpiredActiveEventsForNextState: GlobalEvent[] = [];
     currentActiveGlobalEventsList.forEach(event => {
-        if (event.duration > 0 && (event.turnStart + event.duration) > nextTurn) { // Corrected condition
+        if (event.duration > 0 && (event.turnStart + event.duration) > nextTurn) {
           nonExpiredActiveEventsForNextState.push(event);
-        } else if (event.duration > 0 && (event.turnStart + event.duration) <= nextTurn) { // Event concluded this turn
+        } else if (event.duration > 0 && (event.turnStart + event.duration) <= nextTurn) {
           addRecentEventEntry(` NEWS: ${event.name} has concluded.`);
-          setTimeout(() => showToast("Global Event Over", `${event.name} has ended.`),0);
-        } else if (event.duration <= 0 && event.hasBeenTriggered) { // One-time event already processed
-          // Do nothing, it was already handled
+          showToast("Galactic Event Over", `${event.name} has ended.`);
         }
     });
     setActiveGlobalEvents(nonExpiredActiveEventsForNextState);
@@ -454,7 +455,6 @@ export function useGameLogic({
       } else {
         currentCountryState = applySpreadAndResistanceToRegion(currentCountryState, false, undefined) as Country;
       }
-      // Recalculate country-level adoption/resistance if subRegions exist
       if (currentCountryState.subRegions && currentCountryState.subRegions.length > 0) {
         currentCountryState.adoptionLevel = currentCountryState.subRegions.reduce((sum, sr) => sum + sr.adoptionLevel, 0) / (currentCountryState.subRegions.length || 1);
         currentCountryState.resistanceLevel = currentCountryState.subRegions.reduce((sum, sr) => sum + sr.resistanceLevel, 0) / (currentCountryState.subRegions.length || 1);
@@ -479,10 +479,9 @@ export function useGameLogic({
     // 4. Rival Turns
     const rivalProcessingResult = processRivalTurns({
       rivalMovementsState: rivalMovements,
-      countriesState: countriesAfterPlayerSpread, // Pass player-updated countries
+      countriesState: countriesAfterPlayerSpread,
       currentMovementName: currentMovementName,
-      initialRivalMovementsData: initialRivalMovementsData, 
-      allEvolutionItems: allEvolutionItems, // Pass all evolution items
+      allEvolutionItems: allEvolutionItems,
       addRecentEventEntry: addRecentEventEntry,
     });
     let countriesAfterRivalTurns = rivalProcessingResult.updatedCountries;
@@ -513,18 +512,17 @@ export function useGameLogic({
         };
         if (clonedCountry.subRegions && clonedCountry.subRegions.length > 0) {
             clonedCountry.subRegions = clonedCountry.subRegions.map(sr => normalizeRegionInfluence(sr) as SubRegion);
-            // Recalculate country-level stats from sub-regions AFTER normalization
             clonedCountry.adoptionLevel = clonedCountry.subRegions.reduce((sum, sr) => sum + sr.adoptionLevel, 0) / (clonedCountry.subRegions.length || 1);
             clonedCountry.resistanceLevel = clonedCountry.subRegions.reduce((sum, sr) => sum + sr.resistanceLevel, 0) / (clonedCountry.subRegions.length || 1);
             
             const countryLevelRivalPresenceMap = new Map<string, { totalInfluence: number, count: number, maxInfluence: number }>();
             clonedCountry.subRegions.forEach(sr => {
                 sr.rivalPresences.forEach(rp => {
-                    const current = countryLevelRivalPresenceMap.get(rp.rivalId) || { totalInfluence: 0, count: 0, maxInfluence: 0 };
-                    current.totalInfluence += rp.influenceLevel;
-                    current.count++;
-                    current.maxInfluence = Math.max(current.maxInfluence, rp.influenceLevel); 
-                    countryLevelRivalPresenceMap.set(rp.rivalId, current);
+                    const currentData = countryLevelRivalPresenceMap.get(rp.rivalId) || { totalInfluence: 0, count: 0, maxInfluence: 0 };
+                    currentData.totalInfluence += rp.influenceLevel;
+                    currentData.count++;
+                    currentData.maxInfluence = Math.max(currentData.maxInfluence, rp.influenceLevel); 
+                    countryLevelRivalPresenceMap.set(rp.rivalId, currentData);
                 });
             });
             clonedCountry.rivalPresences = Array.from(countryLevelRivalPresenceMap.entries()).map(([rivalId, data]) => ({
@@ -546,7 +544,7 @@ export function useGameLogic({
     const playerGlobalAdoption = calculateGlobalAdoptionRate(finalCountries);
     setMaxPlayerAdoptionEver(prevMax => Math.max(prevMax, playerGlobalAdoption));
     
-    const currentRivalGlobalInfluences = updatedRivalsFromAITurn.map(rival => ({ // Use updated rivals for influence check
+    const currentRivalGlobalInfluences = updatedRivalsFromAITurn.map(rival => ({
       id: rival.id,
       name: rival.name,
       influence: calculateRivalGlobalInfluence(rival.id, finalCountries),
@@ -555,7 +553,7 @@ export function useGameLogic({
     const allRivalsSuppressed = currentRivalGlobalInfluences.every(r => r.influence < GameConstants.WIN_RIVAL_MAX_GLOBAL_INFLUENCE);
     if (playerGlobalAdoption >= GameConstants.WIN_PLAYER_GLOBAL_ADOPTION && allRivalsSuppressed) {
       isGameOver = true;
-      newGameOverTitle = "Global Harmony Achieved!";
+      newGameOverTitle = "Galactic Harmony Achieved!";
       newGameOverDescription = `The ${currentMovementName} has become the guiding light for the galaxy, achieving ${(playerGlobalAdoption * 100).toFixed(0)}% global adoption. Rival ideologies have diminished, paving the way for a new era of unity.`;
     }
     if (!isGameOver) {
@@ -571,7 +569,7 @@ export function useGameLogic({
       if (currentIPVal <= 0 && ipZeroStreak + (currentIPVal <=0 ? 1:0) >= GameConstants.LOSE_IP_ZERO_STREAK_TURNS) {
          isGameOver = true;
          newGameOverTitle = "Economic Collapse";
-         newGameOverDescription = `The ${currentMovementName} has run out of resources. With no Influence Points for ${GameConstants.LOSE_IP_ZERO_STREAK_TURNS} consecutive days, your movement has dissolved.`;
+         newGameOverDescription = `The ${currentMovementName} has run out of resources. With no Influence Points for ${GameConstants.LOSE_IP_ZERO_STREAK_TURNS} consecutive cycles, your movement has dissolved.`;
       }
       if (playerGlobalAdoption < GameConstants.LOSE_PLAYER_COLLAPSE_ADOPTION && maxPlayerAdoptionEver >= GameConstants.LOSE_PLAYER_MIN_PEAK_ADOPTION && currentTurn > 1) {
         isGameOver = true;
@@ -587,8 +585,8 @@ export function useGameLogic({
       showToast(newGameOverTitle, "The game has concluded.", newGameOverTitle.includes("Achieved") || newGameOverTitle.includes("Harmony") ? "default" : "destructive", 10000);
     }
 
-    if (!newPendingInteractiveEvent && !isGameOver) { 
-      setTimeout(()=> showToast(`Day ${nextTurn}`, `The ${currentMovementName} progresses...`),0);
+    if (!newPendingInteractiveEvent && !isGameOver && !isAutoplayActive) { 
+      showToast(`Cycle ${nextTurn} Complete`, `The ${currentMovementName} progresses...`);
     }
     setRecentEventsDisplay(recentEventsRef.current);
 
@@ -597,13 +595,32 @@ export function useGameLogic({
     allPotentialEvents, pendingInteractiveEvent, 
     rivalMovements, influencePoints, gameOver, ipZeroStreak, maxPlayerAdoptionEver, currentMovementName, 
     allEvolutionItems, allCulturalMovements, initialRivalMovementsData, showToast, addRecentEventEntry, initialSelectedMovementId, 
-    selectEventOption, startGame, initialPotentialEventsData // Added initialPotentialEventsData
+    selectEventOption, startGame, initialPotentialEventsData, isAutoplayActive
   ]);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    if (isAutoplayActive && gameStarted && !gameOver && !pendingInteractiveEvent) {
+      intervalId = setInterval(() => {
+        processNextTurn();
+      }, 3000); // Adjust autoplay speed as needed (e.g., 3000ms = 3 seconds)
+    }
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isAutoplayActive, gameStarted, gameOver, pendingInteractiveEvent, processNextTurn]);
+
+
+  const toggleAutoplay = useCallback(() => {
+    setIsAutoplayActive(prev => !prev);
+  }, []);
 
   const performDiplomaticAction = useCallback((rivalId: string, newStance: DiplomaticStance) => {
     const rival = rivalMovements.find(r => r.id === rivalId);
     if (!rival) {
-        showToast("Diplomacy Error", "Rival not found.", "destructive");
+        showToast("Diplomacy Error", "Rival faction not found.", "destructive");
         return;
     }
     if (influencePoints < GameConstants.DIPLOMACY_STANCE_CHANGE_COST) {
@@ -620,7 +637,7 @@ export function useGameLogic({
 
     const stanceChangeMessage = `Your diplomatic stance with ${rival.name} has changed to ${newStance}.`;
     addRecentEventEntry(`DIPLOMACY: ${stanceChangeMessage}`);
-    showToast("Diplomacy Update", stanceChangeMessage);
+    showToast("Diplomatic Shift", stanceChangeMessage);
   }, [rivalMovements, influencePoints, showToast, addRecentEventEntry]);
 
 
@@ -643,11 +660,13 @@ export function useGameLogic({
     gameOver,
     gameOverTitle,
     gameOverDescription,
+    isAutoplayActive,
     startGame,
     evolveItem,
     collectInfluencePoints,
     selectEventOption,
     processNextTurn,
+    toggleAutoplay,
     performDiplomaticAction,
     getGlobalAdoptionRate: () => calculateGlobalAdoptionRate(countries),
   };

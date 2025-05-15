@@ -11,14 +11,14 @@ import { AnalyticsDashboard } from '@/components/game/AnalyticsDashboard';
 import { GlobalEventsDisplay } from '@/components/game/GlobalEventsDisplay';
 import { InteractiveEventModal } from '@/components/game/InteractiveEventModal';
 import { DiplomacyPanel } from '@/components/game/DiplomacyPanel';
-import { CULTURAL_MOVEMENTS, EVOLUTION_CATEGORIES, EVOLUTION_ITEMS, INITIAL_COUNTRIES, STARTING_INFLUENCE_POINTS, POTENTIAL_GLOBAL_EVENTS, RIVAL_MOVEMENTS } from '@/config/gameData';
-import { DIPLOMACY_STANCE_CHANGE_COST } from '@/config/gameConstants'; // Import constants
+import { CULTURAL_MOVEMENTS, EVOLUTION_ITEMS, INITIAL_COUNTRIES, POTENTIAL_GLOBAL_EVENTS, RIVAL_MOVEMENTS } from '@/config/gameData';
+import { DIPLOMACY_STANCE_CHANGE_COST, STARTING_INFLUENCE_POINTS } from '@/config/gameConstants';
 import type { Country, CulturalMovement } from '@/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Lightbulb, AlertCircle, Newspaper, Info as InfoIcon, Handshake, Trophy, Skull } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useGameLogic } from '@/hooks/useGameLogic'; // Import the new hook
+import { useGameLogic } from '@/hooks/useGameLogic';
 
 export default function GamePage() {
   const [selectedMovementId, setSelectedMovementId] = useState<string | undefined>(undefined);
@@ -27,8 +27,8 @@ export default function GamePage() {
   const {
     influencePoints,
     evolvedItemIds,
-    countries, // Game state countries
-    rivalMovements: gameLogicRivalMovements, // Renamed to avoid conflict
+    countries,
+    rivalMovements: gameLogicRivalMovements,
     gameStarted,
     currentTurn,
     recentEvents,
@@ -38,11 +38,13 @@ export default function GamePage() {
     gameOver,
     gameOverTitle,
     gameOverDescription,
+    isAutoplayActive, // New state from hook
     startGame,
     evolveItem,
     collectInfluencePoints,
     selectEventOption,
-    processNextTurn,
+    processNextTurn, // Still needed if we allow manual advance when autoplay is off, or for the timer to call
+    toggleAutoplay, // New function from hook
     performDiplomaticAction,
     getGlobalAdoptionRate,
   } = useGameLogic({
@@ -52,7 +54,7 @@ export default function GamePage() {
     startingInfluencePoints: STARTING_INFLUENCE_POINTS,
     allCulturalMovements: CULTURAL_MOVEMENTS,
     allEvolutionItems: EVOLUTION_ITEMS,
-    selectedMovementId: selectedMovementId, // Pass current selections to hook
+    selectedMovementId: selectedMovementId,
     selectedStartCountryId: selectedStartCountryId,
   });
 
@@ -64,7 +66,6 @@ export default function GamePage() {
     setSelectedStartCountryId(countryId);
   };
 
-  // This computed value relies on state managed locally in GamePage
   const currentMovementName = CULTURAL_MOVEMENTS.find(m => m.id === selectedMovementId)?.name || "Unnamed Movement";
 
 
@@ -74,25 +75,26 @@ export default function GamePage() {
       <main className="flex-grow flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
         <div className="md:w-2/3 lg:w-3/4 h-full min-h-[400px] md:min-h-0">
           <WorldMap
-            countries={countries} // Use countries from useGameLogic
-            rivalMovements={gameLogicRivalMovements} // Use rivalMovements from useGameLogic
-            onCountrySelect={handleCountryChange} // Still managed by GamePage for pre-game
+            countries={countries}
+            rivalMovements={gameLogicRivalMovements}
+            onCountrySelect={handleCountryChange}
             onCollectInfluence={collectInfluencePoints}
-            selectedCountryId={selectedStartCountryId} // Still managed by GamePage for pre-game
+            selectedCountryId={selectedStartCountryId}
           />
         </div>
         <div className="md:w-1/3 lg:w-1/4 flex flex-col space-y-4 overflow-hidden">
           <ControlPanel
             movements={CULTURAL_MOVEMENTS}
-            countries={INITIAL_COUNTRIES} // Use initial countries for selection list
+            countries={INITIAL_COUNTRIES}
             selectedMovementId={selectedMovementId}
             selectedCountryId={selectedStartCountryId}
             influencePoints={influencePoints}
             onMovementChange={handleMovementChange}
             onCountryChange={handleCountryChange}
-            onStartGame={startGame} // Use startGame from useGameLogic
+            onStartGame={startGame}
             currentTurn={currentTurn}
-            onNextTurn={processNextTurn} // Use processNextTurn from useGameLogic
+            onToggleAutoplay={toggleAutoplay} // Pass toggle function
+            isAutoplayActive={isAutoplayActive} // Pass autoplay state
             gameStarted={gameStarted}
             isEventPending={!!pendingInteractiveEvent}
             gameOver={gameOver}
@@ -123,7 +125,7 @@ export default function GamePage() {
                     <EvolutionPanel
                       categories={EVOLUTION_CATEGORIES}
                       items={EVOLUTION_ITEMS}
-                      onEvolve={evolveItem} // Use evolveItem from useGameLogic
+                      onEvolve={evolveItem}
                       influencePoints={influencePoints}
                       evolvedItemIds={evolvedItemIds}
                     />
@@ -133,15 +135,15 @@ export default function GamePage() {
                   </TabsContent>
                   <TabsContent value="news">
                     <NewsFeed
-                      culturalMovementName={currentMovementName} // currentMovementName is fine here
-                      globalAdoptionRate={getGlobalAdoptionRate()} // Use getter from hook
+                      culturalMovementName={currentMovementName}
+                      globalAdoptionRate={getGlobalAdoptionRate()}
                       recentEventsSummary={recentEvents}
                       currentTurn={currentTurn}
                     />
                   </TabsContent>
                   <TabsContent value="analytics">
                     <AnalyticsDashboard
-                      countries={countries} // Use countries from useGameLogic
+                      countries={countries}
                       influencePoints={influencePoints}
                       evolvedItemIds={evolvedItemIds}
                       evolutionItems={EVOLUTION_ITEMS}
@@ -150,10 +152,10 @@ export default function GamePage() {
                   </TabsContent>
                   <TabsContent value="diplomacy">
                     <DiplomacyPanel
-                      rivalMovements={gameLogicRivalMovements} // Use rivalMovements from useGameLogic
-                      onDiplomaticAction={performDiplomaticAction} // Use from useGameLogic
+                      rivalMovements={gameLogicRivalMovements}
+                      onDiplomaticAction={performDiplomaticAction}
                       influencePoints={influencePoints}
-                      diplomacyCost={DIPLOMACY_STANCE_CHANGE_COST} // Use imported constant
+                      diplomacyCost={DIPLOMACY_STANCE_CHANGE_COST}
                     />
                   </TabsContent>
                 </Tabs>
@@ -167,14 +169,14 @@ export default function GamePage() {
         event={pendingInteractiveEvent}
         isOpen={isEventModalOpen}
         onClose={() => { /* Modal closing handled by onOpenChange or by logic in hook */ }}
-        onOptionSelect={selectEventOption} // Use from useGameLogic
+        onOptionSelect={selectEventOption}
       />
       {gameOver && (
         <AlertDialog open={gameOver} onOpenChange={(open) => { if(!open) { /* Game over ACK for now, future restart logic would go here */ } }}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center">
-                {gameOverTitle.includes("Achieved") ? <Trophy className="mr-2 h-6 w-6 text-primary" /> : <Skull className="mr-2 h-6 w-6 text-destructive" />}
+                {gameOverTitle.includes("Achieved") || gameOverTitle.includes("Harmony") ? <Trophy className="mr-2 h-6 w-6 text-primary" /> : <Skull className="mr-2 h-6 w-6 text-destructive" />}
                 {gameOverTitle}
               </AlertDialogTitle>
               <AlertDialogDescription>

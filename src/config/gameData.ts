@@ -220,7 +220,6 @@ export const INITIAL_COUNTRIES: Country[] = [
   },
 ];
 
-export const STARTING_INFLUENCE_POINTS = 50;
 
 export const systemPositions: Record<string, { top: string; left: string }> = {
   solara_prime_system: { top: '30%', left: '20%' },
@@ -381,3 +380,5 @@ export const RIVAL_MOVEMENTS: RivalMovement[] = [
     evolvedItemIds: new Set(),
   },
 ];
+
+    

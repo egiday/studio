@@ -1,24 +1,25 @@
 
 'use client';
 
-import type { CulturalMovement, Country } from '@/types'; // Country is System
+import type { CulturalMovement, Country } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Coins, Play, Flag, BarChart3, AlertTriangle, SunMedium } from 'lucide-react'; // Added SunMedium
+import { Coins, Play, Pause, Flag, BarChart3, AlertTriangle, SunMedium } from 'lucide-react'; // Added Pause
 import React from 'react';
 
 interface ControlPanelProps {
   movements: CulturalMovement[];
-  countries: Country[]; // Thematic: Solar Systems
+  countries: Country[];
   selectedMovementId?: string;
-  selectedCountryId?: string; // Thematic: selectedSystemId
+  selectedCountryId?: string;
   influencePoints: number;
   onMovementChange: (movementId: string) => void;
-  onCountryChange: (countryId: string) => void; // Thematic: onSystemChange
+  onCountryChange: (countryId: string) => void;
   onStartGame: () => void;
   currentTurn: number;
-  onNextTurn: () => void;
+  onToggleAutoplay: () => void; // Changed from onNextTurn
+  isAutoplayActive: boolean;    // New prop
   gameStarted: boolean;
   isEventPending?: boolean;
   gameOver?: boolean;
@@ -26,15 +27,16 @@ interface ControlPanelProps {
 
 export function ControlPanel({
   movements,
-  countries: systems, // Renamed for clarity
+  countries: systems,
   selectedMovementId,
-  selectedCountryId: selectedSystemId, // Renamed for clarity
+  selectedCountryId: selectedSystemId,
   influencePoints,
   onMovementChange,
-  onCountryChange: onSystemChange, // Renamed for clarity
+  onCountryChange: onSystemChange,
   onStartGame,
   currentTurn,
-  onNextTurn,
+  onToggleAutoplay, // Changed from onNextTurn
+  isAutoplayActive,   // New prop
   gameStarted,
   isEventPending,
   gameOver,
@@ -73,7 +75,7 @@ export function ControlPanel({
                   <SelectValue placeholder="Select home system" />
                 </SelectTrigger>
                 <SelectContent>
-                  {systems.map((system) => ( // Iterate over systems
+                  {systems.map((system) => (
                     <SelectItem key={system.id} value={system.id}>
                        <div className="flex items-center">
                         <SunMedium className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -95,11 +97,12 @@ export function ControlPanel({
         ) : (
           <div className="space-y-2">
             <Button
-              onClick={onNextTurn}
+              onClick={onToggleAutoplay}
               className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
               disabled={isEventPending || gameOver}
             >
-              Next Cycle (Day: {currentTurn})
+              {isAutoplayActive ? <Pause className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
+              {isAutoplayActive ? 'Pause Autoplay' : 'Start Autoplay'} (Day: {currentTurn})
             </Button>
             {isEventPending && !gameOver && (
               <p className="text-xs text-destructive text-center flex items-center justify-center">

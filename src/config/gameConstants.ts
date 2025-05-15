@@ -8,6 +8,8 @@ export const RIVAL_COUNTER_RESISTANCE_CHANCE = 0.45; // Chance for Cautious Cons
 export const RIVAL_COUNTER_RESISTANCE_AMOUNT = 0.03; // Amount player resistance increases by
 export const DIPLOMACY_STANCE_CHANGE_COST = 15; // Reduced
 export const EVOLVED_IP_BOOST_PER_ITEM = 0.5; // IP boost per evolved item
+export const STARTING_INFLUENCE_POINTS = 50;
+
 
 // Rival AI Economy
 export const RIVAL_BASE_IP_PER_TURN = 1; // Slightly lower than player base
@@ -38,3 +40,5 @@ export const RIVAL_CAUTIOUS_INITIAL_SPREAD_NEW_COUNTRY_AMOUNT = 0.005;
 
 // This type import is needed if ResistanceArchetype is used in this file, as it is for RESISTANCE_ARCHETYPES_LIST
 import type { ResistanceArchetype } from '@/types';
+
+    
