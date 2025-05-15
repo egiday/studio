@@ -1,6 +1,6 @@
 
 import type { CulturalMovement, EvolutionItem, EvolutionCategory, Country, SubRegion, GlobalEvent, RivalMovement } from '@/types';
-import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film, Award, Megaphone, TrendingUp, Bot, Pyramid, Handshake, Feather, ShieldCheck, TowerControl, Rocket, Orbit, SunMedium } from 'lucide-react'; // Added Rocket, Orbit, SunMedium
+import { Cpu, Palette, Brain, Users, FlaskConical, Ticket, School, Sparkles, Zap, MessageSquare, UsersRound, Tv, Hand, Rss, Merge, DollarSign, ShieldAlert, Globe, Building2, UserCheck, Siren, CloudCog, BrainCog, Lightbulb, Speech, GitFork, Trees, MountainSnow, Factory, Film, Award, Megaphone, TrendingUp, Bot, Pyramid, Handshake, Feather, ShieldCheck, TowerControl, Rocket, Orbit, SunMedium } from 'lucide-react';
 
 export const CULTURAL_MOVEMENTS: CulturalMovement[] = [
   { id: 'digital_nexus', name: 'Digital Nexus', description: 'Rapidly connects minds through information networks.', icon: Cpu },
@@ -19,19 +19,20 @@ export const EVOLUTION_CATEGORIES: EvolutionCategory[] = [
   { id: 'adaptability', name: 'Adaptability', description: 'How your culture survives and thrives.' },
 ];
 
+// Costs reduced by ~40-60%
 export const EVOLUTION_ITEMS: EvolutionItem[] = [
   // Expression Methods
-  { id: 'expr_social_media', name: 'Subspace Network Presence', description: 'Establishes a basic interstellar network presence, allowing for wider reach and faster initial spread in connected systems.', cost: 75, icon: MessageSquare, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_apps', name: 'Resonance Beacon App', description: 'Develops a dedicated application for your movement, fostering a unified community across planets. Boosts engagement in systems with high personal device penetration.', cost: 150, icon: Zap, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media'] },
-  { id: 'expr_gatherings', name: 'Starport Rallies', description: 'Organizes local gatherings at major starports and settlements, strengthening community bonds and increasing adoption. Effective in diverse planetary environments.', cost: 120, icon: UsersRound, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_media_broadcast', name: 'Galactic HoloNet Broadcasts', description: 'Gains presence on established HoloNet channels. Significantly increases awareness across many systems, bypassing local network limitations.', cost: 225, icon: Tv, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_word_of_mouth', name: 'Stellar Courier Network', description: 'Empowers individuals to share the movement through personal FTL comms and travel. Provides a slow but resilient form of spread.', cost: 70, icon: Hand, category: 'expression_methods', isEvolved: false },
-  { id: 'expr_influencers', name: 'Echo Chamber Cultivators', description: 'Collaborates with popular HoloNet personalities and sector-wide thought leaders to promote the movement. Highly effective for reaching specific demographics and accelerating network adoption.', cost: 180, icon: Rss, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media']},
+  { id: 'expr_social_media', name: 'Subspace Network Presence', description: 'Establishes a basic interstellar network presence, allowing for wider reach and faster initial spread in connected systems.', cost: 40, icon: MessageSquare, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_apps', name: 'Resonance Beacon App', description: 'Develops a dedicated application for your movement, fostering a unified community across planets. Boosts engagement in systems with high personal device penetration.', cost: 75, icon: Zap, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media'] },
+  { id: 'expr_gatherings', name: 'Starport Rallies', description: 'Organizes local gatherings at major starports and settlements, strengthening community bonds and increasing adoption. Effective in diverse planetary environments.', cost: 60, icon: UsersRound, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_media_broadcast', name: 'Galactic HoloNet Broadcasts', description: 'Gains presence on established HoloNet channels. Significantly increases awareness across many systems, bypassing local network limitations.', cost: 110, icon: Tv, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_word_of_mouth', name: 'Stellar Courier Network', description: 'Empowers individuals to share the movement through personal FTL comms and travel. Provides a slow but resilient form of spread.', cost: 35, icon: Hand, category: 'expression_methods', isEvolved: false },
+  { id: 'expr_influencers', name: 'Echo Chamber Cultivators', description: 'Collaborates with popular HoloNet personalities and sector-wide thought leaders to promote the movement. Highly effective for reaching specific demographics and accelerating network adoption.', cost: 90, icon: Rss, category: 'expression_methods', isEvolved: false, prerequisites: ['expr_social_media']},
   {
     id: 'expr_viral_studio',
     name: 'Ephemeral Holo-Art Studio',
     description: 'Creates a dedicated team for producing high-quality, engaging, and shareable Holo-content tailored for interstellar networks. Significantly boosts spread rate.',
-    cost: 300,
+    cost: 150, // was 300
     icon: Film,
     category: 'expression_methods',
     isEvolved: false,
@@ -43,7 +44,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'expr_grassroots_kits',
     name: 'Colony Seed Kits',
     description: 'Provides toolkits, funding, and training for local planetary leaders to independently organize events and promote the movement, enhancing local adoption.',
-    cost: 200,
+    cost: 100, // was 200
     icon: Megaphone,
     category: 'expression_methods',
     isEvolved: false,
@@ -53,7 +54,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'expr_global_syndication',
     name: 'Universal Signal Network',
     description: 'Establishes partnerships to distribute cultural content through major interstellar media networks, creating a persistent galactic presence.',
-    cost: 375,
+    cost: 180, // was 375
     icon: TrendingUp,
     category: 'expression_methods',
     isEvolved: false,
@@ -63,17 +64,17 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   },
 
   // Cultural Elements
-  { id: 'elem_aesthetic_style', name: 'Signature Stellar Aesthetics', description: 'Defines a unique and recognizable aesthetic for the movement, including symbols, color schemes, and starship designs. Increases appeal and memorability.', cost: 90, icon: Palette, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_rituals', name: 'Celestial Convergence Rituals', description: 'Establishes shared practices or system-wide events that reinforce the movement\'s values and build community cohesion. Deepens engagement among adherents.', cost: 135, icon: Sparkles, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_value_system', name: 'Galactic Principles Codex', description: 'Articulates a clear set of guiding principles for the movement. Provides intellectual and moral grounding.', cost: 165, icon: BrainCog, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_language', name: 'Unifying Star-Tongue', description: 'Develops specialized vocabulary or a simplified common language unique to the movement. Fosters a sense of in-group identity.', cost: 115, icon: Speech, category: 'cultural_elements', isEvolved: false },
-  { id: 'elem_concepts', name: 'Core Cosmic Axioms', description: 'Introduces novel ideas or philosophies that form the intellectual core of the movement. Essential for movements focused on thought or science.', cost: 180, icon: Lightbulb, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_aesthetic_style', name: 'Signature Stellar Aesthetics', description: 'Defines a unique and recognizable aesthetic for the movement, including symbols, color schemes, and starship designs. Increases appeal and memorability.', cost: 45, icon: Palette, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_rituals', name: 'Celestial Convergence Rituals', description: 'Establishes shared practices or system-wide events that reinforce the movement\'s values and build community cohesion. Deepens engagement among adherents.', cost: 70, icon: Sparkles, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_value_system', name: 'Galactic Principles Codex', description: 'Articulates a clear set of guiding principles for the movement. Provides intellectual and moral grounding.', cost: 85, icon: BrainCog, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_language', name: 'Unifying Star-Tongue', description: 'Develops specialized vocabulary or a simplified common language unique to the movement. Fosters a sense of in-group identity.', cost: 60, icon: Speech, category: 'cultural_elements', isEvolved: false },
+  { id: 'elem_concepts', name: 'Core Cosmic Axioms', description: 'Introduces novel ideas or philosophies that form the intellectual core of the movement. Essential for movements focused on thought or science.', cost: 90, icon: Lightbulb, category: 'cultural_elements', isEvolved: false },
   {
     id: 'elem_mythology_lore',
     name: 'Astro-Mythos Weaving',
     description: 'Develops a rich tapestry of stories, myths, and legendary figures that deepen the cultural narrative and emotional connection for adherents across star systems.',
-    cost: 225,
-    icon: Orbit, // Changed from Planet
+    cost: 110, // was 225
+    icon: Orbit,
     category: 'cultural_elements',
     isEvolved: false,
     prerequisites: ['elem_value_system', 'elem_concepts']
@@ -82,7 +83,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'elem_interactive_education',
     name: 'Noosphere Simulation Platform',
     description: 'Creates an interstellar network platform with courses and interactive simulations about the movement\'s core tenets, boosting retention and understanding.',
-    cost: 270,
+    cost: 135, // was 270
     icon: School,
     category: 'cultural_elements',
     isEvolved: false,
@@ -90,16 +91,16 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
   },
 
   // Adaptability
-  { id: 'adapt_integration', name: 'Xeno-Cultural Symbiosis', description: 'Develops methods to blend the movement with existing planetary customs and xeno-cultures. Reduces cultural friction in diverse systems.', cost: 150, icon: Merge, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_resource_eff', name: 'Resource-Lean Propagation', description: 'Optimizes the resources needed for individuals to adopt and participate, making it more accessible in systems with varied resource levels.', cost: 135, icon: DollarSign, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_resistance_mgmt', name: 'Discord Dampening Fields', description: 'Implements strategies to understand, address, and counter opposing viewpoints and organized resistance across systems.', cost: 210, icon: ShieldAlert, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_urban', name: 'Core World Integration', description: 'Tailors the movement\'s messaging to thrive in densely populated core worlds and ecumenopolises. Leverages complex infrastructure for faster spread.', cost: 105, icon: Building2, category: 'adaptability', isEvolved: false },
-  { id: 'adapt_rural', name: 'Outer Rim Adaptation', description: 'Adapts the movement to effectively spread in sparsely populated outer rim planets and remote colonies.', cost: 105, icon: Rocket, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_integration', name: 'Xeno-Cultural Symbiosis', description: 'Develops methods to blend the movement with existing planetary customs and xeno-cultures. Reduces cultural friction in diverse systems.', cost: 75, icon: Merge, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_resource_eff', name: 'Resource-Lean Propagation', description: 'Optimizes the resources needed for individuals to adopt and participate, making it more accessible in systems with varied resource levels.', cost: 70, icon: DollarSign, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_resistance_mgmt', name: 'Discord Dampening Fields', description: 'Implements strategies to understand, address, and counter opposing viewpoints and organized resistance across systems.', cost: 100, icon: ShieldAlert, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_urban', name: 'Core World Integration', description: 'Tailors the movement\'s messaging to thrive in densely populated core worlds and ecumenopolises. Leverages complex infrastructure for faster spread.', cost: 55, icon: Building2, category: 'adaptability', isEvolved: false },
+  { id: 'adapt_rural', name: 'Outer Rim Adaptation', description: 'Adapts the movement to effectively spread in sparsely populated outer rim planets and remote colonies.', cost: 55, icon: Rocket, category: 'adaptability', isEvolved: false },
   {
     id: 'adapt_demographic_appeal',
     name: 'Universal Tapestry Weaving',
     description: 'Refines the movement to resonate with a wider range of species, age groups, and socio-economic strata across the galaxy. Increases overall potential adoption.',
-    cost: 240,
+    cost: 120, // was 240
     icon: UserCheck,
     category: 'adaptability',
     isEvolved: false,
@@ -110,7 +111,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'adapt_ai_localization',
     name: 'Adaptive Xenolinguistics AI',
     description: 'Utilizes advanced AI to rapidly translate and culturally adapt content for diverse alien languages and planetary nuances, dramatically increasing integration speed.',
-    cost: 330,
+    cost: 160, // was 330
     icon: GitFork,
     category: 'adaptability',
     isEvolved: false,
@@ -122,7 +123,7 @@ export const EVOLUTION_ITEMS: EvolutionItem[] = [
     id: 'adapt_crisis_protocol',
     name: 'Stellar Resilience Protocol',
     description: 'Establishes protocols and communication channels to swiftly adapt messaging and support adherents during galactic crises, maintaining loyalty.',
-    cost: 225,
+    cost: 110, // was 225
     icon: Siren,
     category: 'adaptability',
     isEvolved: false,
@@ -174,13 +175,13 @@ const elysianFieldsPlanets: SubRegion[] = [
 ];
 
 
-export const INITIAL_COUNTRIES: Country[] = [ // Thematic: Solar Systems
+export const INITIAL_COUNTRIES: Country[] = [
   {
     id: 'solara_prime_system', name: 'Solara Prime System',
     internetPenetration: 0.9, educationLevel: 0.85, economicDevelopment: 0.9,
     culturalOpenness: 0.7, mediaFreedom: 0.8,
     adoptionLevel: 0, resistanceLevel: 0.1, rivalPresences: [],
-    subRegions: solaraPrimeSystemPlanets, // Planets
+    subRegions: solaraPrimeSystemPlanets,
   },
   {
     id: 'kryll_nexus', name: 'Kryll Nexus',
@@ -221,7 +222,6 @@ export const INITIAL_COUNTRIES: Country[] = [ // Thematic: Solar Systems
 
 export const STARTING_INFLUENCE_POINTS = 50;
 
-// Thematic: systemPositions for Solar Systems
 export const systemPositions: Record<string, { top: string; left: string }> = {
   solara_prime_system: { top: '30%', left: '20%' },
   kryll_nexus: { top: '35%', left: '75%' },
@@ -231,7 +231,6 @@ export const systemPositions: Record<string, { top: string; left: string }> = {
   elysian_fields_alliance: { top: '25%', left: '50%' },
 };
 
-// Thematic: planetPositions for Planets within Solar Systems
 export const planetPositions: Record<string, { offsets: {top: string; left: string}[] }> = {
   solara_prime_system: { offsets: [ { top: '-12%', left: '-15%' }, { top: '12%', left: '-13%' }, { top: '-10%', left: '15%' }, { top: '10%', left: '17%' } ] },
   kryll_nexus: { offsets: [ { top: '-11%', left: '-12%' }, { top: '11%', left: '-14%' }, { top: '-2%', left: '13%' }, { top: '12%', left: '11%' } ] },
@@ -241,7 +240,7 @@ export const planetPositions: Record<string, { offsets: {top: string; left: stri
   elysian_fields_alliance: { offsets: [ { top: '-11%', left: '-10%' }, { top: '11%', left: '-2%' }, { top: '-1%', left: '13%' }, { top: '-10%', left: '14%'} ] },
 };
 
-export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [ // Thematic: Galactic Events
+export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [
   {
     id: 'galactic_hypernet_upgrade',
     name: 'HyperNet Bandwidth Surge',
@@ -249,7 +248,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [ // Thematic: Galactic Ev
     turnStart: 3,
     duration: 5,
     effects: [
-      { targetType: 'global', property: 'culturalOpenness', value: 0.05, isMultiplier: false }, // Xeno-Acceptance
+      { targetType: 'global', property: 'culturalOpenness', value: 0.05, isMultiplier: false },
       { targetType: 'global', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true }
     ],
     hasBeenTriggered: false,
@@ -260,7 +259,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [ // Thematic: Galactic Ev
     description: 'The Kryll Nexus faces an unexpected resource shortage, leading to system-wide unrest. How do you respond?',
     turnStart: 6,
     duration: 4,
-    effects: [],
+    effects: [], // Base effects are empty as options define outcomes
     options: [
       {
         id: 'crisis_invest_kryll',
@@ -302,7 +301,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [ // Thematic: Galactic Ev
     turnStart: 4,
     duration: 2,
     effects: [
-      { targetType: 'global', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true }, // Affects HyperNet Access indirectly
+      { targetType: 'global', property: 'adoptionRateModifier', value: 1.05, isMultiplier: true },
     ],
     hasBeenTriggered: false,
   },
@@ -313,7 +312,7 @@ export const POTENTIAL_GLOBAL_EVENTS: GlobalEvent[] = [ // Thematic: Galactic Ev
     turnStart: 9,
     duration: 3,
     effects: [
-      { targetType: 'country', countryId: 'elysian_fields_alliance', property: 'culturalOpenness', value: 0.15, isMultiplier: false }, // Xeno-Acceptance
+      { targetType: 'country', countryId: 'elysian_fields_alliance', property: 'culturalOpenness', value: 0.15, isMultiplier: false },
       { targetType: 'country', countryId: 'elysian_fields_alliance', property: 'adoptionRateModifier', value: 1.1, isMultiplier: true },
     ],
     hasBeenTriggered: false,
@@ -326,10 +325,12 @@ export const RIVAL_MOVEMENTS: RivalMovement[] = [
     name: 'Techno-Organic Purity (Cog)',
     icon: Bot,
     color: '#718096',
-    startingCountryId: 'kryll_nexus', // Starting Solar System
+    startingCountryId: 'kryll_nexus',
     aggressiveness: 0.6,
     personality: 'CautiousConsolidator',
     playerStance: 'Hostile',
+    influencePoints: 25,
+    evolvedItemIds: new Set(),
   },
   {
     id: 'siren_song_syndicate',
@@ -340,6 +341,8 @@ export const RIVAL_MOVEMENTS: RivalMovement[] = [
     aggressiveness: 0.75,
     personality: 'AggressiveExpansionist',
     playerStance: 'Hostile',
+    influencePoints: 25,
+    evolvedItemIds: new Set(),
   },
   {
     id: 'silent_hand_cabal',
@@ -350,6 +353,8 @@ export const RIVAL_MOVEMENTS: RivalMovement[] = [
     aggressiveness: 0.55,
     personality: 'OpportunisticInfiltrator',
     playerStance: 'Neutral',
+    influencePoints: 30,
+    evolvedItemIds: new Set(),
   },
   {
     id: 'aegis_protectorate',
@@ -360,6 +365,8 @@ export const RIVAL_MOVEMENTS: RivalMovement[] = [
     aggressiveness: 0.4,
     personality: 'IsolationistDefender',
     playerStance: 'Neutral',
+    influencePoints: 35,
+    evolvedItemIds: new Set(),
   },
   {
     id: 'chrono_conservators',
@@ -370,7 +377,7 @@ export const RIVAL_MOVEMENTS: RivalMovement[] = [
     aggressiveness: 0.8,
     personality: 'ZealousPurifier',
     playerStance: 'Hostile',
+    influencePoints: 20,
+    evolvedItemIds: new Set(),
   },
 ];
-
-    

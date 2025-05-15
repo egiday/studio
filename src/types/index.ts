@@ -45,6 +45,8 @@ export interface RivalMovement {
   aggressiveness: number; // 0-1, general likelihood to act
   personality: AIPersonalityType; // Defines strategic tendencies
   playerStance: DiplomaticStance;
+  influencePoints: number;
+  evolvedItemIds: Set<string>;
 }
 
 export interface RivalPresence {
@@ -132,3 +134,5 @@ export interface GlobalEvent {
   hasBeenTriggered: boolean;
   chosenOptionId?: string;
 }
+
+export type DiplomaticActionType = 'OfferAlliance' | 'BreakAlliance' | 'DeclareHostility' | 'NegotiatePeace' | 'AttemptTruce';

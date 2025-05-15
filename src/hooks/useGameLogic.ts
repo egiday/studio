@@ -41,7 +41,16 @@ export function useGameLogic({
     subRegions: c.subRegions ? c.subRegions.map(sr => ({ ...sr, adoptionLevel: 0, resistanceLevel: sr.resistanceLevel || 0.1, rivalPresences: sr.rivalPresences || [], resistanceArchetype: sr.resistanceArchetype || null })) : undefined,
     rivalPresences: c.rivalPresences || [],
   })));
-  const [rivalMovements, setRivalMovements] = useState<RivalMovement[]>(initialRivalMovementsData.map(r => ({...r, playerStance: r.playerStance || 'Hostile'})));
+  
+  const [rivalMovements, setRivalMovements] = useState<RivalMovement[]>(
+    initialRivalMovementsData.map(r => ({
+      ...r,
+      playerStance: r.playerStance || 'Hostile',
+      influencePoints: r.influencePoints || 20, // Ensure IP is initialized
+      evolvedItemIds: r.evolvedItemIds || new Set(), // Ensure evolvedItemIds is a Set
+    }))
+  );
+
   const [gameStarted, setGameStarted] = useState(false);
   const [currentTurn, setCurrentTurn] = useState(0);
   
@@ -128,7 +137,13 @@ export function useGameLogic({
         return countryUpdate;
       });
       
-      const currentRivalMovementsConfig = initialRivalMovementsData.map(r => ({...r, playerStance: r.playerStance || 'Hostile'}));
+      const currentRivalMovementsConfig = initialRivalMovementsData.map(r => ({
+        ...r, 
+        playerStance: r.playerStance || 'Hostile',
+        influencePoints: r.influencePoints || 20,
+        evolvedItemIds: new Set(r.evolvedItemIds || []), // Ensure it's a Set
+      }));
+
       currentRivalMovementsConfig.forEach(rival => {
         initialCountriesWithRivals = initialCountriesWithRivals.map(c => {
           let countryUpdate: Country = deepClone(c); 
@@ -219,7 +234,7 @@ export function useGameLogic({
 
     const eventMessage = `EVENT: ${eventWithNoChoice.name} - You chose: "${chosenOption.text}". ${chosenOption.description}`;
     addRecentEventEntry(eventMessage);
-    showToast(`Event Choice: ${eventWithNoChoice.name}`, `You selected: ${chosenOption.text}. ${ipFromChoice !== 0 ? `IP change: ${ipFromChoice}.` : ''}`);
+    setTimeout(()=> showToast(`Event Choice: ${eventWithNoChoice.name}`, `You selected: ${chosenOption.text}. ${ipFromChoice !== 0 ? `IP change: ${ipFromChoice}.` : ''}`),0);
 
     setPendingInteractiveEvent(null);
     setIsEventModalOpen(false);
@@ -280,11 +295,13 @@ export function useGameLogic({
     currentActiveGlobalEventsList = [...currentActiveGlobalEventsList, ...newlyTriggeredNonInteractiveEventsForThisTurn];
     const nonExpiredActiveEventsForNextState: GlobalEvent[] = [];
     currentActiveGlobalEventsList.forEach(event => {
-        if (event.duration > 0 && nextTurn < event.turnStart + event.duration) {
+        if (event.duration > 0 && (event.turnStart + event.duration) > nextTurn) { // Corrected condition
           nonExpiredActiveEventsForNextState.push(event);
-        } else {
+        } else if (event.duration > 0 && (event.turnStart + event.duration) <= nextTurn) { // Event concluded this turn
           addRecentEventEntry(` NEWS: ${event.name} has concluded.`);
           setTimeout(() => showToast("Global Event Over", `${event.name} has ended.`),0);
+        } else if (event.duration <= 0 && event.hasBeenTriggered) { // One-time event already processed
+          // Do nothing, it was already handled
         }
     });
     setActiveGlobalEvents(nonExpiredActiveEventsForNextState);
@@ -437,18 +454,40 @@ export function useGameLogic({
       } else {
         currentCountryState = applySpreadAndResistanceToRegion(currentCountryState, false, undefined) as Country;
       }
+      // Recalculate country-level adoption/resistance if subRegions exist
+      if (currentCountryState.subRegions && currentCountryState.subRegions.length > 0) {
+        currentCountryState.adoptionLevel = currentCountryState.subRegions.reduce((sum, sr) => sum + sr.adoptionLevel, 0) / (currentCountryState.subRegions.length || 1);
+        currentCountryState.resistanceLevel = currentCountryState.subRegions.reduce((sum, sr) => sum + sr.resistanceLevel, 0) / (currentCountryState.subRegions.length || 1);
+         const countryLevelRivalPresenceMap = new Map<string, { totalInfluence: number; count: number, maxInfluence: number }>();
+          currentCountryState.subRegions.forEach(sr => {
+              sr.rivalPresences.forEach(rp => {
+                  const current = countryLevelRivalPresenceMap.get(rp.rivalId) || { totalInfluence: 0, count: 0, maxInfluence: 0 };
+                  current.totalInfluence += rp.influenceLevel;
+                  current.count++;
+                  current.maxInfluence = Math.max(current.maxInfluence, rp.influenceLevel);
+                  countryLevelRivalPresenceMap.set(rp.rivalId, current);
+              });
+          });
+          currentCountryState.rivalPresences = Array.from(countryLevelRivalPresenceMap.entries()).map(([rivalId, data]) => ({
+              rivalId,
+              influenceLevel: data.maxInfluence 
+          })).filter(rp => rp.influenceLevel > 0.001);
+      }
       return currentCountryState;
     });
 
     // 4. Rival Turns
     const rivalProcessingResult = processRivalTurns({
       rivalMovementsState: rivalMovements,
-      countriesState: countriesAfterPlayerSpread,
+      countriesState: countriesAfterPlayerSpread, // Pass player-updated countries
       currentMovementName: currentMovementName,
       initialRivalMovementsData: initialRivalMovementsData, 
+      allEvolutionItems: allEvolutionItems, // Pass all evolution items
       addRecentEventEntry: addRecentEventEntry,
     });
     let countriesAfterRivalTurns = rivalProcessingResult.updatedCountries;
+    let updatedRivalsFromAITurn = rivalProcessingResult.updatedRivalMovements;
+    setRivalMovements(updatedRivalsFromAITurn);
 
 
     // 5. Final Normalization and Country Update
@@ -474,6 +513,7 @@ export function useGameLogic({
         };
         if (clonedCountry.subRegions && clonedCountry.subRegions.length > 0) {
             clonedCountry.subRegions = clonedCountry.subRegions.map(sr => normalizeRegionInfluence(sr) as SubRegion);
+            // Recalculate country-level stats from sub-regions AFTER normalization
             clonedCountry.adoptionLevel = clonedCountry.subRegions.reduce((sum, sr) => sum + sr.adoptionLevel, 0) / (clonedCountry.subRegions.length || 1);
             clonedCountry.resistanceLevel = clonedCountry.subRegions.reduce((sum, sr) => sum + sr.resistanceLevel, 0) / (clonedCountry.subRegions.length || 1);
             
@@ -506,7 +546,7 @@ export function useGameLogic({
     const playerGlobalAdoption = calculateGlobalAdoptionRate(finalCountries);
     setMaxPlayerAdoptionEver(prevMax => Math.max(prevMax, playerGlobalAdoption));
     
-    const currentRivalGlobalInfluences = rivalMovements.map(rival => ({
+    const currentRivalGlobalInfluences = updatedRivalsFromAITurn.map(rival => ({ // Use updated rivals for influence check
       id: rival.id,
       name: rival.name,
       influence: calculateRivalGlobalInfluence(rival.id, finalCountries),
@@ -516,14 +556,14 @@ export function useGameLogic({
     if (playerGlobalAdoption >= GameConstants.WIN_PLAYER_GLOBAL_ADOPTION && allRivalsSuppressed) {
       isGameOver = true;
       newGameOverTitle = "Global Harmony Achieved!";
-      newGameOverDescription = `The ${currentMovementName} has become the guiding light for the world, achieving ${(playerGlobalAdoption * 100).toFixed(0)}% global adoption. Rival ideologies have diminished, paving the way for a new era of unity.`;
+      newGameOverDescription = `The ${currentMovementName} has become the guiding light for the galaxy, achieving ${(playerGlobalAdoption * 100).toFixed(0)}% global adoption. Rival ideologies have diminished, paving the way for a new era of unity.`;
     }
     if (!isGameOver) {
       const dominantRival = currentRivalGlobalInfluences.find(r => r.influence >= GameConstants.LOSE_RIVAL_DOMINANCE_THRESHOLD);
       if (dominantRival) {
         isGameOver = true;
         newGameOverTitle = "Rival Ascendancy";
-        newGameOverDescription = `${dominantRival.name} has achieved global dominance with ${(dominantRival.influence * 100).toFixed(0)}% influence, overshadowing your movement. The world follows a different path.`;
+        newGameOverDescription = `${dominantRival.name} has achieved galactic dominance with ${(dominantRival.influence * 100).toFixed(0)}% influence, overshadowing your movement. The galaxy follows a different path.`;
       }
     }
     if (!isGameOver) {
@@ -536,7 +576,7 @@ export function useGameLogic({
       if (playerGlobalAdoption < GameConstants.LOSE_PLAYER_COLLAPSE_ADOPTION && maxPlayerAdoptionEver >= GameConstants.LOSE_PLAYER_MIN_PEAK_ADOPTION && currentTurn > 1) {
         isGameOver = true;
         newGameOverTitle = "Cultural Regression";
-        newGameOverDescription = `Despite initial success, the ${currentMovementName} has faded into obscurity. Global adoption fell to ${(playerGlobalAdoption * 100).toFixed(1)}%, and the world's attention has moved on.`;
+        newGameOverDescription = `Despite initial success, the ${currentMovementName} has faded into obscurity. Global adoption fell to ${(playerGlobalAdoption * 100).toFixed(1)}%, and the galaxy's attention has moved on.`;
       }
     }
 
@@ -556,8 +596,8 @@ export function useGameLogic({
     currentTurn, countries, initialSelectedStartCountryId, evolvedItemIds, activeGlobalEvents, 
     allPotentialEvents, pendingInteractiveEvent, 
     rivalMovements, influencePoints, gameOver, ipZeroStreak, maxPlayerAdoptionEver, currentMovementName, 
-    allEvolutionItems, allCulturalMovements, initialRivalMovementsData, showToast, addRecentEventEntry, initialSelectedMovementId, // Added initialSelectedMovementId based on its usage in startGame
-    allPotentialEvents, selectEventOption, startGame // Added missing dependencies for callbacks
+    allEvolutionItems, allCulturalMovements, initialRivalMovementsData, showToast, addRecentEventEntry, initialSelectedMovementId, 
+    selectEventOption, startGame, initialPotentialEventsData // Added initialPotentialEventsData
   ]);
 
   const performDiplomaticAction = useCallback((rivalId: string, newStance: DiplomaticStance) => {
@@ -585,10 +625,6 @@ export function useGameLogic({
 
 
   useEffect(() => {
-    // This effect synchronizes the `recentEventsDisplay` state with the `recentEventsRef.current`
-    // whenever `currentTurn` changes, ensuring the UI updates after a turn.
-    // It's a common pattern when a ref is used to accumulate data across multiple callbacks
-    // within a larger process (like handleNextTurn).
     setRecentEventsDisplay(recentEventsRef.current);
   }, [currentTurn]);
 
@@ -616,5 +652,3 @@ export function useGameLogic({
     getGlobalAdoptionRate: () => calculateGlobalAdoptionRate(countries),
   };
 }
-
-    
