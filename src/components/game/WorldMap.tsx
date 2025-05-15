@@ -4,7 +4,7 @@
 import type { Country, SubRegion, RivalMovement, ResistanceArchetype, RivalPresence } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Globe, Zap, ChevronLeft, ShieldQuestion } from 'lucide-react';
+import { Globe, Zap, ChevronLeft, ShieldQuestion, Users, ShieldAlert, Wifi, BookOpen, Briefcase, Eye, Newspaper } from 'lucide-react';
 import React, { useState } from 'react';
 import {
   Tooltip,
@@ -63,15 +63,15 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
 
     if (rivalDetails && strongestRivalInRegion && strongestRivalInRegion.influenceLevel > adoptionLevel && strongestRivalInRegion.influenceLevel > RIVAL_DOMINANCE_THRESHOLD) {
       // Rival is dominant
-      bgClass = `bg-[${rivalDetails.color}]/60 hover:bg-[${rivalDetails.color}]/70`; // Stronger rival color
-      borderClass = `border-[${rivalDetails.color}]/80`; // Prominent rival border
+      bgClass = `bg-[${rivalDetails.color}]/60 hover:bg-[${rivalDetails.color}]/70`;
+      borderClass = `border-[${rivalDetails.color}]/80`;
       textClass = 'text-white'; // Assuming rival colors are dark enough for white text
       shadowClass = `shadow-lg shadow-[${rivalDetails.color}]/50`;
     } else {
       // Player or neutral dominance
       if (adoptionLevel > 0.8) { bgClass = 'bg-primary/90 hover:bg-primary'; borderClass = 'border-primary/70'; textClass = 'text-primary-foreground'; shadowClass = `shadow-xl shadow-primary/50`; }
-      else if (adoptionLevel > 0.6) { bgClass = 'bg-primary/70 hover:bg-primary/80'; borderClass = 'border-primary/60'; textClass = 'text-primary-foreground'; shadowClass = `shadow-lg shadow-primary/30`; }
-      else if (adoptionLevel > 0.4) { bgClass = 'bg-primary/50 hover:bg-primary/60'; borderClass = 'border-primary/50'; textClass = 'text-primary-foreground'; shadowClass = `shadow-md shadow-primary/20`; }
+      else if (adoptionLevel > 0.6) { bgClass = 'bg-primary/70 hover:bg-primary/80'; borderClass = 'border-primary/60'; textClass = 'text-primary-foreground'; shadowClass = `shadow-lg shadow-primary/40`; }
+      else if (adoptionLevel > 0.4) { bgClass = 'bg-primary/50 hover:bg-primary/60'; borderClass = 'border-primary/50'; textClass = 'text-primary-foreground'; shadowClass = `shadow-md shadow-primary/30`; }
       else if (adoptionLevel > 0.2) { bgClass = 'bg-secondary/70 hover:bg-secondary/80'; borderClass = 'border-secondary/60'; textClass = 'text-secondary-foreground'; shadowClass = `shadow-lg shadow-secondary/30`; }
       else if (adoptionLevel > 0.05) { bgClass = 'bg-secondary/40 hover:bg-secondary/50'; borderClass = 'border-secondary/40'; textClass = 'text-secondary-foreground'; shadowClass = `shadow-md shadow-secondary/20`; }
       else if (adoptionLevel > 0) { bgClass = 'bg-secondary/20 hover:bg-secondary/30'; borderClass = 'border-secondary/30'; shadowClass = `shadow-sm shadow-secondary/10`; }
@@ -81,13 +81,10 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
       borderClass = 'border-accent ring-4 ring-offset-2 ring-offset-background ring-accent';
       shadowClass = `shadow-xl shadow-accent/50`;
       if (rivalDetails && strongestRivalInRegion && strongestRivalInRegion.influenceLevel > adoptionLevel && strongestRivalInRegion.influenceLevel > RIVAL_DOMINANCE_THRESHOLD) {
-        // If rival is dominant and selected, keep text white for contrast with rival bg
          textClass = 'text-white';
       } else if (adoptionLevel > 0) {
-        // If player has influence and selected, use primary foreground
         textClass = 'text-primary-foreground';
       } else {
-        // If neutral and selected, use accent foreground or a light color
         textClass = 'text-accent-foreground';
       }
     }
@@ -129,37 +126,63 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
 
   const formatResistanceArchetype = (archetype?: ResistanceArchetype | null): string => {
     if (!archetype) return 'Standard';
+    // Add spaces before capital letters, then trim
     return archetype.replace(/([A-Z])/g, ' $1').trim();
   };
 
 
-  const renderSubRegionTooltipContent = (subRegion: SubRegion) => {
+  const renderSubRegionTooltipContent = (subRegion: SubRegion, parentCountryName: string) => {
     return (
-      <div className="p-2.5 space-y-1.5 text-sm w-64 bg-popover text-popover-foreground rounded-lg shadow-xl border border-border">
+      <div className="p-2.5 space-y-2 text-sm w-72 bg-popover text-popover-foreground rounded-lg shadow-xl border border-border">
         <p className="font-bold text-base mb-1.5 text-primary">{subRegion.name}</p>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-          <span className="font-medium text-muted-foreground">Player Adoption:</span><span className="text-right font-semibold">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span>
-          <span className="font-medium text-muted-foreground">Resistance:</span><span className="text-right font-semibold">{(subRegion.resistanceLevel * 100).toFixed(0)}%</span>
+        <p className="text-xs text-muted-foreground -mt-1.5 mb-2">Part of {parentCountryName}</p>
+        
+        <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 items-center">
+          <Users className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Player Adoption:</span><span className="font-semibold">{(subRegion.adoptionLevel * 100).toFixed(0)}%</span></div>
+
+          <ShieldAlert className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Resistance:</span><span className="font-semibold">{(subRegion.resistanceLevel * 100).toFixed(0)}%</span></div>
+
           {subRegion.resistanceArchetype && (
             <>
-              <span className="font-medium text-muted-foreground flex items-center">
-                <ShieldQuestion className="w-3.5 h-3.5 mr-1 text-destructive"/> Type:
-              </span>
-              <span className="text-right font-semibold">{formatResistanceArchetype(subRegion.resistanceArchetype)}</span>
+              <ShieldQuestion className="w-4 h-4 text-destructive" />
+              <div className="flex justify-between"><span>Type:</span><span className="font-semibold">{formatResistanceArchetype(subRegion.resistanceArchetype)}</span></div>
             </>
           )}
-          <span className="font-medium text-muted-foreground">Economy:</span><span className="text-right">{(subRegion.economicDevelopment * 100).toFixed(0)}%</span>
-          <span className="font-medium text-muted-foreground">Openness:</span><span className="text-right">{(subRegion.culturalOpenness * 100).toFixed(0)}%</span>
+
+          <Briefcase className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Economy:</span><span className="font-semibold">{(subRegion.economicDevelopment * 100).toFixed(0)}</span></div>
+          
+          <Eye className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Openness:</span><span className="font-semibold">{(subRegion.culturalOpenness * 100).toFixed(0)}</span></div>
+
+          {subRegion.internetPenetration !== undefined && (
+            <>
+              <Wifi className="w-4 h-4 text-muted-foreground" />
+              <div className="flex justify-between"><span>Internet:</span><span className="font-semibold">{(subRegion.internetPenetration * 100).toFixed(0)}%</span></div>
+            </>
+          )}
+          {subRegion.educationLevel !== undefined && (
+            <>
+              <BookOpen className="w-4 h-4 text-muted-foreground" />
+              <div className="flex justify-between"><span>Education:</span><span className="font-semibold">{(subRegion.educationLevel * 100).toFixed(0)}%</span></div>
+            </>
+          )}
         </div>
+
         {subRegion.rivalPresences.length > 0 && subRegion.rivalPresences.some(rp => rp.influenceLevel >= MIN_RIVAL_INFLUENCE_TO_DISPLAY_IN_TOOLTIP) && (
-          <div className="mt-2 pt-1.5 border-t border-border/50">
-            <p className="text-xs font-medium text-muted-foreground mb-1">Rival Influences:</p>
+          <div className="mt-2.5 pt-2 border-t border-border/50">
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Rival Influences:</p>
             {subRegion.rivalPresences.map(rp => {
               const rival = getRivalById(rp.rivalId);
               if (!rival || rp.influenceLevel < MIN_RIVAL_INFLUENCE_TO_DISPLAY_IN_TOOLTIP) return null;
               return (
-                <div key={rp.rivalId} className="flex justify-between text-xs">
-                  <span style={{color: rival.color}}>{rival.name}:</span>
+                <div key={rp.rivalId} className="flex justify-between text-xs items-center mb-0.5">
+                  <div className="flex items-center">
+                    <rival.icon className="w-3.5 h-3.5 mr-1.5" style={{color: rival.color}} />
+                    <span style={{color: rival.color}}>{rival.name}:</span>
+                  </div>
                   <span style={{color: rival.color}} className="font-semibold">{(rp.influenceLevel * 100).toFixed(0)}%</span>
                 </div>
               );
@@ -172,34 +195,51 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
 
   const renderCountryTooltipContent = (country: Country) => {
     return (
-      <div className="p-2.5 space-y-1.5 text-sm w-64 bg-popover text-popover-foreground rounded-lg shadow-xl border border-border">
+      <div className="p-2.5 space-y-2 text-sm w-72 bg-popover text-popover-foreground rounded-lg shadow-xl border border-border">
         <p className="font-bold text-base mb-1.5 text-primary">{country.name}</p>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-          <span className="font-medium text-muted-foreground">Player Adoption:</span><span className="text-right font-semibold">{(country.adoptionLevel * 100).toFixed(0)}%</span>
-          <span className="font-medium text-muted-foreground">Resistance:</span><span className="text-right font-semibold">{(country.resistanceLevel * 100).toFixed(0)}%</span>
+        
+        <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 items-center">
+          <Users className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Player Adoption:</span><span className="font-semibold">{(country.adoptionLevel * 100).toFixed(0)}%</span></div>
+
+          <ShieldAlert className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Resistance:</span><span className="font-semibold">{(country.resistanceLevel * 100).toFixed(0)}%</span></div>
+
           {country.resistanceArchetype && !country.subRegions?.length && (
              <>
-              <span className="font-medium text-muted-foreground flex items-center">
-                <ShieldQuestion className="w-3.5 h-3.5 mr-1 text-destructive"/> Type:
-              </span>
-              <span className="text-right font-semibold">{formatResistanceArchetype(country.resistanceArchetype)}</span>
+              <ShieldQuestion className="w-4 h-4 text-destructive" />
+              <div className="flex justify-between"><span>Type:</span><span className="font-semibold">{formatResistanceArchetype(country.resistanceArchetype)}</span></div>
             </>
           )}
-          <span className="font-medium text-muted-foreground">Internet:</span><span className="text-right">{(country.internetPenetration * 100).toFixed(0)}%</span>
-          <span className="font-medium text-muted-foreground">Education:</span><span className="text-right">{(country.educationLevel * 100).toFixed(0)}%</span>
-          <span className="font-medium text-muted-foreground">Economy:</span><span className="text-right">{(country.economicDevelopment * 100).toFixed(0)}%</span>
-          <span className="font-medium text-muted-foreground">Openness:</span><span className="text-right">{(country.culturalOpenness * 100).toFixed(0)}%</span>
-          <span className="font-medium text-muted-foreground">Media Free:</span><span className="text-right">{(country.mediaFreedom * 100).toFixed(0)}%</span>
+          
+          <Wifi className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Internet:</span><span className="font-semibold">{(country.internetPenetration * 100).toFixed(0)}%</span></div>
+
+          <BookOpen className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Education:</span><span className="font-semibold">{(country.educationLevel * 100).toFixed(0)}%</span></div>
+          
+          <Briefcase className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Economy:</span><span className="font-semibold">{(country.economicDevelopment * 100).toFixed(0)}%</span></div>
+          
+          <Eye className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Openness:</span><span className="font-semibold">{(country.culturalOpenness * 100).toFixed(0)}%</span></div>
+          
+          <Newspaper className="w-4 h-4 text-muted-foreground" />
+          <div className="flex justify-between"><span>Media Free:</span><span className="font-semibold">{(country.mediaFreedom * 100).toFixed(0)}%</span></div>
         </div>
+
         {country.rivalPresences.length > 0 && !country.subRegions?.length && country.rivalPresences.some(rp => rp.influenceLevel >= MIN_RIVAL_INFLUENCE_TO_DISPLAY_IN_TOOLTIP) && (
-          <div className="mt-2 pt-1.5 border-t border-border/50">
-            <p className="text-xs font-medium text-muted-foreground mb-1">Rival Influences:</p>
+          <div className="mt-2.5 pt-2 border-t border-border/50">
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Rival Influences:</p>
             {country.rivalPresences.map(rp => {
               const rival = getRivalById(rp.rivalId);
               if (!rival || rp.influenceLevel < MIN_RIVAL_INFLUENCE_TO_DISPLAY_IN_TOOLTIP) return null;
               return (
-                <div key={rp.rivalId} className="flex justify-between text-xs">
-                  <span style={{color: rival.color}}>{rival.name}:</span>
+                <div key={rp.rivalId} className="flex justify-between text-xs items-center mb-0.5">
+                   <div className="flex items-center">
+                    <rival.icon className="w-3.5 h-3.5 mr-1.5" style={{color: rival.color}} />
+                    <span style={{color: rival.color}}>{rival.name}:</span>
+                  </div>
                   <span style={{color: rival.color}} className="font-semibold">{(rp.influenceLevel * 100).toFixed(0)}%</span>
                 </div>
               );
@@ -228,11 +268,9 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
       </CardHeader>
       <CardContent className={cn(
         "flex-grow relative overflow-hidden p-4 transition-opacity duration-300",
-        // When zoomed, the main container for countries is made less prominent
         zoomedCountry ? "opacity-30" : "opacity-100" 
       )}>
         <TooltipProvider delayDuration={150}>
-          {/* Render countries only if not zoomed into a specific country */}
           {!zoomedCountry && countries.map((country) => {
             if (!countryPositions[country.id]) return null;
             const styling = getRegionStyling(country.adoptionLevel, selectedCountryId === country.id, country.rivalPresences);
@@ -244,7 +282,7 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
                     className={cn(
                       `absolute p-0 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 transition-all duration-300 hover:scale-105`,
                       styling.bgClass, styling.borderClass, styling.textClass, styling.shadowClass,
-                      'rounded-xl w-32 h-20 flex flex-col justify-center items-center text-center' // Added text-center
+                      'rounded-xl w-32 h-20 flex flex-col justify-center items-center text-center'
                     )}
                     style={{ top: countryPositions[country.id].top, left: countryPositions[country.id].left }}
                     onClick={() => handleCountryClick(country)}
@@ -276,26 +314,24 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
         )}
       </CardContent>
 
-      {/* This container is for displaying sub-regions when a country is zoomed */}
       {zoomedCountry && (
         <div className="absolute inset-0 p-4 pt-[calc(theme(spacing.14)_+_1rem)] bg-background/50 backdrop-blur-md overflow-hidden flex justify-center items-center z-20">
-          {/* Adjusted pt to account for header height */}
-          <div className="relative w-full h-full max-w-3xl max-h-2xl"> {/* Consider max-w/h for better layout control */}
+          <div className="relative w-full h-full max-w-3xl max-h-2xl">
             <TooltipProvider delayDuration={150}>
               {zoomedCountry.subRegions?.map((subRegion, index) => {
                 const layoutConfig = SUB_REGION_LAYOUT_CONFIG[zoomedCountry.id];
-                let positionStyle = { top: '50%', left: '50%' }; // Default fallback
+                let positionStyle = { top: '50%', left: '50%' }; 
                 if (layoutConfig && layoutConfig.offsets[index]) {
-                  const scaleFactor = 1.8; // Adjust scale for zoomed view spread
+                  const scaleFactor = 2.0; // Increased scale factor for more spread
                   positionStyle = {
                     top: `${50 + parseFloat(layoutConfig.offsets[index].top) * scaleFactor}%`,
                     left: `${50 + parseFloat(layoutConfig.offsets[index].left) * scaleFactor}%`,
                   };
                 } else {
-                  // Fallback circular layout if specific config is missing
                   const angle = (index / (zoomedCountry.subRegions?.length || 1)) * 2 * Math.PI;
-                  const radiusBase = zoomedCountry.subRegions && zoomedCountry.subRegions.length > 4 ? 30 : 25; // Slightly larger radius for more items
-                  const radiusVariation = (index % 3) * 4; // Stagger radius a bit
+                  const numSubRegions = zoomedCountry.subRegions?.length || 1;
+                  const radiusBase = numSubRegions > 6 ? 35 : numSubRegions > 4 ? 30 : 25; // Adjust radius based on number of items
+                  const radiusVariation = (index % 3) * (numSubRegions > 4 ? 3 : 5); // Stagger radius a bit more
                   const radius = radiusBase + radiusVariation;
                   positionStyle = {
                     top: `${50 + radius * Math.sin(angle)}%`,
@@ -312,8 +348,7 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
                         className={cn(
                           `absolute p-0 h-auto transform -translate-x-1/2 -translate-y-1/2 border-2 shadow-lg transition-all duration-300 hover:scale-110`,
                           styling.bgClass, styling.borderClass, styling.textClass, styling.shadowClass,
-                          // Slightly different styling for sub-regions if needed
-                          'rounded-lg w-28 h-[70px] flex flex-col justify-center items-center text-center border-accent/70' // Added text-center
+                          'rounded-lg w-28 h-[70px] flex flex-col justify-center items-center text-center border-accent/70'
                         )}
                         style={positionStyle}
                         aria-label={`View ${subRegion.name}`}
@@ -324,7 +359,7 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="top" align="center" className="bg-popover text-popover-foreground">
-                      {renderSubRegionTooltipContent(subRegion)}
+                      {renderSubRegionTooltipContent(subRegion, zoomedCountry.name)}
                     </TooltipContent>
                   </Tooltip>
                 );
