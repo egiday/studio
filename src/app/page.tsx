@@ -11,7 +11,7 @@ import { AnalyticsDashboard } from '@/components/game/AnalyticsDashboard';
 import { GlobalEventsDisplay } from '@/components/game/GlobalEventsDisplay';
 import { InteractiveEventModal } from '@/components/game/InteractiveEventModal';
 import { DiplomacyPanel } from '@/components/game/DiplomacyPanel';
-import { CULTURAL_MOVEMENTS, EVOLUTION_ITEMS, INITIAL_COUNTRIES, POTENTIAL_GLOBAL_EVENTS, RIVAL_MOVEMENTS } from '@/config/gameData';
+import { CULTURAL_MOVEMENTS, EVOLUTION_ITEMS, INITIAL_COUNTRIES, POTENTIAL_GLOBAL_EVENTS, RIVAL_MOVEMENTS, EVOLUTION_CATEGORIES } from '@/config/gameData';
 import { DIPLOMACY_STANCE_CHANGE_COST, STARTING_INFLUENCE_POINTS } from '@/config/gameConstants';
 import type { Country, CulturalMovement } from '@/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
