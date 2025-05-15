@@ -4,7 +4,7 @@ export const BASE_IP_PER_TURN = 1;
 export const ADOPTION_IP_MULTIPLIER = 5;
 export const RIVAL_SPREAD_PENALTY_ON_PLAYER = 0.15; // Player spread reduced by this factor due to rival presence
 export const PLAYER_SPREAD_PENALTY_ON_RIVAL = 0.15; // Rival spread reduced by this factor due to player presence
-export const RIVAL_COUNTER_RESISTANCE_CHANCE = 0.40; // Chance for Cautious Consolidator to increase player resistance
+export const RIVAL_COUNTER_RESISTANCE_CHANCE = 0.45; // Chance for Cautious Consolidator/Isolationist Defender to increase player resistance
 export const RIVAL_COUNTER_RESISTANCE_AMOUNT = 0.03; // Amount player resistance increases by
 export const DIPLOMACY_STANCE_CHANGE_COST = 25;
 export const EVOLVED_IP_BOOST_PER_ITEM = 0.5; // IP boost per evolved item
@@ -37,3 +37,4 @@ export const RIVAL_CAUTIOUS_INITIAL_SPREAD_NEW_COUNTRY_AMOUNT = 0.005;
 
 // This type import is needed if ResistanceArchetype is used in this file, as it is for RESISTANCE_ARCHETYPES_LIST
 import type { ResistanceArchetype } from '@/types';
+

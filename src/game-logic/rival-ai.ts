@@ -10,13 +10,12 @@ interface ProcessRivalTurnsParams {
   rivalMovementsState: RivalMovement[];
   countriesState: Country[];
   currentMovementName: string;
-  initialRivalMovementsData: typeof AllRivalMovementsType; // For static rival data like names if needed for logging
+  initialRivalMovementsData: typeof AllRivalMovementsType; 
   addRecentEventEntry: (entry: string) => void;
 }
 
 interface ProcessRivalTurnsResult {
   updatedCountries: Country[];
-  // recentEventsSummaryUpdate: string; // The main hook will now manage the summary directly
 }
 
 function applyRivalSpreadToRegion(
@@ -43,7 +42,7 @@ function applyRivalSpreadToRegion(
 
   switch (rival.personality) {
     case 'AggressiveExpansionist':
-      baseGain = (0.022 + Math.random() * 0.038) * rival.aggressiveness;
+      baseGain = (0.025 + Math.random() * 0.04) * rival.aggressiveness;
       opennessFactor = (1 - regionCulturalOpenness * 0.35);
       playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.5));
       break;
@@ -56,8 +55,8 @@ function applyRivalSpreadToRegion(
       break;
     case 'OpportunisticInfiltrator': {
       const totalOtherInfluence = regionPlayerAdoption + modRegion.rivalPresences.filter(rp => rp.rivalId !== rival.id).reduce((s, rp) => s + rp.influenceLevel, 0);
-      if (totalOtherInfluence > 0.2 && totalOtherInfluence < 0.8) {
-        baseGain = (0.015 + Math.random() * 0.025) * rival.aggressiveness;
+      if (totalOtherInfluence > 0.2 && totalOtherInfluence < 0.8) { // Target contested regions
+        baseGain = (0.018 + Math.random() * 0.028) * rival.aggressiveness;
         opennessFactor = (1 - regionCulturalOpenness * 0.25);
         playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.2));
       }
@@ -66,14 +65,14 @@ function applyRivalSpreadToRegion(
     case 'IsolationistDefender': {
       const isHomeCountry = parentCountry.id === rival.startingCountryId;
       if (isHomeCountry) {
-        baseGain = (0.03 + Math.random() * 0.03) * rival.aggressiveness;
+        baseGain = (0.035 + Math.random() * 0.035) * rival.aggressiveness;
         opennessFactor = (1 - regionCulturalOpenness * 0.1);
         playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.1));
       }
       break;
     }
     case 'ZealousPurifier':
-      baseGain = (0.028 + Math.random() * 0.04) * rival.aggressiveness;
+      baseGain = (0.03 + Math.random() * 0.042) * rival.aggressiveness; // Strong base gain
       opennessFactor = (1 - regionCulturalOpenness * 0.3);
       playerPresencePenaltyFactor = (1 - (regionPlayerAdoption * GameConstants.PLAYER_SPREAD_PENALTY_ON_RIVAL * 0.2));
       break;
@@ -103,14 +102,14 @@ function applyRivalSpreadToRegion(
       }
 
       modRegion.rivalPresences = modRegion.rivalPresences.map(rp => {
-        if (rp.rivalId === rival.id) return rp;
-        if (otherRivalsTotalInfluence > 0) {
+        if (rp.rivalId === rival.id) return rp; // Don't reduce self
+        if (otherRivalsTotalInfluence > 0) { // Ensure there are other rivals to take from
           const otherRivalProportion = totalInfluenceToTakeFrom > 0 ? rp.influenceLevel / totalInfluenceToTakeFrom : 0;
           const reductionFromOtherRival = otherRivalProportion * influenceTakenThisTurn;
           return { ...rp, influenceLevel: Math.max(0, rp.influenceLevel - reductionFromOtherRival) };
         }
         return rp;
-      }).filter(rp => rp.influenceLevel > 0.001 || rp.rivalId === rival.id);
+      }).filter(rp => rp.influenceLevel > 0.001 || rp.rivalId === rival.id); // Keep self even if influence is low temporarily
     }
     currentRivalInfluence = Math.min(1, currentRivalInfluence + actualRivalGainThisTurn);
   }
@@ -122,12 +121,13 @@ function applyRivalSpreadToRegion(
     modRegion.rivalPresences.push({ rivalId: rival.id, influenceLevel: currentRivalInfluence });
   }
   modRegion.rivalPresences = modRegion.rivalPresences.filter(rp => rp.influenceLevel > 0.001);
-  modRegion.adoptionLevel = Math.max(0, modRegion.adoptionLevel); // Ensure player adoption is not negative
+  modRegion.adoptionLevel = Math.max(0, modRegion.adoptionLevel); 
 
   if (actualRivalGainThisTurn > 0.001) {
-    if ((!rivalDataForRegion || rivalDataForRegion.influenceLevel === 0) && currentRivalInfluence > 0) {
+    const prevInfluence = rivalDataForRegion ? rivalDataForRegion.influenceLevel : 0;
+    if (prevInfluence === 0 && currentRivalInfluence > 0) {
       addRecentEventEntry(` ${rival.name} establishes a presence in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`);
-    } else if (rivalDataForRegion && currentRivalInfluence > rivalDataForRegion.influenceLevel && currentRivalInfluence > 0.05 && rivalDataForRegion.influenceLevel <= 0.05) {
+    } else if (currentRivalInfluence > prevInfluence && currentRivalInfluence > 0.05 && prevInfluence <= 0.05) {
       addRecentEventEntry(` ${rival.name} strengthens its influence in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`);
     }
   }
@@ -139,29 +139,14 @@ function applyRivalSpreadToRegion(
     if (modRegion.resistanceLevel > prevResistance + 0.001) {
       addRecentEventEntry(` ${rival.name} stirs dissent against ${currentMovementName} in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`);
     }
-  } else if (rival.personality === 'ZealousPurifier' && currentRivalInfluence > 0.3) {
-    if (modRegion.adoptionLevel > 0.01 && Math.random() < 0.3 * rival.aggressiveness) {
-      const reduction = Math.min(modRegion.adoptionLevel, 0.02 + Math.random() * 0.03);
-      modRegion.adoptionLevel = Math.max(0, modRegion.adoptionLevel - reduction);
-      addRecentEventEntry(` ${rival.name} actively suppresses ${currentMovementName} in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}, reducing its influence.`);
-    }
-    modRegion.rivalPresences.forEach(otherRivalPresence => {
-      if (otherRivalPresence.rivalId !== rival.id && otherRivalPresence.influenceLevel > 0.01 && Math.random() < 0.2 * rival.aggressiveness) {
-        const reduction = Math.min(otherRivalPresence.influenceLevel, 0.02 + Math.random() * 0.02);
-        otherRivalPresence.influenceLevel = Math.max(0, otherRivalPresence.influenceLevel - reduction);
-        // Assuming initialRivalMovementsData is accessible for names or passed if needed for logging
-        // For now, skipping precise name logging for suppressed other rivals to avoid passing more config down
-        addRecentEventEntry(` ${rival.name} purges other influences in ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''}.`);
-      }
-    });
-    modRegion.rivalPresences = modRegion.rivalPresences.filter(rp => rp.influenceLevel > 0.001);
-  } else if (rival.personality === 'IsolationistDefender' && parentCountry.id === rival.startingCountryId && modRegion.adoptionLevel > 0.05 && Math.random() < (0.4 * rival.aggressiveness)) {
+  } else if (rival.personality === 'IsolationistDefender' && parentCountry.id === rival.startingCountryId && modRegion.adoptionLevel > 0.05 && Math.random() < (GameConstants.RIVAL_COUNTER_RESISTANCE_CHANCE * rival.aggressiveness * 1.2)) { // Higher chance for defender in home turf
     const prevResistance = modRegion.resistanceLevel;
-    modRegion.resistanceLevel = Math.min(0.98, modRegion.resistanceLevel + (GameConstants.RIVAL_COUNTER_RESISTANCE_AMOUNT * 1.5));
+    modRegion.resistanceLevel = Math.min(0.98, modRegion.resistanceLevel + (GameConstants.RIVAL_COUNTER_RESISTANCE_AMOUNT * 2.0));
     if (modRegion.resistanceLevel > prevResistance + 0.001) {
       addRecentEventEntry(` ${rival.name} fiercely defends ${modRegion.name}${isSubRegion ? ` in ${parentCountry.name}` : ''} against ${currentMovementName}.`);
     }
   }
+  // Removed direct purge for ZealousPurifier here; their higher baseGain now drives their dominance via zero-sum.
   modRegion.adoptionLevel = Math.max(0, modRegion.adoptionLevel);
   return modRegion;
 }
@@ -171,7 +156,7 @@ export function processRivalTurns({
   rivalMovementsState,
   countriesState,
   currentMovementName,
-  initialRivalMovementsData, // Used for logging other rival names if needed
+  initialRivalMovementsData, 
   addRecentEventEntry,
 }: ProcessRivalTurnsParams): ProcessRivalTurnsResult {
   let countriesAfterRivalTurns: Country[] = deepClone(countriesState);
@@ -201,8 +186,8 @@ export function processRivalTurns({
         );
         if (hasStrongPresenceSomewhere) {
           attemptNewCountrySpread = true;
-          newCountrySpreadChance = GameConstants.RIVAL_AGGRESSIVE_SPREAD_NEW_COUNTRY_CHANCE + spreadAggressivenessFactor * 0.02;
-          newCountryInitialInfluence = GameConstants.RIVAL_AGGRESSIVE_INITIAL_SPREAD_NEW_COUNTRY_AMOUNT + Math.random() * 0.01;
+          newCountrySpreadChance = GameConstants.RIVAL_AGGRESSIVE_SPREAD_NEW_COUNTRY_CHANCE + spreadAggressivenessFactor * 0.025;
+          newCountryInitialInfluence = GameConstants.RIVAL_AGGRESSIVE_INITIAL_SPREAD_NEW_COUNTRY_AMOUNT + Math.random() * 0.012;
         }
         break;
       }
@@ -232,20 +217,21 @@ export function processRivalTurns({
       }
       case 'OpportunisticInfiltrator':
         attemptNewCountrySpread = true;
-        newCountrySpreadChance = 0.01 + spreadAggressivenessFactor * 0.015;
-        newCountryInitialInfluence = 0.008 + Math.random() * 0.007;
+        newCountrySpreadChance = 0.012 + spreadAggressivenessFactor * 0.018;
+        newCountryInitialInfluence = 0.009 + Math.random() * 0.008;
+        break;
+      case 'IsolationistDefender':
+        // Very low chance, only if extremely dominant at home (not explicitly checked here, but implied by their rare attempts)
+        if (Math.random() < (0.0005 * spreadAggressivenessFactor)) { 
+          attemptNewCountrySpread = true;
+          newCountrySpreadChance = 0.0005 * spreadAggressivenessFactor;
+          newCountryInitialInfluence = 0.001 + Math.random() * 0.002;
+        }
         break;
       case 'ZealousPurifier':
         attemptNewCountrySpread = true;
-        newCountrySpreadChance = 0.012 + spreadAggressivenessFactor * 0.018;
-        newCountryInitialInfluence = 0.01 + Math.random() * 0.01;
-        break;
-      case 'IsolationistDefender':
-        if (Math.random() < 0.001 * spreadAggressivenessFactor) {
-          attemptNewCountrySpread = true;
-          newCountrySpreadChance = 0.001 * spreadAggressivenessFactor;
-          newCountryInitialInfluence = 0.001 + Math.random() * 0.002;
-        }
+        newCountrySpreadChance = 0.01 + spreadAggressivenessFactor * 0.015; // Reduced global spread
+        newCountryInitialInfluence = 0.008 + Math.random() * 0.008; // Reduced initial influence in new countries
         break;
     }
 
@@ -257,7 +243,7 @@ export function processRivalTurns({
         } else {
           rivalPresenceInTargetCountry = uc.rivalPresences.find(rp => rp.rivalId === rival.id)?.influenceLevel || 0;
         }
-        return rivalPresenceInTargetCountry < 0.001;
+        return rivalPresenceInTargetCountry < 0.001; // Target countries where they have virtually no presence
       });
 
       if (uninfluencedOrWeaklyInfluencedCountries.length > 0) {
@@ -280,9 +266,11 @@ export function processRivalTurns({
 
           const totalSpaceOccupiedByOthersAndPlayer = playerAdoptionInTarget + otherRivalsTotalInTarget + currentRivalInfluenceInTarget;
           const emptySpace = Math.max(0, 1.0 - totalSpaceOccupiedByOthersAndPlayer);
-          actualInitialGainForNewCountry = Math.min(newCountryInitialInfluence, emptySpace);
+          
+          let gainFromEmptySpace = Math.min(newCountryInitialInfluence, emptySpace);
+          actualInitialGainForNewCountry += gainFromEmptySpace;
 
-          let remainingGain = newCountryInitialInfluence - actualInitialGainForNewCountry;
+          let remainingGain = newCountryInitialInfluence - gainFromEmptySpace;
           const totalInfluenceToTakeFrom = playerAdoptionInTarget + otherRivalsTotalInTarget;
 
           if (remainingGain > 0 && totalInfluenceToTakeFrom > 0) {
@@ -314,12 +302,15 @@ export function processRivalTurns({
 
           if (actualInitialGainForNewCountry > 0.001) {
             if (isTargetSubRegion && targetCountryToModify.subRegions) {
-              targetCountryToModify.subRegions = targetCountryToModify.subRegions.map(sr => sr.id === (targetSpreadRegion as SubRegion).id ? targetSpreadRegion as SubRegion : sr);
+              const subRegionIndex = targetCountryToModify.subRegions.findIndex(sr => sr.id === (targetSpreadRegion as SubRegion).id);
+              if (subRegionIndex !== -1) {
+                targetCountryToModify.subRegions[subRegionIndex] = targetSpreadRegion as SubRegion;
+              }
             } else {
               targetCountryToModify = targetSpreadRegion as Country;
             }
             countriesAfterRivalTurns = countriesAfterRivalTurns.map(c => c.id === targetCountryToModify!.id ? targetCountryToModify! : c);
-            addRecentEventEntry(` ${rival.name} expands its influence into ${targetSpreadRegion.name}${isTargetSubRegion ? ` in ${targetCountryToModify.name}` : ''}.`);
+            addRecentEventEntry(` ${rival.name} makes a push into ${targetSpreadRegion.name}${isTargetSubRegion ? ` within the ${targetCountryToModify.name}` : ''}.`);
           }
         }
       }
@@ -328,6 +319,6 @@ export function processRivalTurns({
 
   return {
     updatedCountries: countriesAfterRivalTurns,
-    // recentEventsSummaryUpdate: tempRecentEventsSummary, // Managed by addRecentEventEntry directly
   };
 }
+
