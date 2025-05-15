@@ -55,20 +55,18 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
   ): { bgClass: string; borderClass: string; textClass: string; shadowClass: string } => {
     let bgClass = 'bg-muted/50 hover:bg-muted/60';
     let borderClass = 'border-border/50';
-    let textClass = 'text-foreground'; // Default text color
+    let textClass = 'text-foreground';
     let shadowClass = 'shadow-md';
 
     const strongestRivalInRegion = getStrongestRivalInRegion(rivalPresences);
     const rivalDetails = strongestRivalInRegion ? getRivalById(strongestRivalInRegion.rivalId) : null;
 
     if (rivalDetails && strongestRivalInRegion && strongestRivalInRegion.influenceLevel > adoptionLevel && strongestRivalInRegion.influenceLevel > RIVAL_DOMINANCE_THRESHOLD) {
-      // Rival is dominant
       bgClass = `bg-[${rivalDetails.color}]/60 hover:bg-[${rivalDetails.color}]/70`;
       borderClass = `border-[${rivalDetails.color}]/80`;
-      textClass = 'text-white'; // Assuming rival colors are dark enough for white text
+      textClass = 'text-white';
       shadowClass = `shadow-lg shadow-[${rivalDetails.color}]/50`;
     } else {
-      // Player or neutral dominance
       if (adoptionLevel > 0.8) { bgClass = 'bg-primary/90 hover:bg-primary'; borderClass = 'border-primary/70'; textClass = 'text-primary-foreground'; shadowClass = `shadow-xl shadow-primary/50`; }
       else if (adoptionLevel > 0.6) { bgClass = 'bg-primary/70 hover:bg-primary/80'; borderClass = 'border-primary/60'; textClass = 'text-primary-foreground'; shadowClass = `shadow-lg shadow-primary/40`; }
       else if (adoptionLevel > 0.4) { bgClass = 'bg-primary/50 hover:bg-primary/60'; borderClass = 'border-primary/50'; textClass = 'text-primary-foreground'; shadowClass = `shadow-md shadow-primary/30`; }
@@ -126,7 +124,6 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
 
   const formatResistanceArchetype = (archetype?: ResistanceArchetype | null): string => {
     if (!archetype) return 'Standard';
-    // Add spaces before capital letters, then trim
     return archetype.replace(/([A-Z])/g, ' $1').trim();
   };
 
@@ -255,7 +252,7 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
 
   return (
     <Card className="h-full shadow-xl flex flex-col border-2 border-card overflow-hidden bg-muted/30">
-      <CardHeader className="flex flex-row justify-between items-center z-10 bg-background/80 backdrop-blur-sm py-3 px-4">
+      <CardHeader className="flex flex-row justify-between items-center z-30 bg-background/80 backdrop-blur-sm py-3 px-4">
         <CardTitle className="flex items-center text-lg">
           <Globe className="mr-2 h-5 w-5 text-primary" />
           {zoomedCountry ? `${zoomedCountry.name} - Territories` : 'Celestial Sphere of Influence'}
@@ -268,10 +265,12 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
       </CardHeader>
       <CardContent className={cn(
         "flex-grow relative overflow-hidden p-4 transition-opacity duration-300",
-        zoomedCountry ? "opacity-30" : "opacity-100" 
+        // When zoomed, the main countries are still rendered but made invisible and non-interactive
+        // This helps maintain layout and state if needed, while the overlay provides the zoomed view.
+        zoomedCountry ? "opacity-30 pointer-events-none" : "opacity-100" 
       )}>
         <TooltipProvider delayDuration={150}>
-          {!zoomedCountry && countries.map((country) => {
+          {countries.map((country) => {
             if (!countryPositions[country.id]) return null;
             const styling = getRegionStyling(country.adoptionLevel, selectedCountryId === country.id, country.rivalPresences);
             return (
@@ -322,7 +321,7 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
                 const layoutConfig = SUB_REGION_LAYOUT_CONFIG[zoomedCountry.id];
                 let positionStyle = { top: '50%', left: '50%' }; 
                 if (layoutConfig && layoutConfig.offsets[index]) {
-                  const scaleFactor = 2.0; // Increased scale factor for more spread
+                  const scaleFactor = 2.0; 
                   positionStyle = {
                     top: `${50 + parseFloat(layoutConfig.offsets[index].top) * scaleFactor}%`,
                     left: `${50 + parseFloat(layoutConfig.offsets[index].left) * scaleFactor}%`,
@@ -330,8 +329,8 @@ export function WorldMap({ countries, rivalMovements, onCountrySelect, onCollect
                 } else {
                   const angle = (index / (zoomedCountry.subRegions?.length || 1)) * 2 * Math.PI;
                   const numSubRegions = zoomedCountry.subRegions?.length || 1;
-                  const radiusBase = numSubRegions > 6 ? 35 : numSubRegions > 4 ? 30 : 25; // Adjust radius based on number of items
-                  const radiusVariation = (index % 3) * (numSubRegions > 4 ? 3 : 5); // Stagger radius a bit more
+                  const radiusBase = numSubRegions > 6 ? 35 : numSubRegions > 4 ? 30 : 25; 
+                  const radiusVariation = (index % 3) * (numSubRegions > 4 ? 3 : 5); 
                   const radius = radiusBase + radiusVariation;
                   positionStyle = {
                     top: `${50 + radius * Math.sin(angle)}%`,
