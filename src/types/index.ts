@@ -29,8 +29,10 @@ export interface EvolutionItem {
 
 export type AIPersonalityType =
   | 'AggressiveExpansionist'
-  | 'CautiousConsolidator';
-  // Future: | 'OpportunisticInfiltrator';
+  | 'CautiousConsolidator'
+  | 'OpportunisticInfiltrator'
+  | 'IsolationistDefender'
+  | 'ZealousPurifier';
 
 export type DiplomaticStance = 'Neutral' | 'Hostile' | 'Allied';
 
@@ -42,7 +44,6 @@ export interface RivalMovement {
   startingCountryId: string;
   aggressiveness: number; // 0-1, general likelihood to act
   personality: AIPersonalityType; // Defines strategic tendencies
-  focus: 'spread' | 'resistance'; // This is illustrative, personality drives more now
   playerStance: DiplomaticStance;
 }
 
@@ -67,7 +68,7 @@ export interface SubRegion {
   internetPenetration?: number; // 0-1
   educationLevel?: number; // 0-1
   mediaFreedom?: number; // 0-1
-  rivalPresences: RivalPresence[]; // Changed from rivalPresence: RivalPresence | null
+  rivalPresences: RivalPresence[];
 }
 
 export interface Country {
@@ -82,7 +83,7 @@ export interface Country {
   resistanceLevel: number; // 0-1, dynamic (overall for country, derived from subregions if they exist) Towards player's culture
   resistanceArchetype?: ResistanceArchetype | null;
   subRegions?: SubRegion[];
-  rivalPresences: RivalPresence[]; // Changed from rivalPresence: RivalPresence | null
+  rivalPresences: RivalPresence[];
 }
 
 export interface NewsHeadline {
@@ -99,11 +100,12 @@ export type GlobalEventEffectProperty =
   | 'adoptionRateModifier' // This would likely be a multiplier for player's culture
   | 'ipBonus'; // Direct IP gain for player
 
-export type GlobalEventTargetType = 'global' | 'country'; // Sub-region targeting could be added later
+export type GlobalEventTargetType = 'global' | 'country' | 'subregion';
 
 export interface GlobalEventEffect {
   targetType: GlobalEventTargetType;
-  countryId?: string; // Required if targetType is 'country'
+  countryId?: string; // Required if targetType is 'country' or 'subregion'
+  subRegionId?: string; // Required if targetType is 'subregion'
   property: GlobalEventEffectProperty;
   value: number; // The amount of change or the multiplier
   isMultiplier?: boolean; // If true, value is a multiplier (e.g., 1.1 for +10%), else additive
