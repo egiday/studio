@@ -164,6 +164,9 @@ export function processRivalTurns({
 
   updatedRivalMovements = updatedRivalMovements.map(rival => {
     let currentRival = deepClone(rival);
+    // Convert evolvedItemIds back to a Set after deep cloning
+    currentRival.evolvedItemIds = new Set(currentRival.evolvedItemIds);
+
 
     // 1. IP Generation for the rival
     const rivalGlobalInfluence = calculateRivalGlobalInfluence(currentRival.id, countriesAfterRivalTurns);
@@ -356,3 +359,5 @@ export function processRivalTurns({
     updatedRivalMovements: updatedRivalMovements,
   };
 }
+
+    
