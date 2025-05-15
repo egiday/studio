@@ -7,6 +7,7 @@ export const PLAYER_SPREAD_PENALTY_ON_RIVAL = 0.15; // Rival spread reduced by t
 export const RIVAL_COUNTER_RESISTANCE_CHANCE = 0.40; // Chance for Cautious Consolidator to increase player resistance
 export const RIVAL_COUNTER_RESISTANCE_AMOUNT = 0.03; // Amount player resistance increases by
 export const DIPLOMACY_STANCE_CHANGE_COST = 25;
+export const EVOLVED_IP_BOOST_PER_ITEM = 0.5; // IP boost per evolved item
 
 // Win/Loss Condition Thresholds
 export const WIN_PLAYER_GLOBAL_ADOPTION = 0.70; // Player needs 70% global adoption
@@ -33,3 +34,6 @@ export const RIVAL_CAUTIOUS_INITIAL_SPREAD_NEW_COUNTRY_AMOUNT = 0.005;
 
 // Evolution Items (example, specific effects are in gameData.ts)
 // export const EVOLVED_IP_BOOST_PER_ITEM = 0.5; // This is currently used directly in useGameLogic
+
+// This type import is needed if ResistanceArchetype is used in this file, as it is for RESISTANCE_ARCHETYPES_LIST
+import type { ResistanceArchetype } from '@/types';
